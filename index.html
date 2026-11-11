@@ -653,9 +653,19 @@ $('#go').onclick=act;$('#jp').onpointerdown=e=>{e.preventDefault();jump()};
 addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(k==='escape')closeP();if(cur)return;K[k]=1;if(k==='e')act();if(k===' '&&play){e.preventDefault();jump()}});
 addEventListener('keyup',e=>K[e.key.toLowerCase()]=0);
 
-const CHARS=[['Naufal',0x6b4030,0x2f5d8a,0xf2c9a0],['Rani',0x1d1410,0xb03a48,0xd9a577],['Sari',0xc58b3a,0x3b7d5a,0xe8b98f]];
-$('#ch').innerHTML=CHARS.map((c,i)=>`<button data-i="${i}" class="${i?'':'on'}"><i style="background:#${c[2].toString(16).padStart(6,'0')}"></i>${c[0]}<small>${['Blazer biru','Blazer merah','Blazer hijau'][i]}</small></button>`).join('');
-$('#ch').onclick=e=>{sfx('click');const b=e.target.closest('button');if(!b)return;ci=+b.dataset.i;[...$('#ch').children].forEach((x,j)=>x.classList.toggle('on',j==ci));skin();$('#sn').textContent=CHARS[ci][0]};
+const CHARS=[
+  ['Naufal',0x2b1b12,0x2f5d8a,0xf2c9a0,'Siswa (Putra) · Blazer Biru','👋 Halo! Aku <b id="sn">Naufal</b>. Halaman sekolah kini dibuat <b>sangat luas & tertata rapi</b>! Masuklah melewati gerbang dan jelajahi seluruh kampus bersama.'],
+  ['Rani',0x1a1210,0xb03a48,0xfbe2cb,'Siswi (Putri) · Blazer Merah & Rok','🌸 Halo! Aku <b id="sn">Rani</b>. Halaman sekolah kini <b>sangat luas, asri, dan cantik</b>! Yuk ikuti aku masuk melewati gerbang utama dan keliling kampus.'],
+  ['Sari',0xffffff,0x247a50,0xf8d7c0,'Siswi (Hijab) · Blazer Hijau & Kerudung','🌿 Assalamu\'alaikum! Aku <b id="sn">Sari</b>. Selamat datang di <b>SMA Cahaya Nusantara</b>! Mari masuk lewat gerbang utama untuk melihat seluruh fasilitas sekolah.']
+];
+$('#ch').innerHTML=CHARS.map((c,i)=>`<button data-i="${i}" class="${i?'':'on'}"><i style="background:#${c[2].toString(16).padStart(6,'0')}"></i>${c[0]}<small>${c[4]}</small></button>`).join('');
+$('#ch').onclick=e=>{
+  sfx('click');const b=e.target.closest('button');if(!b)return;
+  ci=+b.dataset.i;
+  [...$('#ch').children].forEach((x,j)=>x.classList.toggle('on',j==ci));
+  skin();
+  const sb=$('#sb');if(sb)sb.innerHTML=CHARS[ci][5];
+};
 
 // ===== 3D ENGINE (HALAMAN TERTATA RAPI & BEBAS Z-FIGHTING) =====
 let ok=typeof THREE!=='undefined',R;
@@ -848,23 +858,110 @@ flagMesh.position.set(.95,5.6,-17);sc.add(flagMesh);
 // Bintang Fakta Rahasia Kampus
 CRY.forEach((c,i)=>{const m=add(new THREE.OctahedronGeometry(.5),new THREE.MeshBasicMaterial({color:0xffd23f}),c[0],1.4,c[1]);m.visible=!S.f[i];crys.push(m)});
 
-// Karakter Utama
+// Karakter Utama & Bahan/Material
 pl=new THREE.Group();sc.add(pl);
-PM={h:M(0),j:M(0),k:M(0),pa:M(0xb89a72),sh:M(0xf8f8f8),rd:M(0xd62d2d)};pl.scale.setScalar(.9);
+PM={
+  h:M(0),j:M(0),k:M(0),pa:M(0x5a6575),sh:M(0xf8f8f8),rd:M(0xd62d2d),
+  skirt:M(0x5a6575),white:M(0xffffff),gold:M(0xffd700),ribbon:M(0xb03a48),
+  blush:M(0xfb7185)
+};
+pl.scale.setScalar(.9);
+
+// Torso Kemeja & Dasi
 const torso=add(new THREE.CylinderGeometry(.43,.38,.78,16),PM.j,0,1.09,0,pl);torso.scale.z=.8;
-add(new THREE.BoxGeometry(.3,.5,.06),PM.sh,0,1.2,.33,pl);add(new THREE.BoxGeometry(.09,.42,.05),PM.rd,0,1.14,.37,pl);add(new THREE.BoxGeometry(.4,.09,.1),PM.sh,0,1.5,.3,pl);
-add(new THREE.BoxGeometry(.62,.72,.26),PM.rd,0,1.15,-.45,pl);[-.2,.2].forEach(x=>add(new THREE.BoxGeometry(.08,.6,.05),PM.rd,x,1.2,.33,pl));
+add(new THREE.BoxGeometry(.3,.5,.06),PM.sh,0,1.2,.33,pl);
+add(new THREE.BoxGeometry(.09,.42,.05),PM.rd,0,1.14,.37,pl);
+add(new THREE.BoxGeometry(.4,.09,.1),PM.sh,0,1.5,.3,pl);
+
+// Tas Ransel Sekolah
+add(new THREE.BoxGeometry(.62,.72,.26),PM.rd,0,1.15,-.45,pl);
+[-.2,.2].forEach(x=>add(new THREE.BoxGeometry(.08,.6,.05),PM.rd,x,1.2,.33,pl));
+
+// Kepala & Wajah
 const head=new THREE.Group();head.position.y=1.95;pl.add(head);
 add(new THREE.SphereGeometry(.5,24,18),PM.k,0,0,0,head);
-add(new THREE.SphereGeometry(.53,20,10,0,6.283,0,1.2),PM.h,0,.02,0,head);add(new THREE.SphereGeometry(.48,16,12),PM.h,0,.03,-.12,head);
-for(let i=0;i<7;i++){const a=i/7*6.283,c=add(new THREE.ConeGeometry(.13,.4,6),PM.h,Math.sin(a)*.3,.5,Math.cos(a)*.25-.05,head);c.rotation.set(Math.cos(a)*.6,0,-Math.sin(a)*.6)}
-[-.22,0,.22].forEach(x=>add(new THREE.ConeGeometry(.1,.3,6),PM.h,x,.3,.4,head).rotation.x=1.3);
-[-1,1].forEach(s=>{add(new THREE.SphereGeometry(.13,12,10),M(0xffffff),s*.18,.04,.4,head);add(new THREE.SphereGeometry(.085,12,10),M(0x3b6e8f),s*.18,.04,.48,head);add(new THREE.SphereGeometry(.045,10,8),M(0x101820),s*.18,.04,.53,head);
-add(new THREE.SphereGeometry(.11,10,8),PM.k,s*.5,-.02,0,head).scale.x=.55;add(new THREE.SphereGeometry(.07,10,8),M(0xf29a8a),s*.3,-.1,.37,head).scale.z=.4});
-add(new THREE.SphereGeometry(.06,10,8),M(0xe8836f),0,-.1,.49,head);add(new THREE.TorusGeometry(.12,.022,6,14,Math.PI),M(0x8a2b2b),0,-.1,.47,head).rotation.z=Math.PI;
 
-[-.14,.14].forEach(x=>{const lg=new THREE.Group();lg.position.set(x,.73,0);pl.add(lg);add(new THREE.CylinderGeometry(.16,.15,.6,12),PM.pa,0,-.3,0,lg);add(new THREE.BoxGeometry(.3,.17,.46),PM.rd,0,-.65,.08,lg);add(new THREE.BoxGeometry(.32,.06,.48),M(0xffffff),0,-.72,.08,lg);lg.userData.leg=1;legs.push(lg)});
-const arms=[];[-1,1].forEach(s=>{const g=new THREE.Group();g.position.set(s*.5,1.38,0);pl.add(g);add(new THREE.CylinderGeometry(.115,.1,.66,12),PM.j,0,-.33,0,g);add(new THREE.SphereGeometry(.14,12,10),PM.j,0,0,0,g);add(new THREE.SphereGeometry(.12,12,10),PM.k,0,-.74,0,g);g.userData.arm=1;arms.push(g)});
+// Mata, Hidung, Telinga, & Pipi
+[-1,1].forEach(s=>{
+  add(new THREE.SphereGeometry(.13,12,10),M(0xffffff),s*.18,.04,.4,head);
+  add(new THREE.SphereGeometry(.085,12,10),M(0x3b6e8f),s*.18,.04,.48,head);
+  add(new THREE.SphereGeometry(.045,10,8),M(0x101820),s*.18,.04,.53,head);
+  add(new THREE.SphereGeometry(.11,10,8),PM.k,s*.5,-.02,0,head).scale.x=.55;
+  add(new THREE.SphereGeometry(.07,10,8),PM.blush,s*.3,-.1,.37,head).scale.z=.4;
+});
+add(new THREE.SphereGeometry(.06,10,8),M(0xe8836f),0,-.1,.49,head);
+add(new THREE.TorusGeometry(.12,.022,6,14,Math.PI),M(0x8a2b2b),0,-.1,.47,head).rotation.z=Math.PI;
+
+// 1. Fitur Spesifik Naufal (Laki-laki / Putra)
+const boyG=new THREE.Group();head.add(boyG);
+add(new THREE.SphereGeometry(.53,20,10,0,6.283,0,1.2),PM.h,0,.02,0,boyG);
+add(new THREE.SphereGeometry(.48,16,12),PM.h,0,.03,-.12,boyG);
+for(let i=0;i<7;i++){
+  const a=i/7*6.283,c=add(new THREE.ConeGeometry(.13,.4,6),PM.h,Math.sin(a)*.3,.5,Math.cos(a)*.25-.05,boyG);
+  c.rotation.set(Math.cos(a)*.6,0,-Math.sin(a)*.6);
+}
+[-.22,0,.22].forEach(x=>add(new THREE.ConeGeometry(.1,.3,6),PM.h,x,.3,.4,boyG).rotation.x=1.3);
+
+// 2. Fitur Spesifik Rani (Perempuan / Siswi Ponytail Cantik)
+const raniG=new THREE.Group();head.add(raniG);
+add(new THREE.SphereGeometry(.54,22,12,0,6.283,0,1.35),PM.h,0,.02,0,raniG);
+add(new THREE.CylinderGeometry(.48,.44,.6,16),PM.h,0,-.12,-.16,raniG);
+add(new THREE.TorusGeometry(.13,.035,8,16),PM.ribbon,0,.22,-.48,raniG);
+const rPony=add(new THREE.CylinderGeometry(.14,.05,.8,12),PM.h,0,-.15,-.64,raniG);
+rPony.rotation.x=-0.42;
+[-.11,.11].forEach(px=>{
+  const pit=add(new THREE.ConeGeometry(.08,.18,6),PM.ribbon,px,.22,-.48,raniG);
+  pit.rotation.z=px>0?1.2:-1.2;
+});
+[-1,1].forEach(s=>{
+  add(new THREE.CylinderGeometry(.035,.015,.48,8),PM.h,s*.42,-.12,.24,raniG);
+  const lash=add(new THREE.BoxGeometry(.09,.02,.03),M(0x111111),s*.18,.09,.44,raniG);
+  lash.rotation.z=s*0.15;
+});
+
+// Rok Lipit Rani (Pleated Skirt)
+const raniSkirt=add(new THREE.CylinderGeometry(.38,.58,.46,16),PM.skirt,0,.68,0,pl);
+raniSkirt.userData.isRani=1;
+for(let i=0;i<8;i++){
+  const ang=i/8*Math.PI*2;
+  const plt=add(new THREE.BoxGeometry(.04,.45,.08),M(0x424d5b),Math.sin(ang)*.46,.68,Math.cos(ang)*.46,pl);
+  plt.rotation.y=-ang;plt.userData.isRani=1;
+}
+
+// 3. Fitur Spesifik Sari (Perempuan / Siswi Hijab Anggun)
+const sariG=new THREE.Group();head.add(sariG);
+add(new THREE.SphereGeometry(.56,24,20),PM.white,0,.02,0,sariG);
+const sDrape=add(new THREE.ConeGeometry(.62,.68,20,1,true),PM.white,0,-.36,0,sariG);
+sDrape.scale.set(1.05,1,.9);
+add(new THREE.CylinderGeometry(.52,.52,.1,20),PM.j,0,.32,.12,sariG).rotation.x=.3;
+add(new THREE.TorusGeometry(.06,.02,8,16),PM.gold,.24,-.3,.38,sariG);
+[-1,1].forEach(s=>{
+  const lash=add(new THREE.BoxGeometry(.09,.02,.03),M(0x111111),s*.18,.09,.44,sariG);
+  lash.rotation.z=s*0.15;
+});
+
+// Rok Panjang Sari (Maxi Skirt)
+const sariSkirt=add(new THREE.CylinderGeometry(.38,.64,.96,16),PM.skirt,0,.46,0,pl);
+sariSkirt.userData.isSari=1;
+
+// Kaki / Legs & Animasi
+[-.14,.14].forEach((x,idx)=>{
+  const lg=new THREE.Group();lg.position.set(x,.73,0);pl.add(lg);
+  const pLg=add(new THREE.CylinderGeometry(.16,.15,.6,12),PM.pa,0,-.3,0,lg);
+  pLg.userData.isBoy=1;
+  const rLg=add(new THREE.CylinderGeometry(.13,.13,.35,12),PM.white,0,-.35,0,lg);
+  rLg.userData.isRani=1;
+  add(new THREE.BoxGeometry(.28,.17,.46),M(0x151515),0,-.65,.08,lg);
+  add(new THREE.BoxGeometry(.3,.06,.48),M(0xffffff),0,-.72,.08,lg);
+  lg.userData.leg=1;legs.push(lg);
+});
+const arms=[];[-1,1].forEach(s=>{
+  const g=new THREE.Group();g.position.set(s*.5,1.38,0);pl.add(g);
+  add(new THREE.CylinderGeometry(.115,.1,.66,12),PM.j,0,-.33,0,g);
+  add(new THREE.SphereGeometry(.14,12,10),PM.j,0,0,0,g);
+  add(new THREE.SphereGeometry(.12,12,10),PM.k,0,-.74,0,g);
+  g.userData.arm=1;arms.push(g);
+});
 
 // Animasi gerak
 function animate(t,dt,mv){const w=wave>0;if(w)wave-=dt;const sw=Math.sin(t*12),b=Math.sin(t*2),[L,Rl]=legs,[aL,aR]=arms;
@@ -930,7 +1027,21 @@ function colR(){p.x=Math.min(RX+10.2,Math.max(RX-10.2,p.x));p.z=Math.min(7.4,Mat
 rv=new Float32Array(1500);for(let i=0;i<1500;i+=3){rv[i]=(rnd()-.5)*40;rv[i+1]=rnd()*16;rv[i+2]=(rnd()-.5)*40}
 const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.BufferAttribute(rv,3));
 rainP=new THREE.Points(rg,new THREE.PointsMaterial({color:0xaaccee,size:.15}));rainP.visible=false;rainP.frustumCulled=false;sc.add(rainP);
-window.skin=()=>{const c=CHARS[ci];PM.h.color.setHex(c[1]);PM.j.color.setHex(c[2]);nameTag();PM.k.color.setHex(c[3])};skin();
+window.skin=()=>{
+  const c=CHARS[ci];
+  PM.h.color.setHex(c[1]);
+  PM.j.color.setHex(c[2]);
+  PM.k.color.setHex(c[3]);
+  nameTag();
+  boyG.visible=(ci===0);
+  raniG.visible=(ci===1);
+  sariG.visible=(ci===2);
+  pl.traverse(o=>{
+    if(o.userData.isBoy)o.visible=(ci===0);
+    if(o.userData.isRani)o.visible=(ci===1);
+    if(o.userData.isSari)o.visible=(ci===2);
+  });
+};skin();
 const rs=()=>{R.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()};addEventListener('resize',rs);rs();
 const DAY=new THREE.Color(0x8fd3f4),NI=new THREE.Color(0x0b1230),GR=new THREE.Color(0x9aa8b5),sk=new THREE.Color(),SD=new THREE.Color(0x2a9ac4),SN=new THREE.Color(0x0f2547);
 
