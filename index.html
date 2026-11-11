@@ -1,0 +1,1286 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dunia SMA Cahaya Nusantara - 3D & Augmented Reality</title>
+<meta name="description" content="Website sekolah 3D interaktif & Augmented Reality (AR): masuki gerbang sekolah, jelajahi halaman kampus yang luas, masuk gedung, lihat profil, jurusan, ekskul, dan fitur AR kamera.">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#f1f6f2;--mut:#a9c2b6;--y:#ffc83d;--r:#e4572e;--line:#2f5f4f;--pn:#163a31;--dk:#0f2a24;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0;overflow:hidden;background:#0b1230;color:var(--ink);font:16px/1.5 Nunito,system-ui,sans-serif}
+h1,h2,h3,.b{font-family:"Baloo 2",system-ui,sans-serif;line-height:1.15;margin:0}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--y);outline-offset:2px}
+.hud{display:none;position:fixed;z-index:5;gap:8px}.play .hud{display:flex}
+#top{top:calc(10px + env(safe-area-inset-top,0px));left:10px;right:10px;justify-content:space-between;pointer-events:none;align-items:center}
+#top>*{pointer-events:auto}
+.chip,.ib,#pl button,#go,#bar{background:var(--pn);border:2px solid var(--line);border-radius:12px;padding:6px 12px;font-family:"Baloo 2",sans-serif;font-weight:700}
+.ib{width:42px;height:42px;padding:0;font-size:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
+.row{display:flex;gap:6px;align-items:center}
+#bar{background:linear-gradient(135deg,#e4572e,#f59e0b);color:#fff;border-color:#ffcaa0;box-shadow:0 3px 12px rgba(228,87,46,.4);display:inline-flex;align-items:center;gap:6px;font-size:14px;padding:7px 14px}
+#bar:hover{transform:translateY(-1px)}
+#pl{left:10px;top:166px;flex-direction:column;align-items:flex-start}
+#pl button{text-align:left;font-size:14px;padding:6px 10px}
+#pl button.ok{border-color:var(--y)}
+#pr{left:10px;bottom:calc(14px + env(safe-area-inset-bottom,0px));font-size:14px;background:var(--pn);border-radius:10px;padding:4px 12px}
+#go{display:none;position:fixed;z-index:6;left:50%;bottom:calc(70px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--y);color:#2b2100;border-color:#fff3c4;font-weight:700;padding:10px 18px;border-radius:999px}
+#ts{position:fixed;z-index:9;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);max-width:min(92%,460px);background:#fff;color:#12302a;padding:10px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:.3s;text-align:center;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+#ts.on{opacity:1;transform:translate(-50%,0)}
+#sel{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px));pointer-events:none}#sel>div{pointer-events:auto}
+.cd{width:min(540px,94%);background:rgba(15,42,36,.93);border:2px solid var(--line);border-radius:22px;padding:16px 20px 20px;text-align:center;backdrop-filter:blur(6px)}
+#sel h1{font-size:clamp(22px,5vw,32px);font-weight:800}
+#sel p{color:var(--mut);margin:6px 0 14px}
+.ch{display:flex;gap:10px;justify-content:center;margin-bottom:14px}
+.ch button{background:var(--pn);border:2px solid var(--line);border-radius:14px;padding:8px 14px;min-width:92px}
+.ch button.on{border-color:var(--y);background:#1e4a3e}
+.ch i{display:block;width:26px;height:26px;border-radius:50%;margin:0 auto 4px;border:3px solid #fff}
+.big{background:linear-gradient(90deg,#ffc83d,#ff8a65);color:#2b2100;border:0;border-radius:999px;padding:13px 34px;font-weight:800;font-size:19px;box-shadow:0 6px 18px rgba(255,138,101,.4)}
+
+/* MODAL INTERAKSI LEBAR & RESPONSIF */
+#pn{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(5,14,18,.75);backdrop-filter:blur(4px)}
+#pn.on{display:flex}
+#pn .card{width:min(960px,95vw);max-height:88vh;display:flex;flex-direction:column;background:var(--pn);border:2px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 12px 36px rgba(0,0,0,.5)}
+.hd{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:var(--dk);border-bottom:1px solid var(--line)}
+.hd h2{font-size:26px}.hd button{background:0;border:0;font-size:28px;line-height:1;color:var(--mut)}
+.hd button:hover{color:#fff}
+#tb{display:flex;gap:8px;padding:12px 20px 0;background:rgba(15,42,36,.6);overflow-x:auto}
+#tb button{background:0;border:0;border-bottom:3px solid transparent;padding:8px 14px;color:var(--mut);white-space:nowrap;font-size:15px}
+#tb button.on{color:var(--ink);border-color:var(--y);font-weight:700}
+#bd{padding:18px 22px 24px;overflow:auto;max-width:100%;font-size:15.5px;line-height:1.6}
+#bd p{margin:0 0 12px}#bd h3{margin:16px 0 8px;font-size:20px;color:var(--y)}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
+.g>div{background:var(--dk);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.g b{display:block;font-family:"Baloo 2",sans-serif;font-size:19px}.g span{color:var(--mut);font-size:14px}
+.tl{border-left:3px solid var(--y);padding-left:16px;margin:10px 0}.tl li{list-style:none;margin:0 0 14px}.tl b{display:block;font-size:16px}
+ul.l{padding-left:22px;margin:0 0 12px}ul.l li{margin-bottom:6px}
+label{display:block;margin:10px 0 4px;font-size:14px;color:var(--mut)}
+input,select,textarea{width:100%;padding:10px 12px;border-radius:8px;border:2px solid var(--line);background:var(--dk);color:var(--ink);font:inherit}
+.form-box{background:rgba(10,28,24,.88);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.form-title{font-size:16.5px;font-weight:700;color:var(--y);margin:0 0 10px;display:flex;align-items:center;gap:6px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.form-group{display:flex;flex-direction:column}
+.form-group label{margin:0 0 4px;font-size:13px;color:var(--mut);font-weight:700}
+.form-req{color:#ff6b6b;font-weight:800}
+.form-help{font-size:11px;color:var(--mut);margin-top:3px}
+.form-check{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:13px;cursor:pointer}
+.form-check input{width:18px;height:18px;cursor:pointer;flex-shrink:0}
+.form-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
+.btn-wa{background:linear-gradient(90deg,#25d366,#128c7e);color:#fff;border:0;border-radius:999px;padding:11px 22px;font-weight:800;font-size:15px;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(37,211,102,.4)}
+.btn-print{background:linear-gradient(90deg,#ffc83d,#ff8a65);color:#2b2100;border:0;border-radius:999px;padding:11px 22px;font-weight:800;font-size:15px;display:inline-flex;align-items:center;gap:8px}
+.btn-reset{background:transparent;border:2px solid var(--line);color:var(--mut);border-radius:999px;padding:9px 16px;font-weight:700;font-size:13px}
+
+/* MODAL BUKTI PENDAFTARAN RESMI */
+#ppdb-receipt{display:none;position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:14px}
+.receipt-card{background:#ffffff;color:#1a202c;width:min(640px,96vw);max-height:90vh;overflow-y:auto;border-radius:18px;padding:24px;box-shadow:0 16px 40px rgba(0,0,0,.4);position:relative;font-family:Nunito,sans-serif}
+.receipt-header{text-align:center;border-bottom:2px dashed #cbd5e0;padding-bottom:12px;margin-bottom:14px}
+.receipt-logo{font-size:38px;margin-bottom:2px}
+.receipt-header h2{font-family:"Baloo 2",sans-serif;color:#1e3a5f;font-size:22px;margin:0}
+.receipt-badge{display:inline-block;background:#e6fffa;color:#234e52;border:1px solid #81e6d9;padding:3px 12px;border-radius:999px;font-size:12px;font-weight:700;margin-top:6px}
+.receipt-table{width:100%;border-collapse:collapse;margin:10px 0}
+.receipt-table td{padding:5px 8px;font-size:13.5px;border-bottom:1px solid #edf2f7}
+.receipt-table td:first-child{color:#4a5568;width:42%;font-weight:700}
+.receipt-table td:last-child{color:#1a202c;font-weight:600}
+.receipt-footer{margin-top:14px;padding-top:12px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.receipt-btn-print{background:#2b6cb0;color:#fff;border:0;border-radius:8px;padding:9px 18px;font-weight:700;font-size:14px;cursor:pointer}
+.receipt-btn-close{background:#e2e8f0;color:#4a5568;border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:14px;cursor:pointer}
+@media print{
+  body *{visibility:hidden}
+  #ppdb-receipt, #ppdb-receipt *{visibility:visible}
+  #ppdb-receipt{position:absolute;left:0;top:0;width:100%;height:auto;background:#fff;padding:0;display:block !important}
+  .receipt-card{box-shadow:none;border-radius:0;width:100%;max-height:none}
+  .receipt-footer{display:none}
+}
+#sb{background:rgba(15,42,36,.88);color:var(--ink);padding:10px 16px;border-radius:16px;margin:10px 0 0;font-size:15px}#sh{text-align:center;max-width:560px}#sh h1{color:#fff;font-size:clamp(30px,8vw,52px);font-weight:800;text-shadow:0 3px 0 #1a5a7a,0 6px 18px rgba(0,0,0,.3)}.bd{display:inline-block;background:rgba(15,42,36,.88);color:var(--y);border-radius:999px;padding:5px 16px;font-weight:700;font-size:13px;margin-bottom:4px}.lk{display:block;margin:12px auto 0;background:0;border:0;color:var(--mut);text-decoration:underline;font-size:14px}.ch small{display:block;color:var(--mut);font-size:12px}
+@media (max-height:520px){#sb,.sp{display:none}#sh h1{font-size:26px}}
+#mm{top:calc(62px + env(safe-area-inset-top,0px));right:10px;width:104px;height:104px;border:3px solid var(--line);border-radius:50%;pointer-events:none}#pr{display:none}
+#jb{position:fixed;z-index:6;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;background:rgba(255,255,255,.18);border:3px solid rgba(255,255,255,.5);display:none;pointer-events:none}#jb.on{display:block}#jk{position:absolute;left:35px;top:35px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.85)}
+#go{left:auto;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:none;border-radius:20px;text-align:center;line-height:1.2}#go small{display:block;font-weight:400}
+.sp{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 12px;font-size:13px;counter-reset:s}.sp li{flex:1;background:var(--dk);border-radius:10px;padding:6px 4px;color:var(--mut);line-height:1.25}.sp li::before{content:counter(s);counter-increment:s;display:block;font:800 18px "Baloo 2",sans-serif;color:var(--y)}
+#jp{right:14px;bottom:calc(86px + env(safe-area-inset-bottom,0px));width:76px;height:76px;border-radius:50%;background:var(--y);color:#2b2100;border:3px solid #fff3c4;font:800 15px "Baloo 2",sans-serif;align-items:center;justify-content:center;touch-action:manipulation}.nogl #jp{display:none}
+#ms{top:calc(62px + env(safe-area-inset-top,0px));left:10px;width:min(58vw,260px);flex-direction:column;gap:4px;background:rgba(15,42,36,.88);border:2px solid var(--line);border-radius:14px;padding:8px 12px;pointer-events:auto;cursor:pointer;font-size:13px}#ms b{font-family:"Baloo 2",sans-serif;font-size:15px;display:flex;justify-content:space-between}#ms i{font-style:normal;color:var(--y)}.bar{height:8px;border-radius:6px;background:#0c1f1b;overflow:hidden}.bar u{display:block;height:100%;background:linear-gradient(90deg,#ffc83d,#ff8a65)}#ms span{color:var(--mut)}
+#fd{position:fixed;inset:0;background:#0b1020;opacity:0;pointer-events:none;z-index:25;transition:opacity .35s}#fd.on{opacity:1;pointer-events:auto}#ex{display:none;position:fixed;z-index:5;top:calc(10px + env(safe-area-inset-top,0px));left:112px;height:42px}.inroom #ex{display:block}.inroom #mm,.inroom #pl{display:none}
+@media (max-width:400px){#ms{width:56vw}#mm{width:88px;height:88px}#jp{width:66px;height:66px;font-size:13px}#pf{padding:6px 9px}#ex{left:100px}}
+@media (max-height:480px){#pl{display:none}#mm{width:80px;height:80px}#ms{width:min(44vw,240px)}#jp{bottom:calc(76px + env(safe-area-inset-bottom,0px))}}
+.nogl #pl{inset:22% 0 auto 0;margin:auto;width:min(92%,360px)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){#ts{transition:none}}
+
+/* ===== MODAL AUGMENTED REALITY (AR) ===== */
+#ar-modal{display:none;position:fixed;inset:0;z-index:60;background:#000;flex-direction:column}
+#ar-modal.on{display:flex}
+#ar-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+#ar-c{position:absolute;inset:0;width:100%;height:100%;z-index:2;touch-action:none}
+#ar-ui{position:absolute;inset:0;z-index:3;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(14px + env(safe-area-inset-bottom,0px))}
+#ar-ui>*{pointer-events:auto}
+.ar-top{display:flex;justify-content:space-between;align-items:center}
+.ar-badge{background:rgba(15,42,36,.88);border:2px solid var(--line);border-radius:12px;padding:6px 14px;font-family:"Baloo 2",sans-serif;font-size:16px;color:var(--y);display:flex;align-items:center;gap:6px}
+.ar-close{background:rgba(15,42,36,.88);border:2px solid var(--line);color:#fff;border-radius:50%;width:42px;height:42px;font-size:22px;display:flex;align-items:center;justify-content:center}
+.ar-bot{display:flex;flex-direction:column;gap:8px;align-items:center}
+.ar-selector{display:flex;gap:8px;background:rgba(15,42,36,.92);border:2px solid var(--line);padding:6px;border-radius:16px;overflow-x:auto;max-width:95vw}
+.ar-selector button{background:transparent;border:0;padding:6px 12px;border-radius:10px;font-weight:700;font-size:13px;color:var(--mut);white-space:nowrap}
+.ar-selector button.on{background:var(--y);color:#2b2100}
+.ar-actions{display:flex;gap:10px}
+.ar-btn{background:linear-gradient(90deg,#ffc83d,#ff8a65);color:#2b2100;border:0;border-radius:999px;padding:10px 22px;font-weight:800;font-size:16px;box-shadow:0 4px 14px rgba(255,138,101,.4);display:flex;align-items:center;gap:6px}
+.ar-btn-sec{background:rgba(15,42,36,.9);color:#fff;border:2px solid var(--line);border-radius:999px;padding:8px 18px;font-weight:700;font-size:14px}
+.ar-hint{background:rgba(0,0,0,.65);color:#fff;font-size:13px;padding:4px 12px;border-radius:20px;text-align:center}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="top" class="hud">
+  <button class="chip b" id="pf">🏫 Profil</button>
+  <div class="row">
+    <button id="bar" aria-label="Buka Mode AR">👓 Mode AR</button>
+    <button class="ib" id="bs" aria-label="Toggle Suara">🔇</button>
+    <button class="ib" id="bn" aria-label="Ganti siang atau malam">🌙</button>
+    <button class="ib" id="br" aria-label="Hidupkan hujan">🌧</button>
+    <button class="ib" id="bg" aria-label="Cara bermain">❓</button>
+  </div>
+</div>
+<div id="pl" class="hud"></div>
+<div id="pr" class="hud"></div><div id="ms" class="hud" title="Klik untuk lihat rincian misi"></div><button id="jp" class="hud" aria-label="Lompat">Lompat</button><canvas id="mm" class="hud" width="208" height="208"></canvas><div id="jb"><div id="jk"></div></div>
+<button id="go"></button>
+<div id="ts" role="status"></div><div id="fd"></div><button class="chip b" id="ex">← Keluar</button>
+<div id="sel"><div id="sh"><span class="bd">Website sekolah interaktif & Augmented Reality</span><h1>SMA Cahaya Nusantara</h1><div id="sb">👋 Halo! Aku <b id="sn">Naufal</b>. Halaman sekolah kini dibuat <b>sangat luas & tertata rapi</b>! Masuklah melewati gerbang dan jelajahi seluruh kampus bersama.</div></div><div class="cd">
+<ol class="sp"><li>Pilih karakter</li><li>Masuk melewati gerbang utama</li><li>Kunjungi gedung & kumpulkan fakta</li></ol>
+<div class="ch" id="ch"></div>
+<button class="big" id="st">Mulai jelajah</button><button class="lk" id="q30">Buru-buru? Lihat profil sekolah dalam 30 detik →</button></div></div>
+<div id="pn"><div class="card"><div class="hd"><h2 id="pt"></h2><button id="px" aria-label="Tutup">×</button></div><div id="tb"></div><div id="bd"></div></div></div>
+
+<!-- MODAL BUKTI PENDAFTARAN RESMI (TANDA TERIMA PPDB) -->
+<div id="ppdb-receipt">
+  <div class="receipt-card">
+    <div class="receipt-header">
+      <div class="receipt-logo">🏫</div>
+      <h2>SMA CAHAYA NUSANTARA</h2>
+      <p style="margin:2px 0;font-size:13px;color:#718096;">Jl. Pendidikan Cendekia No. 1 · Telp: (024) 876-5432 · Email: ppdb@cahayanusantara.sch.id</p>
+      <div class="receipt-badge">TANDA TERIMA PENDAFTARAN PPDB T.A. 2026/2027</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:#4a5568;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #e2e8f0;">
+      <span>No. Registrasi: <b id="rec-id" style="color:#2b6cb0;">-</b></span>
+      <span>Tanggal: <b id="rec-date">-</b></span>
+    </div>
+    <table class="receipt-table">
+      <tr><td>Nama Lengkap Siswa</td><td id="rec-nama">-</td></tr>
+      <tr><td>NISN</td><td id="rec-nisn">-</td></tr>
+      <tr><td>Jenis Kelamin</td><td id="rec-jk">-</td></tr>
+      <tr><td>Tempat, Tanggal Lahir</td><td id="rec-ttl">-</td></tr>
+      <tr><td>Asal Sekolah (SMP/MTs)</td><td id="rec-smp">-</td></tr>
+      <tr><td>Nilai Rata-rata Rapor</td><td id="rec-nilai">-</td></tr>
+      <tr><td>Pilihan Peminatan 1 (Utama)</td><td id="rec-jur1">-</td></tr>
+      <tr><td>Pilihan Peminatan 2 (Cadangan)</td><td id="rec-jur2">-</td></tr>
+      <tr><td>Jalur Seleksi</td><td id="rec-jalur">-</td></tr>
+      <tr><td>Nama Orang Tua / Wali</td><td id="rec-ortu">-</td></tr>
+      <tr><td>No. WhatsApp Notifikasi</td><td id="rec-wa">-</td></tr>
+      <tr><td>Alamat Domisili</td><td id="rec-alamat">-</td></tr>
+      <tr><td>Status Berkas Fisik</td><td><b style="color:#2b6cb0;">Diverifikasi saat verifikasi fisik di Kantor PPDB</b></td></tr>
+    </table>
+    <div style="background:#f7fafc;border-left:4px solid #3182ce;padding:10px 14px;border-radius:6px;font-size:12.5px;color:#4a5568;margin:12px 0;">
+      <b>Petunjuk Selanjutnya:</b>
+      <ol style="margin:4px 0 0;padding-left:18px;">
+        <li>Simpan atau cetak tanda terima pendaftaran ini sebagai bukti registrasi awal.</li>
+        <li>Bawa fotokopi rapor SMP, akta kelahiran, dan kartu keluarga ke Kantor PPDB SMA Cahaya Nusantara pada hari kerja (Senin - Jumat 08.00 - 15.00 WIB).</li>
+        <li>Informasi tes diagnostik minat bakat dan jadwal wawancara dikirimkan via WhatsApp ke nomor yang terdaftar.</li>
+      </ol>
+    </div>
+    <div class="receipt-footer">
+      <button class="receipt-btn-print" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+      <button class="receipt-btn-close" onclick="$('#ppdb-receipt').style.display='none'">✕ Tutup Jendela</button>
+    </div>
+  </div>
+</div>
+<div class="sr"><h1>SMA Cahaya Nusantara</h1><p>Profil sekolah, jurusan IPA, IPS dan Bahasa, ekstrakurikuler, fasilitas, agenda, serta pendaftaran siswa baru (PPDB).</p></div>
+
+<!-- MODAL MODE AUGMENTED REALITY (AR) -->
+<div id="ar-modal">
+  <video id="ar-video" autoplay playsinline muted></video>
+  <canvas id="ar-c"></canvas>
+  <div id="ar-ui">
+    <div class="ar-top">
+      <div class="ar-badge">👓 Mode Kamera AR SMA Cahaya Nusantara</div>
+      <button class="ar-close" id="ar-close" aria-label="Tutup AR">×</button>
+    </div>
+    <div class="ar-bot">
+      <div class="ar-hint">💡 Geser untuk memutar objek · Scroll / cubit untuk memperbesar</div>
+      <div class="ar-selector">
+        <button class="on" data-model="mascot">Siswa Mascot</button>
+        <button data-model="gate">Gerbang Sekolah</button>
+        <button data-model="building">Gedung Utama</button>
+        <button data-model="trophy">Bintang Prestasi</button>
+      </div>
+      <div class="ar-actions">
+        <button class="ar-btn" id="ar-snap">📸 Ambil Foto AR</button>
+        <button class="ar-btn-sec" id="ar-reset">🔄 Reset Ukuran</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>if(typeof THREE==='undefined')document.write('<script src="three.min.js"><\/script>')</script>
+<script>
+const $=s=>document.querySelector(s),T=(t,h)=>({t,h}),rnd=Math.random,SAVE='sma-cn-world-v1';
+let S={v:{},f:{},s:{},gate:0};try{S=Object.assign(S,JSON.parse(localStorage.getItem(SAVE)||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem(SAVE,JSON.stringify({v:S.v,f:S.f,s:S.s,gate:S.gate}))}catch(e){}};
+let enteredGate=S.gate||0;
+
+// ===== WEB AUDIO SYNTHESIZER =====
+let audioCtx=null,soundOn=false,bgmTimer=null;
+function initAudio(){
+  if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)()}
+  if(audioCtx.state==='suspended')audioCtx.resume();
+}
+function sfx(t){
+  if(!soundOn||!audioCtx)return;
+  const now=audioCtx.currentTime;
+  if(t==='click'){
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';
+    o.frequency.setValueAtTime(540,now);o.frequency.exponentialRampToValueAtTime(320,now+.05);
+    g.gain.setValueAtTime(.08,now);g.gain.exponentialRampToValueAtTime(.001,now+.05);
+    o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+.05);
+  } else if(t==='jump'){
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';
+    o.frequency.setValueAtTime(220,now);o.frequency.exponentialRampToValueAtTime(560,now+.16);
+    g.gain.setValueAtTime(.12,now);g.gain.exponentialRampToValueAtTime(.001,now+.16);
+    o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+.16);
+  } else if(t==='star'){
+    [523,659,784,1046].forEach((f,i)=>{
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=f;
+      const st=now+i*.07;g.gain.setValueAtTime(.12,st);g.gain.exponentialRampToValueAtTime(.001,st+.3);
+      o.connect(g);g.connect(audioCtx.destination);o.start(st);o.stop(st+.3);
+    });
+  } else if(t==='enter'){
+    [330,440,554,659].forEach((f,i)=>{
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='triangle';o.frequency.value=f;
+      const st=now+i*.08;g.gain.setValueAtTime(.1,st);g.gain.exponentialRampToValueAtTime(.001,st+.4);
+      o.connect(g);g.connect(audioCtx.destination);o.start(st);o.stop(st+.4);
+    });
+  } else if(t==='step'){
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='triangle';
+    o.frequency.setValueAtTime(100,now);o.frequency.exponentialRampToValueAtTime(40,now+.06);
+    g.gain.setValueAtTime(.03,now);g.gain.exponentialRampToValueAtTime(.001,now+.06);
+    o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+.06);
+  }
+}
+const bgmNotes=[261.6,293.7,329.6,392.0,329.6,293.7,261.6,196.0];let bIdx=0;
+function toggleBGM(){
+  initAudio();soundOn=!soundOn;
+  $('#bs').textContent=soundOn?'🔊':'🔇';
+  toast(soundOn?'Suara & Musik Aktif 🔊':'Suara Dimatikan 🔇');
+  if(soundOn){
+    if(!bgmTimer){
+      bgmTimer=setInterval(()=>{
+        if(!soundOn||!audioCtx||audioCtx.state!=='running')return;
+        const now=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();
+        o.type='sine';o.frequency.setValueAtTime(bgmNotes[bIdx%bgmNotes.length],now);bIdx++;
+        g.gain.setValueAtTime(.025,now);g.gain.exponentialRampToValueAtTime(.0001,now+.4);
+        o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+.4);
+      },480);
+    }
+  }else{
+    if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null}
+  }
+}
+$('#bs').onclick=toggleBGM;
+
+// ========================================================
+// ===== MASTERPLAN KAMPUS BARU: TERTATA, LUAS & INDAH =====
+// ========================================================
+const B=[
+{id:'profil',n:'Gedung Utama',i:'🏫',x:0,z:-26,c:0xd9534f},
+{id:'akademik',n:'Gedung Akademik',i:'📚',x:-25,z:-5,c:0x3b82f6},
+{id:'ekskul',n:'Aula & Ekskul',i:'🎭',x:25,z:-5,c:0xf59e0b},
+{id:'ppdb',n:'Kantor PPDB',i:'📝',x:15,z:17,c:0x10b981}];
+B.forEach(b=>{b.r=Math.atan2(-b.x,-b.z);b.dx=b.x+Math.sin(b.r)*4.2;b.dz=b.z+Math.cos(b.r)*4.2});
+
+const GATE_POS={x:0,z:28,dx:0,dz:30,n:'Gerbang Utama',i:'🚪'};
+const FACTS=['Sekolah berdiri sejak 1998 dengan hanya 3 ruang kelas.','Perpustakaan menyimpan lebih dari 12.000 judul buku.','Tim robotik meraih juara 2 tingkat provinsi.','Upacara bendera tiap Senin diikuti 1.200 siswa.','Lulusan diterima di 40+ perguruan tinggi negeri.','Kebun hidroponik dirawat siswa kelas X.','Bel masuk berbunyi pukul 07.00. Jangan terlambat!'];
+const CRY=[[-14,-14],[14,-14],[-14,8],[14,8],[-32,2],[32,-2],[0,-33]];
+
+const P={
+satpam:{n:'Pak Budi (Satpam)',i:'👮',tabs:[
+T('Sambutan',`<div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;">
+<span style="font-size:52px;">👮</span>
+<div><b style="font-size:20px;color:var(--y);">Pak Budi (Keamanan Sekolah)</b><p style="margin:2px 0;color:var(--mut);">"Selamat datang di SMA Cahaya Nusantara!"</p></div></div>
+<p>Halo, adik! Halaman sekolah kami telah ditata ulang agar seluruh aktivitas belajar, olahraga upacara, dan penjelajahan berlangsung leluasa dan nyaman dipandang.</p>
+<ul class="l">
+<li><b>Gedung Utama (Profil)</b>: Lurus di utara di balik tiang bendera dan lapangan olahraga pusat.</li>
+<li><b>Gedung Akademik</b>: Di sayap barat (sebelah kiri), tempat peminatan jurusan IPA, IPS, Bahasa, dan riset sains.</li>
+<li><b>Aula & Ekskul</b>: Di sayap timur (sebelah kanan), aula olahraga megah berkapasitas 600 kursi & pentas seni.</li>
+<li><b>Kantor PPDB</b>: Di sebelah kanan jalan masuk dari gerbang untuk pendaftaran siswa baru.</li>
+<li><b>Bintang Rahasia</b>: Ada 7 bintang fakta menarik yang tersebar di halaman kampus. Temukan semuanya!</li>
+</ul>
+<p style="color:var(--y);font-weight:700;">Selamat menjelajah kampus dengan leluasa!</p>`)]},
+profil:{n:'Gedung Utama',i:'🏫',tabs:[
+T('Tentang',`<p>SMA Cahaya Nusantara adalah sekolah menengah atas unggulan yang menumbuhkan siswa berprestasi, berkarakter kuat, dan siap menghadapi jenjang perguruan tinggi maupun dunia kerja global.</p><div class="g"><div><b>1.200</b><span>Siswa Aktif</span></div><div><b>78</b><span>Guru & Tenaga Pendidik</span></div><div><b>A (Unggul)</b><span>Akreditasi BAN-S/M</span></div><div><b>28 Tahun</b><span>Tahun Berdiri Sejak 1998</span></div></div><h3>Sambutan Kepala Sekolah</h3><p>Dra. Sri Wahyuni, M.Pd. — "Kami berkomitmen mewujudkan ekosistem pendidikan yang inklusif, modern, berbasis teknologi digital, serta senantiasa mengedepankan integritas moral dan budaya budi pekerti luhur."</p>`),
+T('Visi & Misi',`<h3>Visi Sekolah</h3><p>Menjadi institusi pendidikan menengah atas teladan yang melahirkan generasi cerdas bernalar kritis, berakhlak mulia, berwawasan lingkungan, serta berdaya saing global pada tahun 2030.</p><h3>Misi Sekolah</h3><ul class="l"><li>Menyelenggarakan proses pembelajaran aktif, inovatif, dan terintegrasi dengan teknologi digital modern.</li><li>Mengembangkan potensi bakat dan minat peserta didik secara optimal melalui kegiatan akademik maupun non-akademik.</li><li>Membina karakter peserta didik melalui penguatan budaya 5S (Senyum, Salam, Sapa, Sopan, Santun) dan Profil Pelajar Pancasila.</li><li>Membangun jejaring kolaborasi strategis dengan berbagai perguruan tinggi negeri, swasta terkemuka, dan dunia industri.</li></ul>`),
+T('Sejarah Sekolah',`<ul class="tl"><li><b>1998</b>Didirikan oleh Yayasan Cahaya Bangsa dengan 3 ruang kelas awal dan 90 peserta didik pertama.</li><li><b>2008</b>Berhasil meraih predikat Akreditasi A (Unggul) untuk pertama kalinya.</li><li><b>2016</b>Peresmian gedung laboratorium terpadu, perpustakaan digital e-library, dan aula serbaguna.</li><li><b>2023</b>Implementasi penuh Kurikulum Merdeka dan peresmian laboratorium robotika & kecerdasan buatan.</li><li><b>Hari Ini</b>Kampus hijau terakreditasi Adiwiyata Mandiri dengan 36 rombongan belajar lengkap.</li></ul>`)]},
+akademik:{n:'Gedung Akademik',i:'📚',tabs:[
+T('Program Peminatan',`<p>SMA Cahaya Nusantara menyelenggarakan 3 peminatan utama dengan kurikulum berbasis riset dan aplikatif:</p><div class="g"><div><b>Peminatan IPA</b><span>Matematika Tingkat Lanjut, Fisika Terapan, Kimia Analitik, dan Biologi Molekuler. Dirancang bagi calon dokter, ilmuwan data, dan insinyur masa depan.</span></div><div><b>Peminatan IPS</b><span>Ekonomi Makro & Bisnis, Sosiologi, Geografi Terapan, dan Sejarah Dunia. Dirancang bagi calon ekonom, diplomat, jurnalis, dan advokat.</span></div><div><b>Peminatan Bahasa</b><span>Linguistik Bahasa Indonesia, English for Academic Purposes, Bahasa Jepang, dan Bahasa Jerman beserta pengenalan diplomasi internasional.</span></div></div>`),
+T('Kurikulum & Pembelajaran',`<p>Kami menerapkan <b>Kurikulum Merdeka</b> yang fleksibel dan berpusat pada siswa:</p><ul class="l"><li><b>Pembelajaran Intrakurikuler</b>: Pembelajaran mendalam berbasis proyek nyata (*project-based learning*).</li><li><b>P5 (Projek Profil Pelajar Pancasila)</b>: Kegiatan kewirausahaan, rekayasa teknologi, dan kearifan lokal setiap semester.</li><li><b>Program Bimbingan Sukses UTBK & Kedinasan</b>: Pelatihan intensif soal skolastik, tes minat bakat karier, serta pendampingan SNBP/SNBT kelas XII.</li></ul>`),
+T('Galeri Prestasi',`<ul class="tl"><li><b>Juara 2 Kompetisi Robotika Tingkat Provinsi (2025)</b>Kategori Autonomous Line Follower oleh Tim Cahaya Bot.</li><li><b>Medali Perak Olimpiade Sains Nasional (OSN) Bidang Kimia (2025)</b>Tingkat Kabupaten/Kota.</li><li><b>Juara 1 Lomba Debat Bahasa Inggris Nasional (2024)</b>Diselenggarakan oleh Universitas Indonesia.</li><li><b>Penghargaan Sekolah Adiwiyata Nasional (2024)</b>Atas inisiatif kebun hidroponik mandiri dan pemilahan sampah cerdas berbasis IoT.</li></ul>`)]},
+ekskul:{n:'Aula & Ekskul',i:'🎭',tabs:[
+T('Ekstrakurikuler',`<p>Tersedia lebih dari 15 klub minat bakat untuk mengasah kepemimpinan dan kreativitas:</p><div class="g"><div><b>Klub Robotika & AI</b><span>Rabu, 15.30 · Lab Komputer</span></div><div><b>Basket & Futsal</b><span>Selasa & Kamis, 16.00 · Lapangan Utama</span></div><div><b>Paduan Suara & Orkestra</b><span>Jumat, 14.30 · Aula Seni</span></div><div><b>Pramuka Penegak</b><span>Sabtu, 07.30 · Halaman Utama</span></div><div><b>Klub Debat Bahasa Inggris</b><span>Senin, 15.30 · Ruang Audiovisual</span></div><div><b>Palang Merah Remaja (PMR)</b><span>Kamis, 15.00 · Ruang UKS Terpadu</span></div></div>`),
+T('Fasilitas Kampus',`<ul class="l"><li>36 ruang kelas modern ber-AC dengan Interactive Smart Board & Proyektor 4K.</li><li>3 Laboratorium Sains canggih (Fisika, Kimia, Biologi) berstandar keselamatan nasional.</li><li>Laboratorium Komputer Multimedia & Studio Coding dengan koneksi internet Gigabit Fiber.</li><li>Perpustakaan modern dua lantai dengan 12.000+ buku fisik dan akses ke ribuan jurnal internasional.</li><li>Aula Serbaguna berkapasitas 600 kursi, Masjid Sekolah, Kantin Sehat Higienis, dan UKS dengan dokter jaga.</li><li>Lapangan olahraga multifungsi berstandar untuk Basket, Futsal, Voli, dan Bulu Tangkis.</li></ul>`),
+T('Agenda Tahunan',`<ul class="tl"><li><b>Bulan Agustus</b>Peringatan HUT Kemerdekaan RI, karnaval budaya nusantara, dan pekan olahraga antarkelas (Class Meeting).</li><li><b>Bulan Oktober</b>Pekan Bahasa, Gelar Seni Budaya (*Art Fair*), dan Pameran Projek Kreatif P5.</li><li><b>Bulan Desember</b>Bazar Kewirausahaan Siswa, Pembagian Rapor Semester Ganjil, dan Seminar Karier Kampus.</li><li><b>Bulan Mei</b>Wisuda Pelepasan Siswa Kelas XII dan Gebyar Pameran Inovasi Siswa Terbuka.</li></ul>`)]},
+ppdb:{n:'Kantor PPDB',i:'📝',tabs:[
+T('Alur & Syarat PPDB',`<div class="form-box" style="border-left:4px solid var(--y);margin-bottom:14px;">
+<h3 style="margin:0 0 4px;color:var(--y);font-size:20px;">Penerimaan Peserta Didik Baru (PPDB) T.A. 2026/2027</h3>
+<p style="margin:0;font-size:13.5px;color:var(--mut);">SMA Cahaya Nusantara membuka kesempatan bagi lulusan SMP/MTs sederajat untuk bergabung bersama komunitas pembelajar unggul dan berprestasi.</p>
+</div>
+<div class="g" style="margin-bottom:14px;">
+<div><b style="color:#4ade80;">Gelombang I (Unggulan & Prestasi)</b><span>10 Januari - 31 Maret 2026 · Bebas Uang Pendaftaran & Beasiswa Prestasi s.d. 100% SPP.</span></div>
+<div><b style="color:#60a5fa;">Gelombang II (Reguler & Zonasi)</b><span>1 April - 30 Juni 2026 · Seleksi nilai rapor dan pemetaan minat bakat terpadu.</span></div>
+</div>
+<h3>Tahapan Pendaftaran:</h3>
+<ul class="tl">
+<li><b>1. Pengisian Formulir Online</b>Isi data calon siswa secara lengkap dan valid pada tab <i>Formulir Pendaftaran</i>.</li>
+<li><b>2. Konfirmasi & Pengiriman Berkas</b>Kirim data pendaftaran via WhatsApp resmi panitia dan simpan/cetak tanda terima pendaftaran.</li>
+<li><b>3. Asesmen Diagnostik & Wawancara</b>Wawancara minat bakat serta asesmen diagnostik gaya belajar (dapat dilakukan daring maupun tatap muka).</li>
+<li><b>4. Pengumuman Kelulusan Seleksi</b>Pengumuman resmi disampaikan melalui notifikasi WhatsApp panitia dan papan pengumuman sekolah.</li>
+<li><b>5. Daftar Ulang & Pengambilan Seragam</b>Verifikasi dokumen fisik asli serta pengukuran seragam sekolah bertempat di Kantor PPDB.</li>
+</ul>
+<h3>Dokumen Berkas Persyaratan Fisik:</h3>
+<ul class="l">
+<li>Fotokopi Ijazah SMP / Surat Keterangan Lulus (SKL) terlegalisir (2 lembar).</li>
+<li>Fotokopi Rapor SMP Semester 1 s.d. 5 yang telah dilegalisir kepala sekolah (1 rangkap).</li>
+<li>Fotokopi Akta Kelahiran dan Kartu Keluarga (KK) terbaru (2 lembar).</li>
+<li>Pas foto berwarna terbaru ukuran 3x4 berlatar belakang merah (4 lembar).</li>
+<li>Sertifikat / Piagam Penghargaan kejuaraan akademik maupun non-akademik minimal tingkat kota/kabupaten (jika ada).</li>
+</ul>`),
+
+T('Formulir Pendaftaran',`<div class="form-box" style="border-left:4px solid var(--y);">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+<div>
+<h3 style="margin:0;color:var(--y);font-size:20px;">FORMULIR PENDAFTARAN SISWA BARU</h3>
+<p style="margin:2px 0;font-size:13px;color:var(--mut);">Isi seluruh data calon siswa dengan jelas dan lengkap di bawah ini:</p>
+</div>
+<span style="background:rgba(16,185,129,.2);border:1px solid #10b981;color:#6ee7b7;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;">🟢 Pendaftaran Terbuka</span>
+</div>
+</div>
+
+<div class="form-box">
+<div class="form-title">👤 1. Identitas Calon Siswa</div>
+<div class="form-grid">
+<div class="form-group">
+<label for="ppdb-nama">Nama Lengkap Siswa <span class="form-req">*</span></label>
+<input id="ppdb-nama" autocomplete="name" placeholder="Contoh: Muhammad Raditya Pratama">
+<span class="form-help">Sesuai nama yang tertera di Akta Kelahiran / Ijazah</span>
+</div>
+<div class="form-group">
+<label for="ppdb-nisn">NISN (10 Digit Angka) <span class="form-req">*</span></label>
+<input id="ppdb-nisn" type="text" maxlength="10" placeholder="Contoh: 0081234567">
+<span class="form-help">Dapat dilihat pada rapor SMP atau kartu NISN</span>
+</div>
+<div class="form-group">
+<label for="ppdb-jk">Jenis Kelamin <span class="form-req">*</span></label>
+<select id="ppdb-jk">
+<option value="Laki-laki">Laki-laki</option>
+<option value="Perempuan">Perempuan</option>
+</select>
+</div>
+<div class="form-group">
+<label for="ppdb-ttl">Tempat & Tanggal Lahir <span class="form-req">*</span></label>
+<input id="ppdb-ttl" placeholder="Contoh: Semarang, 14 Mei 2010">
+</div>
+<div class="form-group">
+<label for="ppdb-smp">Asal Sekolah (SMP / MTs) <span class="form-req">*</span></label>
+<input id="ppdb-smp" placeholder="Contoh: SMP Negeri 1 Nusantara">
+</div>
+<div class="form-group">
+<label for="ppdb-nilai">Nilai Rata-rata Rapor (Sem. 1-5)</label>
+<input id="ppdb-nilai" type="number" step="0.1" min="0" max="100" placeholder="Contoh: 88.5">
+<span class="form-help">Rata-rata 4 mata pelajaran utama (skala 0-100)</span>
+</div>
+</div>
+</div>
+
+<div class="form-box">
+<div class="form-title">🎯 2. Pilihan Peminatan Jurusan & Jalur Masuk</div>
+<div class="form-grid">
+<div class="form-group">
+<label for="ppdb-jur1">Pilihan Peminatan 1 (Utama) <span class="form-req">*</span></label>
+<select id="ppdb-jur1">
+<option value="Peminatan IPA (Sains Terapan & Kedokteran)">Peminatan IPA (Sains Terapan & Kedokteran)</option>
+<option value="Peminatan IPS (Bisnis, Hukum & Sosial Humaniora)">Peminatan IPS (Bisnis, Hukum & Sosial Humaniora)</option>
+<option value="Peminatan Bahasa (Linguistik & Hubungan Internasional)">Peminatan Bahasa (Linguistik & Hubungan Internasional)</option>
+</select>
+</div>
+<div class="form-group">
+<label for="ppdb-jur2">Pilihan Peminatan 2 (Cadangan) <span class="form-req">*</span></label>
+<select id="ppdb-jur2">
+<option value="Peminatan IPS (Bisnis, Hukum & Sosial Humaniora)">Peminatan IPS (Bisnis, Hukum & Sosial Humaniora)</option>
+<option value="Peminatan IPA (Sains Terapan & Kedokteran)">Peminatan IPA (Sains Terapan & Kedokteran)</option>
+<option value="Peminatan Bahasa (Linguistik & Hubungan Internasional)">Peminatan Bahasa (Linguistik & Hubungan Internasional)</option>
+</select>
+</div>
+<div class="form-group" style="grid-column: 1 / -1;">
+<label for="ppdb-jalur">Jalur Seleksi Pendaftaran <span class="form-req">*</span></label>
+<select id="ppdb-jalur">
+<option value="Jalur Zonasi (Radius Domisili Terdekat Kampus)">Jalur Zonasi (Radius Domisili Terdekat ke Kampus)</option>
+<option value="Jalur Prestasi Akademik (Nilai Rapor & OSN)">Jalur Prestasi Akademik (Nilai Rapor & Juara OSN/Lomba Sains)</option>
+<option value="Jalur Prestasi Non-Akademik (Olahraga / Seni / Tahfidz)">Jalur Prestasi Non-Akademik (Olahraga / Seni / Robotik / Tahfidz)</option>
+<option value="Jalur Afirmasi / KIP (Bantuan Siswa Berprestasi)">Jalur Afirmasi / KIP (Bantuan Biaya Pendidikan)</option>
+<option value="Jalur Mutasi / Pindah Tugas Dinas Orang Tua">Jalur Mutasi / Perpindahan Tugas Kedinasan Orang Tua</option>
+</select>
+</div>
+</div>
+</div>
+
+<div class="form-box">
+<div class="form-title">🏡 3. Data Orang Tua / Wali & Kontak Notifikasi</div>
+<div class="form-grid">
+<div class="form-group">
+<label for="ppdb-ortu">Nama Lengkap Orang Tua / Wali <span class="form-req">*</span></label>
+<input id="ppdb-ortu" placeholder="Contoh: Bambang Sudarsono, S.E.">
+</div>
+<div class="form-group">
+<label for="ppdb-wa">No. WhatsApp Aktif (Notifikasi Hasil) <span class="form-req">*</span></label>
+<input id="ppdb-wa" type="tel" placeholder="Contoh: 081234567890">
+<span class="form-help">Pengumuman seleksi dan tautan wawancara akan dikirim ke nomor ini</span>
+</div>
+<div class="form-group" style="grid-column: 1 / -1;">
+<label for="ppdb-alamat">Alamat Lengkap Domisili <span class="form-req">*</span></label>
+<input id="ppdb-alamat" placeholder="Jalan, RT/RW, Kelurahan, Kecamatan, Kota/Kabupaten">
+</div>
+</div>
+</div>
+
+<div class="form-box">
+<div class="form-title">📑 4. Konfirmasi Dokumen Persyaratan Fisik</div>
+<p style="font-size:12.5px;color:var(--mut);margin:0 0 8px;">Centang berkas yang telah Anda siapkan untuk diverifikasi saat daftar ulang di Kantor PPDB:</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:6px;">
+<label class="form-check"><input type="checkbox" id="ppdb-doc1" checked> Salinan Rapor SMP (Sem. 1-5)</label>
+<label class="form-check"><input type="checkbox" id="ppdb-doc2" checked> Salinan Akta Kelahiran</label>
+<label class="form-check"><input type="checkbox" id="ppdb-doc3" checked> Salinan Kartu Keluarga (KK)</label>
+<label class="form-check"><input type="checkbox" id="ppdb-doc4"> Piagam / Sertifikat Prestasi</label>
+</div>
+</div>
+
+<div class="form-actions">
+<button class="btn-wa" onclick="wa()">
+<span>📲</span> Kirim Pendaftaran via WhatsApp
+</button>
+<button class="btn-print" onclick="printPPDB()">
+<span>📄</span> Cetak / Simpan Bukti Pendaftaran
+</button>
+<button class="btn-reset" onclick="resetPPDB()">
+🔄 Bersihkan Form
+</button>
+</div>`),
+
+T('Kontak & Lokasi',`<div class="form-box" style="margin-bottom:14px;">
+<h3 style="margin:0 0 6px;color:var(--y);font-size:18px;">Layanan Informasi & Konsultasi PPDB</h3>
+<p style="margin:0;font-size:13.5px;color:var(--mut);">Tim panitia PPDB siap melayani konsultasi pemilihan peminatan jurusan, informasi beasiswa, dan verifikasi berkas secara ramah dan profesional.</p>
+</div>
+<ul class="l">
+<li><b>Meja Layanan Fisik:</b> Ruang Front Office Kantor PPDB (Lantai 1), Sayap Tenggara Kampus SMA Cahaya Nusantara.</li>
+<li><b>Hotline WhatsApp Panitia:</b> +62 812-3456-7890 (Ibu Anisa, S.Pd. - Sekretariat PPDB)</li>
+<li><b>Telepon Kantor:</b> (024) 876-5432 / Hunting: (024) 876-5433</li>
+<li><b>Email Resmi PPDB:</b> ppdb@cahayanusantara.sch.id</li>
+<li><b>Jam Operasional Layanan:</b>
+  <br>• Senin s.d. Jumat : Pukul 08.00 - 15.00 WIB
+  <br>• Sabtu : Pukul 08.00 - 12.00 WIB (Layanan Khusus Verifikasi Berkas)
+  <br>• Minggu & Hari Libur Nasional : Tutup (Pendaftaran Online 24 Jam Tetap Aktif)
+</li>
+</ul>`)]}};
+
+const RX=500,RS={},rooms={},EX={exit:1,v:'Keluar',i:'🚪',n:'Pintu keluar',x:RX,z:7};
+const RM={
+profil:{f:0xc9a66b,w:0xf0e2c0,rug:0xd9534f,F:[[0,-6,7,1.4,1.8,0x7a4a2b],[-8,-5,3,2.8,1.2,0x6b4a2a],[8,-5,3,2.8,1.2,0x6b4a2a],[8,4,3.5,1,1.8,0x3b7d6a]],S:[[0,-3.5],[-7,0],[7,0]]},
+akademik:{f:0xb98a5a,w:0xdfe9d0,rug:0x3b82f6,F:[[0,-6.5,8,2.4,.4,0xffffff],[8,-5,2.6,3.2,1.2,0x7a4a2b],[-4,1.6,2,.9,1.2,0x9a6b3d],[0,1.6,2,.9,1.2,0x9a6b3d],[4,1.6,2,.9,1.2,0x9a6b3d],[-4,4.5,2,.9,1.2,0x9a6b3d],[0,4.5,2,.9,1.2,0x9a6b3d],[4,4.5,2,.9,1.2,0x9a6b3d]],S:[[0,-4.2],[7.5,-2],[-7,-1.5]]},
+ekskul:{f:0xc58b5a,w:0xf3d9a6,rug:0xf59e0b,F:[[0,-6,10,1,2.4,0x8a5a2b],[-8,-2,1.6,2.4,1.6,0x6b8f5a],[8,4,2,.9,2,0x2a7fa6]],S:[[0,-3.2],[-6,2.2],[6,1.5]]},
+ppdb:{f:0xb08a62,w:0xd9efe3,rug:0x10b981,F:[[0,-4.5,8,1.2,1.2,0x8a5a2b],[-8,-5.5,2.6,2,1.4,0x5a6b7a],[8,-5.5,2.6,2,1.4,0x5a6b7a]],S:[[0,-2],[-7,1.8],[7,2.2]]}};
+
+function roomMt(){const n=P[room].tabs.filter((t,i)=>S.s[room+i]).length;return '<b>'+P[room].n+' <i>'+n+'/3</i></b><div class="bar"><u style="width:'+n/3*100+'%"></u></div><span>Masuk ke lingkaran kuning, lalu tekan E</span>'}
+function go2(f){if(busy)return;busy=1;$('#fd').classList.add('on');setTimeout(()=>{f();snap=1;$('#fd').classList.remove('on');setTimeout(()=>busy=0,350)},380)}
+function enterRoom(id){sfx('enter');go2(()=>{room=id;p.x=RX;p.z=4.5;tgt=null;auto=null;pitch=.95;dist=16;pl.rotation.y=Math.PI;rooms[id].visible=true;document.body.classList.add('inroom');if(!S.v[id]){S.v[id]=1;save();prog()}toast('Masuk '+P[id].n+'. Jalan ke lingkaran kuning, lalu tekan E.')})}
+function exitRoom(){sfx('click');if(!room)return;go2(()=>{const b=B.find(x=>x.id===room);rooms[room].visible=false;room=null;p.x=b.x+Math.sin(b.r)*7.5;p.z=b.z+Math.cos(b.r)*7.5;tgt=null;yaw=b.r+Math.PI;pitch=.5;dist=11;pl.rotation.y=b.r;document.body.classList.remove('inroom');const n=B.find(x=>!S.v[x.id]);toast(n?'Berikutnya: '+n.i+' '+n.n+'. Ikuti tanda kuning.':'🎓 Semua gedung dikunjungi! Lencana Siswa Teladan untukmu.')})}
+function act(){if(!near||busy)return;if(near.exit)exitRoom();else if(near.st)openP(near.id,near.idx);else if(near.id==='satpam')openP('satpam');else enterRoom(near.id)}
+$('#ex').onclick=exitRoom;
+const GUIDE={n:'Cara bermain',i:'❓',tabs:[T('Kontrol & Fitur',`<ul class="l"><li><b>Halaman Sekolah Luas</b>: Anda bebas berlari, berputar, dan menjelajahi halaman upacara, lapangan olahraga, taman, dan gedung-gedung.</li><li><b>Langkah 1</b>: Mulai dari luar gerbang, jalan maju melintasi Gerbang Utama sekolah untuk mengawali tur kampus.</li><li><b>Pak Budi (Satpam)</b>: Berdiri di pos keamanan dekat gerbang. Dekati dan tekan E untuk berbicara.</li><li><b>Jalan & Lari</b>: Gunakan WASD atau tombol panah. Tahan <b>Shift</b> untuk berlari cepat di halaman.</li><li><b>Lompat</b>: Tekan Spasi (atau tombol Lompat di HP).</li><li><b>Kamera 360°</b>: Seret mouse / geser layar untuk melihat seluruh penjuru sekolah; scroll mouse untuk zoom in/out.</li><li><b>Interaksi Gedung</b>: Dekati pintu gedung lalu tekan E atau tombol Masuk. Di dalam ruangan, dekati lingkaran kuning penanda.</li><li><b>Tombol AR (👓)</b>: Memproyeksikan maskot siswa, miniatur gerbang, atau gedung sekolah di meja Anda lewat kamera ponsel!</li></ul>`),T('Misi Eksplorasi',`<p>Masuki gerbang utama, jelajahi 4 gedung sekolah, dan kumpulkan 7 bintang fakta rahasia yang melayang di halaman kampus. Kemajuan Anda tersimpan otomatis.</p>`)]};
+
+window.wa = function wa(){
+  sfx('click');
+  const nama=($('#ppdb-nama')?.value||'').trim();
+  const nisn=($('#ppdb-nisn')?.value||'').trim();
+  const jk=$('#ppdb-jk')?.value||'Laki-laki';
+  const ttl=($('#ppdb-ttl')?.value||'').trim();
+  const smp=($('#ppdb-smp')?.value||'').trim();
+  const nilai=($('#ppdb-nilai')?.value||'').trim();
+  const jur1=$('#ppdb-jur1')?.value||'-';
+  const jur2=$('#ppdb-jur2')?.value||'-';
+  const jalur=$('#ppdb-jalur')?.value||'-';
+  const ortu=($('#ppdb-ortu')?.value||'').trim();
+  const waNum=($('#ppdb-wa')?.value||'').trim();
+  const alamat=($('#ppdb-alamat')?.value||'').trim();
+
+  if(!nama){toast('Harap isi Nama Lengkap Calon Siswa.');return $('#ppdb-nama')?.focus()}
+  if(!nisn){toast('Harap lengkapi NISN (10 digit).');return $('#ppdb-nisn')?.focus()}
+  if(!ttl){toast('Harap isi Tempat & Tanggal Lahir.');return $('#ppdb-ttl')?.focus()}
+  if(!smp){toast('Harap isi Asal Sekolah (SMP/MTs).');return $('#ppdb-smp')?.focus()}
+  if(!ortu){toast('Harap isi Nama Orang Tua / Wali.');return $('#ppdb-ortu')?.focus()}
+  if(!waNum){toast('Harap isi No. WhatsApp untuk notifikasi.');return $('#ppdb-wa')?.focus()}
+  if(!alamat){toast('Harap isi Alamat Lengkap Domisili.');return $('#ppdb-alamat')?.focus()}
+
+  const regId='PPDB-CN-2026-'+Math.floor(1000+Math.random()*9000);
+  const text=`*FORMULIR PENDAFTARAN PPDB ONLINE*
+*SMA CAHAYA NUSANTARA*
+----------------------------------------
+No. Registrasi : ${regId}
+Waktu Daftar   : ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}
+
+*1. IDENTITAS CALON SISWA:*
+• Nama Lengkap : ${nama}
+• NISN         : ${nisn}
+• Jenis Kelamin: ${jk}
+• TTL          : ${ttl}
+• Asal SMP/MTs : ${smp}
+• Nilai Rapor  : ${nilai||'-'}
+
+*2. PEMINATAN & JALUR SELEKSI:*
+• Pilihan 1 (Utama)   : ${jur1}
+• Pilihan 2 (Cadangan): ${jur2}
+• Jalur Pendaftaran   : ${jalur}
+
+*3. DATA ORANG TUA & KONTAK:*
+• Nama Ortu/Wali: ${ortu}
+• No. WhatsApp  : ${waNum}
+• Alamat        : ${alamat}
+
+Mohon informasi verifikasi berkas dan jadwal tes wawancara selanjutnya. Terima kasih.`;
+
+  window.open('https://wa.me/6281234567890?text='+encodeURIComponent(text),'_blank','noopener');
+  toast('✅ Data formulir berhasil disiapkan ke WhatsApp Panitia PPDB!');
+};
+
+window.printPPDB = function printPPDB(){
+  sfx('star');
+  const nama=($('#ppdb-nama')?.value||'').trim();
+  const smp=($('#ppdb-smp')?.value||'').trim();
+  if(!nama){toast('Harap isi minimal Nama Lengkap Siswa.');return $('#ppdb-nama')?.focus()}
+  if(!smp){toast('Harap lengkapi Asal Sekolah SMP/MTs.');return $('#ppdb-smp')?.focus()}
+
+  const regId='PPDB-CN-2026-'+Math.floor(1000+Math.random()*9000);
+  const m=$('#ppdb-receipt');
+  if(m){
+    $('#rec-id').textContent=regId;
+    $('#rec-date').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+    $('#rec-nama').textContent=nama;
+    $('#rec-nisn').textContent=$('#ppdb-nisn')?.value||'-';
+    $('#rec-jk').textContent=$('#ppdb-jk')?.value||'-';
+    $('#rec-ttl').textContent=$('#ppdb-ttl')?.value||'-';
+    $('#rec-smp').textContent=smp;
+    $('#rec-nilai').textContent=$('#ppdb-nilai')?.value||'-';
+    $('#rec-jur1').textContent=$('#ppdb-jur1')?.value||'-';
+    $('#rec-jur2').textContent=$('#ppdb-jur2')?.value||'-';
+    $('#rec-jalur').textContent=$('#ppdb-jalur')?.value||'-';
+    $('#rec-ortu').textContent=$('#ppdb-ortu')?.value||'-';
+    $('#rec-wa').textContent=$('#ppdb-wa')?.value||'-';
+    $('#rec-alamat').textContent=$('#ppdb-alamat')?.value||'-';
+    m.style.display='flex';
+  }
+};
+
+window.resetPPDB = function resetPPDB(){
+  sfx('click');
+  ['ppdb-nama','ppdb-nisn','ppdb-ttl','ppdb-smp','ppdb-nilai','ppdb-ortu','ppdb-wa','ppdb-alamat'].forEach(id=>{
+    const el=$('#'+id);if(el)el.value='';
+  });
+  ['ppdb-doc1','ppdb-doc2','ppdb-doc3'].forEach(id=>{const el=$('#'+id);if(el)el.checked=true});
+  const d4=$('#ppdb-doc4');if(d4)d4.checked=false;
+  toast('Formulir pendaftaran telah dibersihkan.');
+};
+
+// ===== UI & STATE =====
+let cur=null,tt,play=false,tgt=null,auto=null,near=null,ci=0;
+const K={};
+function toast(m){const t=$('#ts');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3400)}
+function tab(d,i){sfx('click');[...$('#tb').children].forEach((b,j)=>b.classList.toggle('on',i==j));$('#bd').innerHTML=d.tabs[i].h}
+function openP(id,ix,customObj){
+  sfx('click');const d=customObj||(id==='guide'?GUIDE:P[id]);cur=id;
+  if(room&&P[id]&&ix!=null){S.s[id+ix]=1;save();if(RS[id]&&RS[id][ix]){RS[id][ix].ring.material.color.setHex(0x4ade80);RS[id][ix].beam.material.color.setHex(0x4ade80)}}
+  tgt=null;auto=null;$('#pn').classList.add('on');$('#pt').textContent=d.i+' '+d.n;
+  $('#tb').innerHTML=d.tabs.map((t,i)=>`<button data-i="${i}">${t.t}</button>`).join('');tab(d,ix||0);
+  if(P[id]&&play&&!S.v[id]&&id!=='satpam'){S.v[id]=1;save();prog();if(Object.keys(S.v).length==4)setTimeout(()=>{sfx('star');toast('🎓 Semua gedung dikunjungi! Lencana Siswa Teladan untukmu.')},500)}
+}
+function closeP(){sfx('click');const id=cur;cur=null;$('#pn').classList.remove('on');if(play&&!room&&P[id]&&id!=='satpam'&&id!=='mission'){const n=B.find(b=>!S.v[b.id]);toast(n?'Berikutnya: '+n.i+' '+n.n+'. Ikuti tanda kuning.':'🎓 Semua gedung dikunjungi! Lencana Siswa Teladan untukmu.')}}
+$('#tb').onclick=e=>{const i=e.target.dataset.i;if(i!=null)tab(cur==='guide'?GUIDE:P[cur],+i)};
+$('#px').onclick=closeP;$('#pn').onclick=e=>{if(e.target.id==='pn')closeP()};
+$('#pf').onclick=()=>openP('profil');$('#q30').onclick=()=>openP('profil');$('#bg').onclick=()=>openP('guide');
+
+function openMissionChecklist(){
+  const fCount=Object.keys(S.f).length;
+  const h=`
+    <p>Pantau progres eksplorasi Anda di halaman luas SMA Cahaya Nusantara:</p>
+    <ul class="tl">
+      <li><b>${enteredGate?'✅ Selesai':'⬜ Belum Selesai'} · Masuk Melalui Gerbang Utama</b> ${enteredGate?'Gerbang telah berhasil dilewati.':'Jalan maju melewati gerbang depan sekolah.'}</li>
+      <li><b>${S.v['profil']?'✅ Selesai':'⬜ Belum Dikunjungi'} · Gedung Utama (Profil)</b> Visi, Misi, Sambutan Kepala Sekolah, & Sejarah.</li>
+      <li><b>${S.v['akademik']?'✅ Selesai':'⬜ Belum Dikunjungi'} · Gedung Akademik</b> Jurusan IPA, IPS, Bahasa, Kurikulum Merdeka & Prestasi.</li>
+      <li><b>${S.v['ekskul']?'✅ Selesai':'⬜ Belum Dikunjungi'} · Aula & Ekstrakurikuler</b> 15+ kegiatan ekskul & fasilitas sekolah.</li>
+      <li><b>${S.v['ppdb']?'✅ Selesai':'⬜ Belum Dikunjungi'} · Kantor PPDB</b> Jadwal, pendaftaran WhatsApp, & kontak resmi.</li>
+    </ul>
+    <h3>⭐ Bintang Fakta Kampus (${fCount}/7 Ditemukan)</h3>
+    <div class="g">
+      ${FACTS.map((f,i)=>`<div><b>${S.f[i]?'⭐ Fakta '+(i+1):'🔒 Belum Ditemukan #'+(i+1)}</b><span>${S.f[i]?f:'Jelajahi halaman sekolah untuk menemukan bintang emas ini.'}</span></div>`).join('')}
+    </div>
+  `;
+  openP('mission',0,{n:'Daftar Misi Kampus',i:'📋',tabs:[T('Misi',h)]});
+}
+$('#ms').onclick=openMissionChecklist;
+
+function prog(){
+  const n=Object.keys(S.v).length,m=Object.keys(S.f).length;
+  $('#pr').textContent='Gedung '+n+'/4 · Bintang '+m+'/7';
+  const gateBtn=`<button data-id="gerbang" class="${enteredGate?'ok':''}">🚪 Gerbang Utama${enteredGate?' ✓':''}</button>`;
+  $('#pl').innerHTML=gateBtn+B.map(b=>`<button data-id="${b.id}" class="${S.v[b.id]?'ok':''}">${b.i} ${b.n}${S.v[b.id]?' ✓':''}</button>`).join('');
+}
+$('#pl').onclick=e=>{
+  sfx('click');const id=e.target.dataset.id;if(!id)return;
+  if(id==='gerbang'){tgt={x:GATE_POS.dx,z:GATE_POS.dz};auto=null;return}
+  if(!ok)return openP(id);
+  const b=B.find(x=>x.id===id);tgt={x:b.dx,z:b.dz};auto=id;
+};
+$('#go').onclick=act;$('#jp').onpointerdown=e=>{e.preventDefault();jump()};
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(k==='escape')closeP();if(cur)return;K[k]=1;if(k==='e')act();if(k===' '&&play){e.preventDefault();jump()}});
+addEventListener('keyup',e=>K[e.key.toLowerCase()]=0);
+
+const CHARS=[['Naufal',0x6b4030,0x2f5d8a,0xf2c9a0],['Rani',0x1d1410,0xb03a48,0xd9a577],['Sari',0xc58b3a,0x3b7d5a,0xe8b98f]];
+$('#ch').innerHTML=CHARS.map((c,i)=>`<button data-i="${i}" class="${i?'':'on'}"><i style="background:#${c[2].toString(16).padStart(6,'0')}"></i>${c[0]}<small>${['Blazer biru','Blazer merah','Blazer hijau'][i]}</small></button>`).join('');
+$('#ch').onclick=e=>{sfx('click');const b=e.target.closest('button');if(!b)return;ci=+b.dataset.i;[...$('#ch').children].forEach((x,j)=>x.classList.toggle('on',j==ci));skin();$('#sn').textContent=CHARS[ci][0]};
+
+// ===== 3D ENGINE (HALAMAN TERTATA RAPI & BEBAS Z-FIGHTING) =====
+let ok=typeof THREE!=='undefined',R;
+try{R=new THREE.WebGLRenderer({canvas:$('#c'),antialias:true})}catch(e){ok=false}
+let room=null,busy=0,snap=0,joy=null,jy=0,jv=0,lastMt,wave=1e9,night=S.night||0,nk=0,rain=0,yaw=0,pitch=.42,dist=12,pl,PM={},legs=[],crys=[],rainP,rv,stepTimer=0,flagGeo,lamps=[];
+// Mulai dari LUAR gerbang sekolah
+const p={x:0,z:36};
+
+if(ok){
+// near plane diset 0.5 untuk memaksimalkan presisi depth buffer dan menghilangkan z-fighting 100%
+const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(56,1,0.5,450),ck=new THREE.Clock();
+R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;
+const M=(c,o)=>new THREE.MeshLambertMaterial(Object.assign({color:c},o)),
+add=(g,m,x,y,z,par)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);(par||sc).add(o);return o},
+hemi=new THREE.HemisphereLight(0xffffff,0x6b8f5a,.92),sun=new THREE.DirectionalLight(0xffffff,.95);sun.position.set(20,35,18);sc.add(hemi,sun);
+
+// Lautan
+const seaM=M(0x2a9ac4);add(new THREE.PlaneGeometry(600,600),seaM,0,-.25,0).rotation.x=-Math.PI/2;
+
+// Pulau Halaman Sekolah Luas (Radius 48 - 53m)
+add(new THREE.CylinderGeometry(53,53,.8,64),M(0xe8d9a8),0,-.45,0);
+add(new THREE.CylinderGeometry(48,48,1,64),M(0x7ec850),0,-.5,0);
+
+// ========================================================
+// ===== LAPANGAN OLAHRAGA & PLAZA (TANPA Z-FIGHTING) =====
+// ========================================================
+// 1. Plaza Paving Batu Halaman Tengah (y = 0.02)
+const pavCv=document.createElement('canvas');pavCv.width=pavCv.height=64;
+{const px=pavCv.getContext('2d');px.fillStyle='#dfd8cb';px.fillRect(0,0,64,64);px.strokeStyle='#c8c0b0';px.lineWidth=2;px.strokeRect(0,0,32,32);px.strokeRect(32,32,32,32)}
+const pavTex=new THREE.CanvasTexture(pavCv);pavTex.wrapS=pavTex.wrapT=THREE.RepeatWrapping;pavTex.repeat.set(16,12);
+add(new THREE.BoxGeometry(36,.04,26),new THREE.MeshLambertMaterial({color:0xe5ded2,map:pavTex}),0,.02,-5);
+
+// 2. Lapangan Olahraga / Basket Terpadu dalam 1 Canvas Texture (Bebas Kedipan & Garis Mulus)
+const ccv=document.createElement('canvas');ccv.width=1024;ccv.height=640;
+const cx=ccv.getContext('2d');
+cx.fillStyle='#2a6b52';cx.fillRect(0,0,1024,640); // Warna hijau lapangan
+cx.strokeStyle='#ffffff';cx.lineWidth=10;
+cx.strokeRect(36,36,952,568); // Garis batas luar
+cx.beginPath();cx.moveTo(512,36);cx.lineTo(512,604);cx.stroke(); // Garis tengah
+cx.beginPath();cx.arc(512,320,88,0,Math.PI*2);cx.stroke(); // Lingkaran tengah
+// Area Kunci Ring Kiri & Busur Three-Point
+cx.strokeRect(36,220,180,200);
+cx.beginPath();cx.arc(216,320,88,-Math.PI/2,Math.PI/2);cx.stroke();
+// Area Kunci Ring Kanan & Busur Three-Point
+cx.strokeRect(808,220,180,200);
+cx.beginPath();cx.arc(808,320,88,Math.PI/2,Math.PI*1.5);cx.stroke();
+const courtTex=new THREE.CanvasTexture(ccv);
+
+// Diletakkan bersih di atas plaza pada y = 0.042 (Zero Z-Fighting)
+add(new THREE.BoxGeometry(22,.04,13.8),new THREE.MeshLambertMaterial({map:courtTex}),0,.042,-5);
+
+// Dua Ring Basket di Ujung Barat & Timur Lapangan
+[-11.5,11.5].forEach(bx=>{
+  const bg=new THREE.Group();bg.position.set(bx,0,-5);sc.add(bg);
+  add(new THREE.CylinderGeometry(.08,.1,3.8,8),M(0x444444),0,1.9,0,bg);
+  add(new THREE.BoxGeometry(.1,1.2,1.6),M(0xffffff),0,3.3,0,bg);
+  add(new THREE.TorusGeometry(.35,.03,8,16),M(0xe4572e),bx>0?-.4:.4,3.1,0,bg).rotation.x=Math.PI/2;
+});
+
+// ========================================================
+// ===== JALAN BOULEVARD BERSIH TANPA POTONGAN DIAGONAL =====
+// ========================================================
+// Boulevard Utama dari Luar Gerbang (z = 40) ke Gerbang dan Plaza (z = 8)
+add(new THREE.BoxGeometry(7.6,.04,12),M(0xaf8e68),0,.022,34); // Akses depan gerbang
+add(new THREE.BoxGeometry(7.2,.04,20),M(0xeadfba),0,.022,18); // Jalan utama gerbang ke plaza
+
+// Jalan cabang orthogonal yang rapi menghubungkan plaza ke tiap gedung
+add(new THREE.BoxGeometry(4.5,.04,5.5),M(0xeadfba),0,.022,-20.5); // Ke Gedung Utama (Utara)
+add(new THREE.BoxGeometry(6,.04,3.6),M(0xeadfba),-21.5,.022,-5);   // Ke Gedung Akademik (Barat)
+add(new THREE.BoxGeometry(6,.04,3.6),M(0xeadfba),21.5,.022,-5);    // Ke Aula & Ekskul (Timur)
+add(new THREE.BoxGeometry(8,.04,3.6),M(0xeadfba),9.5,.022,17);     // Ke Kantor PPDB (Tenggara)
+
+// ========================================================
+// ===== MODEL GERBANG SEKOLAH (MEGAH & SESUAI REFERENSI) =====
+// ========================================================
+const gateG=new THREE.Group();gateG.position.set(0,0,28);sc.add(gateG);
+const gateColor=0x8f4333,gateTrimColor=0x6b2e22,gateBlueColor=0x1e4b75;
+const gateMat=M(gateColor),gateTrimMat=M(gateTrimColor),doorMat=M(gateBlueColor);
+
+// Tiang Pilar Kiri & Kanan (Bukaan 7.4 meter - sangat leluasa)
+add(new THREE.BoxGeometry(1.8,6.2,1.8),gateMat,-4.6,3.1,0,gateG);
+add(new THREE.BoxGeometry(1.8,6.2,1.8),gateMat,4.6,3.1,0,gateG);
+// Dasar Pilar
+add(new THREE.BoxGeometry(2.2,.7,2.2),gateTrimMat,-4.6,.35,0,gateG);
+add(new THREE.BoxGeometry(2.2,.7,2.2),gateTrimMat,4.6,.35,0,gateG);
+// Balok Atas Gerbang
+add(new THREE.BoxGeometry(12,1.6,1.7),gateMat,0,5.5,0,gateG);
+// Kanopi / Top Overhang Slab
+add(new THREE.BoxGeometry(13.2,.5,2.6),gateTrimMat,0,6.4,0,gateG);
+
+// Papan Nama Sekolah di Balok Gerbang: "SMA CAHAYA NUSANTARA"
+const gcv=document.createElement('canvas');gcv.width=1024;gcv.height=160;
+const gx=gcv.getContext('2d');
+gx.fillStyle='#6b2e22';gx.fillRect(0,0,1024,160);
+gx.strokeStyle='#ffc83d';gx.lineWidth=6;gx.strokeRect(10,10,1004,140);
+gx.fillStyle='#ffffff';gx.font='800 54px "Baloo 2", sans-serif';gx.textAlign='center';gx.textBaseline='middle';
+gx.fillText('SMA CAHAYA NUSANTARA',512,80);
+const gTex=new THREE.CanvasTexture(gcv);
+add(new THREE.PlaneGeometry(8.6,1.2),new THREE.MeshBasicMaterial({map:gTex}),0,5.5,.87,gateG);
+const gTexBack=add(new THREE.PlaneGeometry(8.6,1.2),new THREE.MeshBasicMaterial({map:gTex}),0,5.5,-.87,gateG);
+gTexBack.rotation.y=Math.PI;
+
+// Dua Daun Pintu Gerbang Biru Terbuka Lebar
+const dL=new THREE.Group();dL.position.set(-3.7,0,0);dL.rotation.y=1.1;gateG.add(dL);
+add(new THREE.BoxGeometry(3.4,3.4,.14),doorMat,1.7,1.9,0,dL);
+for(let k=0;k<5;k++){add(new THREE.BoxGeometry(.12,3.1,.16),M(0x13304a),.5+k*.65,1.9,0,dL)}
+
+const dR=new THREE.Group();dR.position.set(3.7,0,0);dR.rotation.y=-1.1;gateG.add(dR);
+add(new THREE.BoxGeometry(3.4,3.4,.14),doorMat,-1.7,1.9,0,dR);
+for(let k=0;k<5;k++){add(new THREE.BoxGeometry(.12,3.1,.16),M(0x13304a),-.5-k*.65,1.9,0,dR)}
+
+// Tembok Pagar Keliling Sekolah Kiri & Kanan
+add(new THREE.BoxGeometry(42,3.2,.6),gateMat,-26.5,1.6,0,gateG);
+add(new THREE.BoxGeometry(42.2,.35,.8),gateTrimMat,-26.5,3.3,0,gateG);
+add(new THREE.BoxGeometry(42,3.2,.6),gateMat,26.5,1.6,0,gateG);
+add(new THREE.BoxGeometry(42.2,.35,.8),gateTrimMat,26.5,3.3,0,gateG);
+
+// Pohon rindang di samping gerbang (sesuai gambar referensi)
+function addTree(tx,tz,k){
+  const tg=new THREE.Group();tg.position.set(tx,0,tz);tg.scale.setScalar(k||1);sc.add(tg);
+  add(new THREE.CylinderGeometry(.25,.35,1.6,6),M(0x6b4423),0,.8,0,tg);
+  add(new THREE.ConeGeometry(1.3,2.4,7),M(0x2f8f46),0,2.4,0,tg);
+  add(new THREE.ConeGeometry(1.0,1.9,7),M(0x3aa656),0,3.7,0,tg);
+}
+[[-7.5,30],[7.5,30],[-9,25],[9,25]].forEach(tp=>addTree(tp[0],tp[1],1.3));
+
+// Barisan Pohon Hijau di Pinggiran Pagar Kampus (Tertata Rapi)
+[-42,-34,-26,26,34,42].forEach(x=>{addTree(x,26,1.2);addTree(x,-42,1.2)});
+[-35,-25,-15,5,15].forEach(z=>{addTree(-42,z,1.2);addTree(42,z,1.2)});
+
+// Pos Satpam & NPC Pak Budi (Di Tempat yang Rapi)
+const pos=new THREE.Group();pos.position.set(-10,0,23.5);sc.add(pos);
+add(new THREE.BoxGeometry(3.6,2.8,3),M(0xf3ead2),0,1.4,0,pos);
+add(new THREE.BoxGeometry(4.2,.35,3.6),M(0x8f4333),0,2.95,0,pos);
+add(new THREE.BoxGeometry(1.2,2,.08),M(0x8a5a2b),0,1,1.52,pos);
+lbl('Pos Satpam',0,3.4,0,pos);
+
+const satpamG=new THREE.Group();satpamG.position.set(-6.5,0,24.5);satpamG.rotation.y=.5;satpamG.scale.setScalar(.9);sc.add(satpamG);
+const sTorso=add(new THREE.CylinderGeometry(.44,.39,.78,16),M(0x1a2e40),0,1.09,0,satpamG);sTorso.scale.z=.8;
+add(new THREE.BoxGeometry(.3,.4,.06),M(0xffffff),0,1.2,.33,satpamG);
+const sHead=new THREE.Group();sHead.position.y=1.95;satpamG.add(sHead);
+add(new THREE.SphereGeometry(.5,20,16),M(0xd9a577),0,0,0,sHead);
+add(new THREE.CylinderGeometry(.56,.52,.2,16),M(0x111c26),0,.35,0,sHead);
+add(new THREE.BoxGeometry(.7,.06,.4),M(0x111c26),0,.3,.35,sHead);
+[-.14,.14].forEach(x=>{const lg=new THREE.Group();lg.position.set(x,.73,0);satpamG.add(lg);add(new THREE.CylinderGeometry(.16,.15,.6,12),M(0x111c26),0,-.3,0,lg);add(new THREE.BoxGeometry(.3,.17,.46),M(0x111111),0,-.65,.08,lg)});
+lbl('Pak Budi (Satpam)',-6.5,2.9,24.5,sc);
+
+// Lampu Taman di Tepi Jalan & Sudut Plaza (Tidak Menghalangi Lapangan)
+[[-5,34],[5,34],[-5,24],[5,24],[-5,14],[5,14],[-19,-18],[19,-18],[-19,8],[19,8]].forEach(lp=>{
+  const lg=new THREE.Group();lg.position.set(lp[0],0,lp[1]);sc.add(lg);
+  add(new THREE.CylinderGeometry(.09,.11,3.8,8),M(0x222222),0,1.9,0,lg);
+  add(new THREE.ConeGeometry(.5,.28,6),M(0x333333),0,4,0,lg);
+  const bulb=add(new THREE.SphereGeometry(.25,12,10),new THREE.MeshBasicMaterial({color:0xd8d8b0}),0,3.75,0,lg);
+  lamps.push(bulb);
+});
+
+// ========================================================
+// ===== MODEL GEDUNG-GEDUNG KAMPUS =====
+// ========================================================
+const winM=M(0x9bd3ff);
+B.forEach(b=>{const g=new THREE.Group();g.position.set(b.x,0,b.z);g.rotation.y=b.r;sc.add(g);
+const T=b.id,H={profil:6.5,akademik:6.5,ekskul:4.8,ppdb:4.2}[T],WC={profil:0xf3ead2,akademik:0xdbe7f5,ekskul:0xfbe3b0,ppdb:0xd5f0e3}[T];
+const GW={profil:9.2,akademik:9.2,ekskul:8.6,ppdb:7.6}[T];
+add(new THREE.BoxGeometry(GW,H,6.5),M(WC),0,H/2,0,g);add(new THREE.BoxGeometry(GW+.3,.6,6.7),M(b.c),0,.3,0,g);add(new THREE.BoxGeometry(GW+.3,.4,6.7),M(b.c),0,H-.2,0,g);
+lbl(b.i,0,H+(T==='profil'?5:3.5),0,g);
+if(T==='ekskul'){const r=add(new THREE.CylinderGeometry(3.6,3.6,GW-.4,20,1,false,Math.PI/2,Math.PI),M(0xc7791f),0,H,0,g);r.rotation.x=Math.PI/2;r.scale.z=.55;r.scale.x=1.07}
+else if(T==='ppdb'){const r=add(new THREE.ConeGeometry(6,2,4),M(0x2f7d5a),0,H+1,0,g);r.rotation.y=Math.PI/4;r.scale.z=.85}
+else{add(new THREE.BoxGeometry(GW+.6,.35,7.1),M(0x8a8f99),0,H+.18,0,g);
+if(T==='profil'){add(new THREE.BoxGeometry(2.2,2.8,2.2),M(0xf3ead2),0,H+1.7,0,g);const r=add(new THREE.ConeGeometry(1.8,1.4,4),M(b.c),0,H+3.8,0,g);r.rotation.y=Math.PI/4;add(new THREE.CircleGeometry(.7,24),new THREE.MeshBasicMaterial({color:0xffffff}),0,H+1.8,1.12,g);add(new THREE.BoxGeometry(.07,.5,.02),M(0x111111),0,H+1.9,1.14,g)}
+else{add(new THREE.CylinderGeometry(.9,.9,1.4,12),M(0x9aa5b1),-2.5,H+1,-1,g);add(new THREE.BoxGeometry(4.2,.8,.14),M(0xffffff),0,H+.6,3.35,g)}}
+add(new THREE.BoxGeometry(1.6,2.6,.2),M(0x8a5a2b),0,1.3,3.3,g);add(new THREE.BoxGeometry(.6,.9,.05),winM,0,1.85,3.42,g);add(new THREE.BoxGeometry(3,.2,1.2),M(0xcfcfcf),0,.1,3.8,g);
+if(T==='ekskul')add(new THREE.BoxGeometry(3.4,3,.14),M(0xe08a1c),0,1.5,3.28,g);
+if(T==='profil'){add(new THREE.BoxGeometry(5.2,.35,1.6),M(0xffffff),0,3.2,3.85,g);[-2.3,-1.15,1.15,2.3].forEach(x=>add(new THREE.CylinderGeometry(.15,.15,3.1,10),M(0xffffff),x,1.6,3.85,g))}
+if(T==='ppdb'){add(new THREE.BoxGeometry(4.6,.14,1.6),M(0x10b981),0,3.1,3.8,g).rotation.x=.22;const bs=new THREE.Group();bs.position.set(6.2,0,.5);g.add(bs);add(new THREE.BoxGeometry(2,1.6,4.6),M(0xffc400),0,1.1,0,bs);add(new THREE.BoxGeometry(2.05,.48,4),M(0x233040),0,1.6,0,bs);[-1.5,1.5].forEach(z=>[-.95,.95].forEach(x=>add(new THREE.CylinderGeometry(.38,.38,.32,12),M(0x222222),x,.38,z,bs).rotation.z=Math.PI/2))}
+(H>5?[[2.1,[-3.2,3.2]],[4.8,[-3.2,0,3.2]]]:[[H>4?2.2:2,[-3,3]]]).forEach(r=>r[1].forEach(x=>{add(new THREE.BoxGeometry(1.4,1.25,.08),M(0xffffff),x,r[0],3.28,g);add(new THREE.BoxGeometry(1.15,1,.1),winM,x,r[0],3.3,g)}));
+const cv=document.createElement('canvas');cv.width=512;cv.height=96;const x=cv.getContext('2d');x.fillStyle='#10302a';x.fillRect(0,0,512,96);
+x.fillStyle='#fff';x.font='700 38px "Baloo 2",sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(b.i+' '+b.n,256,50);
+add(new THREE.PlaneGeometry(5.2,.95),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv)}),0,H>5?3.3:H-.65,3.38,g)});
+
+// Tiang Bendera Pusat Lapangan (Di North Plaza Edge z = -17)
+add(new THREE.CylinderGeometry(1.4,1.6,.35,24),M(0x752e20),0,.17,-17); // Pedestal melingkar
+add(new THREE.CylinderGeometry(.08,.08,6,8),M(0xdddddd),0,3.2,-17);
+const fcv=document.createElement('canvas');fcv.width=256;fcv.height=128;const fx=fcv.getContext('2d');
+fx.fillStyle='#e0222d';fx.fillRect(0,0,256,64);fx.fillStyle='#ffffff';fx.fillRect(0,64,256,64);
+const flagTex=new THREE.CanvasTexture(fcv);
+flagGeo=new THREE.PlaneGeometry(1.8,1.0,16,4);
+const flagMesh=new THREE.Mesh(flagGeo,new THREE.MeshBasicMaterial({map:flagTex,side:THREE.DoubleSide}));
+flagMesh.position.set(.95,5.6,-17);sc.add(flagMesh);
+
+// Bintang Fakta Rahasia Kampus
+CRY.forEach((c,i)=>{const m=add(new THREE.OctahedronGeometry(.5),new THREE.MeshBasicMaterial({color:0xffd23f}),c[0],1.4,c[1]);m.visible=!S.f[i];crys.push(m)});
+
+// Karakter Utama
+pl=new THREE.Group();sc.add(pl);
+PM={h:M(0),j:M(0),k:M(0),pa:M(0xb89a72),sh:M(0xf8f8f8),rd:M(0xd62d2d)};pl.scale.setScalar(.9);
+const torso=add(new THREE.CylinderGeometry(.43,.38,.78,16),PM.j,0,1.09,0,pl);torso.scale.z=.8;
+add(new THREE.BoxGeometry(.3,.5,.06),PM.sh,0,1.2,.33,pl);add(new THREE.BoxGeometry(.09,.42,.05),PM.rd,0,1.14,.37,pl);add(new THREE.BoxGeometry(.4,.09,.1),PM.sh,0,1.5,.3,pl);
+add(new THREE.BoxGeometry(.62,.72,.26),PM.rd,0,1.15,-.45,pl);[-.2,.2].forEach(x=>add(new THREE.BoxGeometry(.08,.6,.05),PM.rd,x,1.2,.33,pl));
+const head=new THREE.Group();head.position.y=1.95;pl.add(head);
+add(new THREE.SphereGeometry(.5,24,18),PM.k,0,0,0,head);
+add(new THREE.SphereGeometry(.53,20,10,0,6.283,0,1.2),PM.h,0,.02,0,head);add(new THREE.SphereGeometry(.48,16,12),PM.h,0,.03,-.12,head);
+for(let i=0;i<7;i++){const a=i/7*6.283,c=add(new THREE.ConeGeometry(.13,.4,6),PM.h,Math.sin(a)*.3,.5,Math.cos(a)*.25-.05,head);c.rotation.set(Math.cos(a)*.6,0,-Math.sin(a)*.6)}
+[-.22,0,.22].forEach(x=>add(new THREE.ConeGeometry(.1,.3,6),PM.h,x,.3,.4,head).rotation.x=1.3);
+[-1,1].forEach(s=>{add(new THREE.SphereGeometry(.13,12,10),M(0xffffff),s*.18,.04,.4,head);add(new THREE.SphereGeometry(.085,12,10),M(0x3b6e8f),s*.18,.04,.48,head);add(new THREE.SphereGeometry(.045,10,8),M(0x101820),s*.18,.04,.53,head);
+add(new THREE.SphereGeometry(.11,10,8),PM.k,s*.5,-.02,0,head).scale.x=.55;add(new THREE.SphereGeometry(.07,10,8),M(0xf29a8a),s*.3,-.1,.37,head).scale.z=.4});
+add(new THREE.SphereGeometry(.06,10,8),M(0xe8836f),0,-.1,.49,head);add(new THREE.TorusGeometry(.12,.022,6,14,Math.PI),M(0x8a2b2b),0,-.1,.47,head).rotation.z=Math.PI;
+
+[-.14,.14].forEach(x=>{const lg=new THREE.Group();lg.position.set(x,.73,0);pl.add(lg);add(new THREE.CylinderGeometry(.16,.15,.6,12),PM.pa,0,-.3,0,lg);add(new THREE.BoxGeometry(.3,.17,.46),PM.rd,0,-.65,.08,lg);add(new THREE.BoxGeometry(.32,.06,.48),M(0xffffff),0,-.72,.08,lg);lg.userData.leg=1;legs.push(lg)});
+const arms=[];[-1,1].forEach(s=>{const g=new THREE.Group();g.position.set(s*.5,1.38,0);pl.add(g);add(new THREE.CylinderGeometry(.115,.1,.66,12),PM.j,0,-.33,0,g);add(new THREE.SphereGeometry(.14,12,10),PM.j,0,0,0,g);add(new THREE.SphereGeometry(.12,12,10),PM.k,0,-.74,0,g);g.userData.arm=1;arms.push(g)});
+
+// Animasi gerak
+function animate(t,dt,mv){const w=wave>0;if(w)wave-=dt;const sw=Math.sin(t*12),b=Math.sin(t*2),[L,Rl]=legs,[aL,aR]=arms;
+if(mv){L.rotation.x=sw*.7;Rl.rotation.x=-sw*.7;aL.rotation.x=-sw*.5;aR.rotation.x=sw*.5;aL.rotation.z=-.1;aR.rotation.z=.1;pl.position.y=Math.abs(sw)*.08;head.rotation.set(0,0,0);torso.scale.y=1;
+stepTimer+=dt;if(stepTimer>.28){stepTimer=0;sfx('step')}}
+else{L.rotation.x=Rl.rotation.x=aL.rotation.x=aR.rotation.x=0;pl.position.y=0;torso.scale.y=1+b*.012;aL.rotation.z=-.1-b*.02;
+if(w){aR.rotation.z=2.5+Math.sin(t*10)*.3;head.rotation.set(0,Math.sin(t*2)*.12,.1)}else{aR.rotation.z=.1+b*.02;head.rotation.set(0,0,Math.sin(t*1.3)*.04)}}}
+pl.traverse(o=>{if(o.isMesh&&!o.userData.ol){const q=new THREE.Mesh(o.geometry,new THREE.MeshBasicMaterial({color:0x1a1210,side:THREE.BackSide}));q.scale.setScalar(1.05);q.userData.ol=1;o.add(q)}});
+const cm=new THREE.MeshBasicMaterial({color:0xffffff}),clouds=[];for(let i=0;i<9;i++){const g=new THREE.Group();[[0,0,1.8],[2.1,-.3,1.4],[-2.1,-.2,1.3]].forEach(c=>add(new THREE.SphereGeometry(c[2],10,8),cm,c[0],c[1],0,g).scale.y=.6);g.position.set(-90+i*22,18+rnd()*10,-40+rnd()*80);g.scale.setScalar(2.2+rnd());sc.add(g);clouds.push(g)}
+sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-55,right:55,top:55,bottom:-55,near:1,far:110});sun.shadow.bias=-.0008;
+sc.traverse(o=>{if(o.isMesh&&!o.userData.ol&&o.material.type==='MeshLambertMaterial'&&o.geometry.type!=='PlaneGeometry'){o.castShadow=o.receiveShadow=true}});
+const nc=document.createElement('canvas');nc.width=256;nc.height=64;const nx=nc.getContext('2d'),nT=new THREE.CanvasTexture(nc),ns=new THREE.Sprite(new THREE.SpriteMaterial({map:nT,depthTest:false}));ns.scale.set(2,.5,1);ns.position.y=3.05;ns.renderOrder=9;pl.add(ns);
+window.nameTag=()=>{nx.clearRect(0,0,256,64);nx.fillStyle='rgba(15,42,36,.88)';nx.beginPath();if(nx.roundRect)nx.roundRect(8,6,240,52,26);else nx.rect(8,6,240,52);nx.fill();nx.fillStyle='#ffc83d';nx.font='800 32px "Baloo 2",sans-serif';nx.textAlign='center';nx.textBaseline='middle';nx.fillText(CHARS[ci][0],128,34);nT.needsUpdate=true};
+if(document.fonts)document.fonts.ready.then(()=>nameTag());
+const bc=new THREE.Mesh(new THREE.CylinderGeometry(1,1,14,20,1,true),new THREE.MeshBasicMaterial({color:0xffd23f,transparent:true,opacity:.35,side:2,depthWrite:false}));bc.position.y=7;sc.add(bc);
+const rn=new THREE.Mesh(new THREE.RingGeometry(1.2,1.7,32),new THREE.MeshBasicMaterial({color:0xffd23f,side:2}));rn.rotation.x=-Math.PI/2;rn.position.y=.08;sc.add(rn);
+const pod=add(new THREE.CylinderGeometry(1.3,1.5,.35,32),M(0x2f5d8a),p.x,.17,p.z);
+const npcs=[[0x2b1b12,0xb03a48,0xd9a577,14,.18,1],[0xc58b3a,0x3b7d5a,0xe8b98f,12,.22,-1],[0x1a1a1a,0x7a4bb0,0xf2c9a0,28,.06,1],[0x8a3b1f,0xe08a2c,0xd9a577,26,.05,-1],[0x30200f,0x2a8aa8,0xe8b98f,16,.15,1]].map((c,i)=>{const g=pl.clone(true);g.children.filter(o=>o.isSprite).forEach(o=>g.remove(o));g.traverse(o=>{if(o.isMesh&&!o.userData.ol){const m=o.material;if(m===PM.h)o.material=M(c[0]);else if(m===PM.j)o.material=M(c[1]);else if(m===PM.k)o.material=M(c[2])}});sc.add(g);return{g,r:c[3],w:c[4]*c[5],a:i*1.7,lg:g.children.filter(o=>o.userData.leg),ar:g.children.filter(o=>o.userData.arm)}});
+
+// Minimap Proporsional (Skala disesuaikan radius pulau 52)
+const mc=$('#mm').getContext('2d');
+function drawMap(gl,t){
+  const c=104,k=c/52,cy=Math.cos(yaw),sy=Math.sin(yaw),W=(x,z)=>[c+(x*cy-z*sy)*k,c+(x*sy+z*cy)*k],hx=n=>'#'+n.toString(16).padStart(6,'0');
+  mc.clearRect(0,0,208,208);mc.save();mc.beginPath();mc.arc(c,c,c,0,7);mc.clip();mc.fillStyle='#2a7fa6';mc.fillRect(0,0,208,208);
+  mc.fillStyle='#e8d9a8';mc.beginPath();mc.arc(c,c,53*k,0,7);mc.fill();mc.fillStyle='#7ec850';mc.beginPath();mc.arc(c,c,48*k,0,7);mc.fill();
+
+  // Plaza & Lapangan tengah di minimap
+  const pq=W(0,-5);mc.fillStyle='#e0d8cc';mc.fillRect(pq[0]-18*k,pq[1]-13*k,36*k,26*k);
+  mc.fillStyle='#2a6b52';mc.fillRect(pq[0]-11*k,pq[1]-7*k,22*k,14*k);
+
+  // Tembok & Gerbang di minimap
+  const wL1=W(-46,28),wL2=W(-4.5,28),wR1=W(4.5,28),wR2=W(46,28);
+  mc.strokeStyle='#8f4333';mc.lineWidth=4;
+  mc.beginPath();mc.moveTo(wL1[0],wL1[1]);mc.lineTo(wL2[0],wL2[1]);mc.stroke();
+  mc.beginPath();mc.moveTo(wR1[0],wR1[1]);mc.lineTo(wR2[0],wR2[1]);mc.stroke();
+  const gq=W(0,28);mc.fillStyle='#ffc83d';mc.fillRect(gq[0]-6,gq[1]-3,12,6);
+
+  B.forEach(b=>{const q=W(b.x,b.z);mc.fillStyle=hx(b.c);mc.fillRect(q[0]-9,q[1]-9,18,18);if(S.v[b.id]){mc.fillStyle='#fff';mc.font='16px sans-serif';mc.fillText('✓',q[0]-6,q[1]+6)}});
+  crys.forEach(m=>{if(m.visible){const q=W(m.position.x,m.position.z);mc.fillStyle='#ffd23f';mc.beginPath();mc.arc(q[0],q[1],4,0,7);mc.fill()}});
+  if(gl){const q=W(gl.dx||gl.x,gl.dz||gl.z);mc.strokeStyle='#ffd23f';mc.lineWidth=4;mc.beginPath();mc.arc(q[0],q[1],14+Math.sin(t*4)*3,0,7);mc.stroke()}
+  const q=W(p.x,p.z);mc.translate(q[0],q[1]);mc.rotate(Math.PI-(pl.rotation.y-yaw));mc.fillStyle='#fff';mc.strokeStyle='#1a1210';mc.lineWidth=3;mc.beginPath();mc.moveTo(0,-11);mc.lineTo(8,9);mc.lineTo(0,5);mc.lineTo(-8,9);mc.closePath();mc.stroke();mc.fill();mc.restore();
+}
+
+function lbl(t,x,y,z,par){const c=document.createElement('canvas');c.width=256;c.height=64;const q=c.getContext('2d');q.fillStyle='rgba(15,42,36,.88)';q.fillRect(8,8,240,48);q.fillStyle='#fff';q.font='700 26px sans-serif';q.textAlign='center';q.textBaseline='middle';q.fillText(t,128,33);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false}));s.scale.set(2.4,.6,1);s.position.set(x,y,z);s.renderOrder=8;par.add(s)}
+const tc=document.createElement('canvas');tc.width=tc.height=64;{const q=tc.getContext('2d');q.fillStyle='#fff';q.fillRect(0,0,64,64);q.fillStyle='#d8d8d8';q.fillRect(0,0,32,32);q.fillRect(32,32,32,32)}const tile=new THREE.CanvasTexture(tc);tile.wrapS=tile.wrapT=THREE.RepeatWrapping;tile.repeat.set(10,8);
+const IC={profil:['🏫','🎯','📜'],akademik:['🎓','📚','🏆'],ekskul:['⚽','🏟','📅'],ppdb:['📝','✍','📞']};
+
+// Ruangan Dalam Luas & Nyaman (22 x 16 meter)
+Object.keys(RM).forEach(id=>{const d=RM[id],g=new THREE.Group();g.position.x=RX;g.visible=false;sc.add(g);
+add(new THREE.BoxGeometry(22,.35,16),new THREE.MeshLambertMaterial({color:d.f,map:tile}),0,-.15,0,g);
+add(new THREE.BoxGeometry(22,4.8,.35),M(d.w),0,2.4,-8.15,g);add(new THREE.BoxGeometry(.35,4.8,16),M(d.w),-11.15,2.4,0,g);
+add(new THREE.BoxGeometry(3.2,2.2,.1),new THREE.MeshBasicMaterial({color:0x9bd3ff}),-6,2.8,-7.95,g);
+add(new THREE.BoxGeometry(22,.4,.36),M(0xb5483b),0,1.2,-8.1,g);add(new THREE.BoxGeometry(.36,.4,16),M(0xb5483b),-11.1,1.2,0,g);
+add(new THREE.BoxGeometry(2.8,1.6,.08),M(0xc9a06a),6,2.9,-7.95,g);[0,1].forEach(k=>add(new THREE.BoxGeometry(.7,.55,.02),M(k?0xff8a65:0x7ec8ff),5.4+k*1.1,2.9,-7.9,g));
+for(let k=0;k<5;k++)add(new THREE.BoxGeometry(1,2.4,1.1),M(k%2?0x1f8a8a:0x2aa3a3),-10.4,1.2,.5+k*1.5,g);
+add(new THREE.CylinderGeometry(3.2,3.2,.05,28),M(d.rug),0,.03,.8,g);add(new THREE.BoxGeometry(3.8,.05,1.4),M(0xf5c26b),0,.03,7.2,g);lbl('Keluar',0,1.3,7.2,g);
+d.F.forEach(f=>add(new THREE.BoxGeometry(f[2],f[3],f[4]),M(f[5]),f[0],f[3]/2,f[1],g));
+RS[id]=P[id].tabs.map((t,i)=>{const q=d.S[i],ic=IC[id][i],c=S.s[id+i]?0x4ade80:0xffc83d,r=add(new THREE.TorusGeometry(.8,.1,8,24),M(c),q[0],.12,q[1],g),bm=add(new THREE.CylinderGeometry(.8,.8,2.8,20,1,true),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.2,side:2,depthWrite:false}),q[0],1.4,q[1],g);r.rotation.x=Math.PI/2;lbl(ic+' '+t.t,q[0],3.2,q[1],g);return{id,idx:i,i:ic,n:t.t,v:'Buka',st:1,x:RX+q[0],z:q[1],ring:r,beam:bm}});rooms[id]=g});
+
+function colR(){p.x=Math.min(RX+10.2,Math.max(RX-10.2,p.x));p.z=Math.min(7.4,Math.max(-7.2,p.z));for(const f of RM[room].F){const lx=p.x-RX-f[0],lz=p.z-f[1],hx=f[2]/2+.4,hz=f[4]/2+.4;if(Math.abs(lx)<hx&&Math.abs(lz)<hz){if(hx-Math.abs(lx)<hz-Math.abs(lz))p.x=RX+f[0]+Math.sign(lx||1)*hx;else p.z=f[1]+Math.sign(lz||1)*hz}}}
+
+// Hujan
+rv=new Float32Array(1500);for(let i=0;i<1500;i+=3){rv[i]=(rnd()-.5)*40;rv[i+1]=rnd()*16;rv[i+2]=(rnd()-.5)*40}
+const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.BufferAttribute(rv,3));
+rainP=new THREE.Points(rg,new THREE.PointsMaterial({color:0xaaccee,size:.15}));rainP.visible=false;rainP.frustumCulled=false;sc.add(rainP);
+window.skin=()=>{const c=CHARS[ci];PM.h.color.setHex(c[1]);PM.j.color.setHex(c[2]);nameTag();PM.k.color.setHex(c[3])};skin();
+const rs=()=>{R.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()};addEventListener('resize',rs);rs();
+const DAY=new THREE.Color(0x8fd3f4),NI=new THREE.Color(0x0b1230),GR=new THREE.Color(0x9aa8b5),sk=new THREE.Color(),SD=new THREE.Color(0x2a9ac4),SN=new THREE.Color(0x0f2547);
+
+// Collision detection halaman luas & tertata
+function col(){
+  // Tembok pagar sekolah pada z = 28 (bukaan leluasa dari -3.5 s/d 3.5)
+  if(Math.abs(p.z-28)<.85){
+    if(p.x<-3.5||p.x>3.5){
+      p.z=28+Math.sign(p.z-28||1)*.85;
+    }
+  }
+  // Tiang pilar gerbang pada (-4.6, 28) dan (4.6, 28)
+  [-4.6,4.6].forEach(px=>{
+    const dx=p.x-px,dz=p.z-28;
+    if(Math.abs(dx)<1.25&&Math.abs(dz)<1.25){
+      if(1.25-Math.abs(dx)<1.25-Math.abs(dz))p.x=px+Math.sign(dx||1)*1.25;
+      else p.z=28+Math.sign(dz||1)*1.25;
+    }
+  });
+
+  // Pos satpam pada (-10, 23.5)
+  if(Math.abs(p.x+10)<2.2&&Math.abs(p.z-23.5)<1.8){
+    if(2.2-Math.abs(p.x+10)<1.8-Math.abs(p.z-23.5))p.x=-10+Math.sign(p.x+10||1)*2.2;
+    else p.z=23.5+Math.sign(p.z-23.5||1)*1.8;
+  }
+
+  // Gedung-gedung kampus
+  for(const b of B){
+    const c=Math.cos(b.r),s=Math.sin(b.r),dx=p.x-b.x,dz=p.z-b.z;
+    let lx=dx*c-dz*s,lz=dx*s+dz*c;
+    const hx=5.2,hz=4.2;
+    if(Math.abs(lx)<hx&&Math.abs(lz)<hz){
+      if(hx-Math.abs(lx)<hz-Math.abs(lz))lx=Math.sign(lx||1)*hx;
+      else lz=Math.sign(lz||1)*hz;
+      p.x=b.x+lx*c+lz*s;
+      p.z=b.z-lx*s+lz*c;
+    }
+  }
+
+  // Tiang bendera di pedestal (0, -17)
+  if(Math.hypot(p.x,p.z+17)<1.4){
+    const d=Math.hypot(p.x,p.z+17);
+    p.x=p.x/(d||1)*1.4;
+    p.z=-17+(p.z+17)/(d||1)*1.4;
+  }
+
+  // Batas halaman pulau luas (Radius 47m)
+  const d=Math.hypot(p.x,p.z);
+  if(d>47){p.x*=47/d;p.z*=47/d}
+}
+
+// Input kontrol kamera & joystick
+const cvs=$('#c'),ray=new THREE.Raycaster(),pln=new THREE.Plane(new THREE.Vector3(0,1,0),0),hit=new THREE.Vector3();let dn=null,mv=0;
+cvs.addEventListener('pointerdown',e=>{if(play&&!cur&&e.pointerType==='touch'&&e.clientX<innerWidth*.55&&!joy){joy={id:e.pointerId,x:e.clientX,y:e.clientY,dx:0,dy:0};const j=$('#jb');j.style.left=e.clientX+'px';j.style.top=e.clientY+'px';j.classList.add('on');$('#jk').style.transform='';tgt=null;auto=null;return}dn={x:e.clientX,y:e.clientY};mv=0});
+addEventListener('pointermove',e=>{if(joy&&e.pointerId===joy.id){let dx=e.clientX-joy.x,dy=e.clientY-joy.y;const l=Math.hypot(dx,dy),m=48;if(l>m){dx*=m/l;dy*=m/l}joy.dx=dx/m;joy.dy=dy/m;$('#jk').style.transform='translate('+dx+'px,'+dy+'px)';return}if(!dn)return;const ax=e.clientX-dn.x,ay=e.clientY-dn.y;mv+=Math.abs(ax)+Math.abs(ay);yaw-=ax*.006;pitch=Math.min(1.2,Math.max(.15,pitch+ay*.004));dn={x:e.clientX,y:e.clientY}});
+addEventListener('pointercancel',()=>{joy=null;$('#jb').classList.remove('on')});addEventListener('pointerup',e=>{if(joy&&e.pointerId===joy.id){joy=null;$('#jb').classList.remove('on');return}if(dn&&mv<8&&play&&!cur){ray.setFromCamera({x:e.clientX/innerWidth*2-1,y:-(e.clientY/innerHeight)*2+1},cam);if(ray.ray.intersectPlane(pln,hit)){tgt={x:hit.x,z:hit.z};auto=null}}dn=null});
+cvs.addEventListener('wheel',e=>{dist=Math.min(24,Math.max(6,dist+e.deltaY*.012))},{passive:true});
+$('#bn').onclick=()=>{sfx('click');night=night?0:1;S.night=night;$('#bn').textContent=night?'☀️':'🌙'};
+$('#br').onclick=()=>{sfx('click');rain=rain?0:1;rainP.visible=!!rain;toast(rain?'Hujan turun 🌧':'Cuaca cerah ☀️')};
+
+function loop(){
+  requestAnimationFrame(loop);const dt=Math.min(ck.getDelta(),.05),t=ck.elapsedTime;let dx=0,dz=0;
+  if(play&&!cur){
+    let f=(K.w||K.arrowup?1:0)-(K.s||K.arrowdown?1:0),r=(K.d||K.arrowright?1:0)-(K.a||K.arrowleft?1:0);if(joy&&Math.hypot(joy.dx,joy.dy)>.15){f=-joy.dy;r=joy.dx}
+    if(f||r){tgt=null;auto=null;dx=-Math.sin(yaw)*f+Math.cos(yaw)*r;dz=-Math.cos(yaw)*f-Math.sin(yaw)*r}
+    else if(tgt){const ex=tgt.x-p.x,ez=tgt.z-p.z,d=Math.hypot(ex,ez);if(d<.6){tgt=null;if(auto){const a=auto;auto=null;enterRoom(a)}}else{dx=ex/d;dz=ez/d}}
+  }
+  if(jy>0||jv>0){jv-=20*dt;jy+=jv*dt;if(jy<=0){jy=0;jv=0}}
+  const l=Math.hypot(dx,dz);
+  if(l>0){
+    dx/=l;dz/=l;const sp=K.shift||(joy&&Math.hypot(joy.dx,joy.dy)>.9)?8.5:5.2;p.x+=dx*sp*dt;p.z+=dz*sp*dt;room?colR():col();
+    let da=Math.atan2(dx,dz)-pl.rotation.y;da=Math.atan2(Math.sin(da),Math.cos(da));pl.rotation.y+=da*Math.min(1,dt*12);
+    wave=0;
+  }
+  animate(t,dt,l>0);pl.position.y+=jy+(play?0:.35);if(jy>0){legs[0].rotation.x=-.5;legs[1].rotation.x=.4;arms[0].rotation.z=-.7;arms[1].rotation.z=.7}pl.position.x=p.x;pl.position.z=p.z;
+
+  // Animasi bendera merah putih berkibar mulus
+  if(flagGeo){
+    const fPos=flagGeo.attributes.position;
+    for(let i=0;i<fPos.count;i++){
+      const vx=fPos.getX(i),factor=(vx+0.9)/1.8;
+      fPos.setZ(i,Math.sin(t*7+vx*4)*0.16*factor);
+    }
+    flagGeo.attributes.position.needsUpdate=true;
+  }
+
+  // Deteksi melewati gerbang sekolah pertama kali (z = 28)
+  if(play&&!enteredGate&&p.z<=28.2&&Math.abs(p.x)<3.6){
+    enteredGate=1;S.gate=1;save();prog();sfx('star');
+    toast('🎉 Selamat Datang di SMA Cahaya Nusantara! Halaman sekolah kini luas dan bebas dijelajahi.');
+  }
+
+  // Bintang fakta
+  crys.forEach((m,i)=>{if(!m.visible)return;m.rotation.y=t*2;m.position.y=1.4+Math.sin(t*2+i)*.15;
+  if(play&&Math.hypot(m.position.x-p.x,m.position.z-p.z)<1.5){m.visible=false;S.f[i]=1;save();prog();sfx('star');toast('⭐ Fakta '+(Object.keys(S.f).length)+'/7: '+FACTS[i])}});
+
+  let nb=null;
+  if(play&&!room){
+    for(const b of B)if(Math.hypot(b.dx-p.x,b.dz-p.z)<2.8)nb=b;
+    // Interaksi dengan Pak Budi (Satpam) di dekat pos
+    if(Math.hypot(-6.5-p.x,24.5-p.z)<2.8){
+      nb={id:'satpam',n:'Pak Budi (Satpam)',i:'👮',v:'Bicara'};
+    }
+  }
+  if(room){for(const s of RS[room].concat(EX))if(Math.hypot(s.x-p.x,s.z-p.z)<1.5)nb=s}
+  if(nb!==near){near=nb;const g=$('#go');g.style.display=nb&&!cur?'block':'none';if(nb)g.innerHTML=(nb.v||'Masuk')+' <small>'+nb.i+' '+nb.n+'</small>'}
+
+  clouds.forEach(c=>{c.position.x+=dt*.8;if(c.position.x>110)c.position.x=-110});cm.color.setScalar(1-.75*nk);
+
+  // Target penunjuk arah kuning
+  const gl=!enteredGate?GATE_POS:B.find(b=>!S.v[b.id]);
+  const pc=Math.round((Object.keys(S.v).length+Object.keys(S.f).length+Object.keys(S.s).length+(enteredGate?1:0))/24*100);
+  const mt=play&&room?roomMt():play?(!enteredGate?`<b>Langkah 1: Masuk Sekolah</b><div class="bar"><u style="width:10%"></u></div><span>Tujuan: 🚪 Gerbang Utama · Jalan masuk ke sekolah</span>`:`<b>Kenali sekolah <i>${pc}%</i></b><div class="bar"><u style="width:${pc}%"></u></div><span>${gl?'Tujuan: '+gl.i+' '+gl.n+' · '+Math.round(Math.hypot(gl.dx-p.x,gl.dz-p.z))+' m':'🎓 Semua gedung sudah dikunjungi!'}</span>`):'';
+  if(mt!==lastMt){lastMt=mt;$('#ms').innerHTML=mt}
+
+  if(play&&!room)drawMap(gl,t);
+  pod.visible=!play;pod.material.color.setHex(CHARS[ci][2]);
+
+  // Lampu taman menyala saat malam
+  lamps.forEach(b=>{b.material.color.setHex(night?0xffeb78:0xd8d8b0)});
+
+  npcs.forEach((n,i)=>{const d2=Math.hypot(n.g.position.x-p.x,n.g.position.z-p.z),nr=d2<3.5&&play;if(!nr)n.a+=n.w*dt;const sg=Math.sign(n.w),x=Math.cos(n.a)*n.r,z=Math.sin(n.a)*n.r;n.g.position.x=x;n.g.position.z=z;
+  const ang=nr?Math.atan2(p.x-x,p.z-z):Math.atan2(-Math.sin(n.a)*sg,Math.cos(n.a)*sg);let da=ang-n.g.rotation.y;da=Math.atan2(Math.sin(da),Math.cos(da));n.g.rotation.y+=da*Math.min(1,dt*6);
+  const sw=Math.sin(t*9+i);n.lg[0].rotation.x=nr?0:sw*.6;n.lg[1].rotation.x=nr?0:-sw*.6;n.ar[0].rotation.x=nr?0:-sw*.4;n.ar[1].rotation.x=nr?0:sw*.4;n.ar[0].rotation.z=-.1;n.ar[1].rotation.z=nr?2.5+Math.sin(t*10)*.3:.1;n.g.position.y=nr?0:Math.abs(sw)*.05});
+
+  // Tanda kuning beacon penunjuk arah
+  bc.visible=rn.visible=play&&!!gl&&!cur&&!room;
+  if(gl){bc.position.x=rn.position.x=gl.dx;bc.position.z=rn.position.z=gl.dz;rn.scale.setScalar(1+Math.sin(t*4)*.15)}
+
+  // Siang malam
+  nk+=((night&&!room?1:0)-nk)*Math.min(1,dt*2);sk.lerpColors(DAY,NI,nk);if(rain)sk.lerp(GR,.45*(1-nk*.6));if(room)sk.setHex(0x0b1020);
+  sc.background=sk;sc.fog=new THREE.Fog(sk,55,170);hemi.intensity=.92-.55*nk-(rain?.15:0);sun.intensity=.95-.78*nk-(rain?.3:0);
+  winM.emissive.setRGB(nk,.8*nk,.4*nk);seaM.color.lerpColors(SD,SN,nk);
+  if(rain){rainP.position.set(p.x,0,p.z);for(let i=1;i<1500;i+=3){rv[i]-=18*dt;if(rv[i]<0)rv[i]+=16}rainP.geometry.attributes.position.needsUpdate=true}
+
+  // Kamera third-person leluasa
+  if(!play||room)yaw=0;const d=room?Math.min(19,Math.max(13,9+8.5/cam.aspect)):play?dist:6.2,pt=play?pitch:.08,cp=Math.cos(pt);
+  {const tv=new THREE.Vector3(p.x+Math.sin(yaw)*cp*d,1.2+Math.sin(pt)*d,p.z+Math.cos(yaw)*cp*d);if(snap){cam.position.copy(tv);snap=0}else cam.position.lerp(tv,1-Math.pow(.001,dt))}cam.lookAt(p.x,play?1.3:.35,p.z);
+  R.render(sc,cam);
+}
+loop()}
+
+// ===== KONTROL DASAR =====
+prog();
+function jump(){if(play&&!cur&&jy<=0){sfx('jump');jv=7;wave=0}}
+function start(){
+  initAudio();play=true;wave=2.4;
+  document.body.classList.add('play');$('#sel').remove();
+  if(ok){
+    if(!enteredGate){
+      toast('Halo '+CHARS[ci][0]+'! Halaman sekolah luas & lapang. Masuklah melewati gerbang utama 🚪');
+    } else {
+      toast('Halo '+CHARS[ci][0]+'! Ikuti tanda kuning menuju gedung pertama.');
+    }
+  }
+}
+if(ok){$('#st').onclick=start}else{document.body.classList.add('nogl');$('#sel').remove();document.body.classList.add('play');toast('Mode 3D tidak tersedia di perangkat ini. Pilih gedung di daftar.')}
+
+// ==========================================
+// ===== FITUR AUGMENTED REALITY (AR) ======
+// ==========================================
+let arActive=false,arStream=null,arRenderer=null,arScene=null,arCam=null,arModelGroup=null;
+let arRotY=0,arScale=1,arTouchX=0,arTouchY=0;
+
+function createMascotModel(){
+  const g=pl.clone(true);g.scale.setScalar(1.4);g.position.set(0,-1.2,0);
+  return g;
+}
+
+function createGateModelAR(){
+  const g=new THREE.Group();
+  const M=(c)=>new THREE.MeshLambertMaterial({color:c});
+  const gm=M(0x8f4333),gt=M(0x6b2e22),dm=M(0x1e4b75);
+  const pL=new THREE.Mesh(new THREE.BoxGeometry(.6,2.2,.6),gm);pL.position.set(-1.4,1.1,0);g.add(pL);
+  const pR=new THREE.Mesh(new THREE.BoxGeometry(.6,2.2,.6),gm);pR.position.set(1.4,1.1,0);g.add(pR);
+  const b=new THREE.Mesh(new THREE.BoxGeometry(3.6,.6,.6),gm);b.position.set(0,2,0);g.add(b);
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(4,.2,.9),gt);cap.position.set(0,2.4,0);g.add(cap);
+  const d1=new THREE.Mesh(new THREE.BoxGeometry(1,1.2,.05),dm);d1.position.set(-.8,.6,.3);d1.rotation.y=.5;g.add(d1);
+  const d2=new THREE.Mesh(new THREE.BoxGeometry(1,1.2,.05),dm);d2.position.set(.8,.6,.3);d2.rotation.y=-.5;g.add(d2);
+  g.position.set(0,-.8,0);g.scale.setScalar(1.1);
+  return g;
+}
+
+function createBuildingModel(){
+  const g=new THREE.Group();
+  const M=(c)=>new THREE.MeshLambertMaterial({color:c});
+  const body=new THREE.Mesh(new THREE.BoxGeometry(3,2.4,2.5),M(0xf3ead2));body.position.y=1.2;g.add(body);
+  const roof=new THREE.Mesh(new THREE.BoxGeometry(3.3,.2,2.8),M(0x8a8f99));roof.position.y=2.5;g.add(roof);
+  const tower=new THREE.Mesh(new THREE.BoxGeometry(.8,1,.8),M(0xf3ead2));tower.position.y=3.1;g.add(tower);
+  const steeple=new THREE.Mesh(new THREE.ConeGeometry(.6,.7,4),M(0xd9534f));steeple.position.y=3.95;steeple.rotation.y=Math.PI/4;g.add(steeple);
+  const door=new THREE.Mesh(new THREE.BoxGeometry(.6,1,.05),M(0x8a5a2b));door.position.set(0,.5,1.26);g.add(door);
+  g.position.set(0,-1,0);g.scale.setScalar(1);
+  return g;
+}
+
+function createTrophyModel(){
+  const g=new THREE.Group();
+  const m=new THREE.Mesh(new THREE.OctahedronGeometry(1.2),new THREE.MeshLambertMaterial({color:0xffd23f}));
+  m.position.y=1.4;g.add(m);
+  const stand=new THREE.Mesh(new THREE.CylinderGeometry(.8,1.1,.6,24),new THREE.MeshLambertMaterial({color:0x2f5f4f}));
+  stand.position.y=.3;g.add(stand);
+  g.position.set(0,-1,0);
+  return g;
+}
+
+function initARScene(){
+  if(arRenderer)return;
+  const canvas=$('#ar-c');
+  arRenderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  arRenderer.setSize(window.innerWidth,window.innerHeight);
+  arRenderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  arScene=new THREE.Scene();
+  arCam=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,.1,100);
+  arCam.position.set(0,0,4.2);
+  const hemi=new THREE.HemisphereLight(0xffffff,0x444444,1.1);
+  const dir=new THREE.DirectionalLight(0xffffff,1.2);dir.position.set(5,10,7);
+  arScene.add(hemi,dir);
+  arModelGroup=new THREE.Group();
+  arScene.add(arModelGroup);
+  loadARModel('mascot');
+
+  window.addEventListener('resize',()=>{
+    if(arActive){
+      arRenderer.setSize(window.innerWidth,window.innerHeight);
+      arCam.aspect=window.innerWidth/window.innerHeight;
+      arCam.updateProjectionMatrix();
+    }
+  });
+
+  let arTouching = false;
+  canvas.addEventListener('pointerdown',e=>{arTouching=true;arTouchX=e.clientX;arTouchY=e.clientY});
+  canvas.addEventListener('pointermove',e=>{
+    if(arTouching || e.buttons===1){
+      const dx=e.clientX-arTouchX;
+      arRotY+=dx*0.015;
+      if(arModelGroup)arModelGroup.rotation.y=arRotY;
+      arTouchX=e.clientX;arTouchY=e.clientY;
+    }
+  });
+  window.addEventListener('pointerup',()=>{arTouching=false});
+  canvas.addEventListener('wheel',e=>{
+    e.preventDefault();
+    arScale=Math.min(2.5,Math.max(.4,arScale-e.deltaY*0.001));
+    if(arModelGroup)arModelGroup.scale.setScalar(arScale);
+  },{passive:false});
+  let touchDist=0;
+  canvas.addEventListener('touchstart',e=>{
+    if(e.touches.length===2){
+      touchDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+    }
+  },{passive:true});
+  canvas.addEventListener('touchmove',e=>{
+    if(e.touches.length===2&&touchDist>0){
+      const curDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+      const diff=(curDist-touchDist)*0.006;
+      arScale=Math.min(2.5,Math.max(.4,arScale+diff));
+      if(arModelGroup)arModelGroup.scale.setScalar(arScale);
+      touchDist=curDist;
+    }
+  },{passive:true});
+}
+
+function loadARModel(type){
+  if(!arModelGroup)return;
+  while(arModelGroup.children.length>0){arModelGroup.remove(arModelGroup.children[0])}
+  arRotY=0;arScale=1;
+  if(type==='mascot')arModelGroup.add(createMascotModel());
+  else if(type==='gate')arModelGroup.add(createGateModelAR());
+  else if(type==='building')arModelGroup.add(createBuildingModel());
+  else if(type==='trophy')arModelGroup.add(createTrophyModel());
+}
+
+async function startAR(){
+  sfx('click');initAudio();
+  $('#ar-modal').classList.add('on');
+  arActive=true;
+  initARScene();
+  const video=$('#ar-video');
+  try{
+    arStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    video.srcObject=arStream;
+    video.play();
+    toast('Mode AR aktif! Arahkan kamera ke meja atau lantai.');
+  }catch(err){
+    console.warn('Camera access denied or unavailable:',err);
+    toast('Kamera tidak aktif. Menjalankan Mode AR Simulasi / 3D Viewer.');
+    video.style.background='radial-gradient(circle at center, #1b3a32 0%, #081412 100%)';
+  }
+  renderAR();
+}
+
+function stopAR(){
+  sfx('click');
+  $('#ar-modal').classList.remove('on');
+  arActive=false;
+  if(arStream){
+    arStream.getTracks().forEach(track=>track.stop());
+    arStream=null;
+  }
+}
+
+function renderAR(){
+  if(!arActive)return;
+  requestAnimationFrame(renderAR);
+  if(arModelGroup){
+    arModelGroup.rotation.y=arRotY;
+    arModelGroup.scale.setScalar(arScale);
+  }
+  arRenderer.render(arScene,arCam);
+}
+
+$('#bar').onclick=startAR;
+$('#ar-close').onclick=stopAR;
+
+document.querySelectorAll('.ar-selector button').forEach(btn=>{
+  btn.onclick=e=>{
+    sfx('click');
+    document.querySelectorAll('.ar-selector button').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    loadARModel(btn.dataset.model);
+  };
+});
+
+$('#ar-reset').onclick=()=>{
+  sfx('click');
+  arRotY=0;arScale=1;
+  if(arModelGroup){
+    arModelGroup.rotation.y=0;
+    arModelGroup.scale.setScalar(1);
+  }
+};
+
+$('#ar-snap').onclick=()=>{
+  sfx('star');
+  const snapCanvas=document.createElement('canvas');
+  snapCanvas.width=window.innerWidth;snapCanvas.height=window.innerHeight;
+  const ctx=snapCanvas.getContext('2d');
+  const video=$('#ar-video');
+  if(video && video.videoWidth>0){
+    ctx.drawImage(video,0,0,snapCanvas.width,snapCanvas.height);
+  } else {
+    ctx.fillStyle='#0f2a24';ctx.fillRect(0,0,snapCanvas.width,snapCanvas.height);
+  }
+  const arCanvas=$('#ar-c');
+  ctx.drawImage(arCanvas,0,0);
+  ctx.fillStyle='rgba(15,42,36,0.85)';ctx.fillRect(20,snapCanvas.height-70,360,50);
+  ctx.fillStyle='#ffc83d';ctx.font='700 20px "Baloo 2",sans-serif';
+  ctx.fillText('SMA Cahaya Nusantara - AR Snapshot',35,snapCanvas.height-38);
+
+  const link=document.createElement('a');
+  link.download='AR_SMA_Cahaya_Nusantara_'+Date.now()+'.png';
+  link.href=snapCanvas.toDataURL('image/png');
+  link.click();
+  toast('📸 Foto AR berhasil diunduh!');
+};
+</script>
+</body>
+</html>
