@@ -127,6 +127,8 @@ Akses melalui peramban: `http://localhost:8080/`
 | 15 | Interaksi Pos Satpam (Pak Budi) | Mendekati pos satpam di sebelah gerbang dan tekan `E` / tombol Bicara | Dialog profil satpam dan rangkuman tata letak kampus terbuka | **BERHASIL** |
 | 16 | Lapangan Bebas Kedipan (*No Z-Fighting*) | Berlari dan mengarahkan kamera 360° di sekitar lapangan basket | Garis lapangan tampil tajam, mulus, dan tidak ada kedipan antar permukaan | **BERHASIL** |
 | 17 | Pemilihan Model AR Gerbang Sekolah | Memilih tab "Gerbang Sekolah" di jendela AR | Objek 3D miniatur gerbang sekolah termuat dan siap diputar | **BERHASIL** |
+| 18 | Animasi Daun Pintu Masuk Gedung | Mendekati pintu gedung (< 3.8 meter) dan menekan tombol Masuk | Sepasang daun pintu ganda membuka otomatis, suara engsel pintu terdengar (`sfx door`), dan karakter melangkah masuk | **BERHASIL** |
+| 19 | Alur Terpandu & Simulator Gedung Akademik | Memasuki Gedung Akademik dan mencoba tes peminatan serta simulator mapel Fase F | Jalur karpet memandu Zona 1 ➔ 2 ➔ 3 secara urut, kuis peminatan menghitung skor kecocokan secara real-time | **BERHASIL** |
 
 ---
 

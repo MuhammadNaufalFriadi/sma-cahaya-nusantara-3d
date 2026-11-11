@@ -15,7 +15,17 @@ Website sekolah 3D interaktif berbasis WebGL / Three.js yang memungkinkan calon 
      - 📚 **Gedung Akademik (Jurusan & Prestasi)** di sayap barat.
      - 🎭 **Aula & Ekskul (Fasilitas & Olahraga)** di sayap timur.
      - 📝 **Kantor PPDB (Pendaftaran)** di sisi gerbang depan.
-   - Interior gedung luas (22x16m) dengan 3 lingkaran penanda materi interaktif.
+   - **Pintu Masuk Gedung Interaktif (Animated Double Doors)**:
+     - Seluruh pintu masuk gedung dilengkapi daun pintu ganda (*double swing doors*) kayu jati kaca dengan gagang pintu stainless dan lampu kanopi teras.
+     - Pintu otomatis membuka saat karakter mendekati pintu (< 3.8 meter) dan menutup kembali saat menjauh.
+     - Saat masuk (`enterRoom`), suara engsel/latch pintu berbunyi (`sfx('door')`), pintu terbuka lebar, dan karakter melangkah masuk melewati ambang pintu.
+     - Pintu keluar di dalam ruangan juga memiliki pintu ganda interaktif berlabel hijau menyala `🚪 PINTU KELUAR`.
+   - **Interior Gedung Akademik Tematik & Alur Terpandu (Guided 3-Step Flow)**:
+     - 🧭 **Jalur Karpet Pemandu (Wayfinding Blue & Gold Runner)**: Menghubungkan pintu masuk langsung ke 3 zona bernomor:
+       - **Zona 1 (Sayap Barat / Kiri)**: `① ZONA PEMINATAN (MIPA · IPS · BAHASA)` — Dilengkapi meja lab MIPA dengan Mikroskop 3D, rak tabung reaksi cairan berwarna, model molekul kimia 3D, meja IPS dengan Globe bumi berputar, buku ensiklopedia, dan **Kuis Interaktif Rekomendasi Peminatan**.
+       - **Zona 2 (Pusat / Utara)**: `② SMART LAB KURIKULUM MERDEKA & RISET P5` — Dilengkapi Smartboard Digital 75-inch di dinding, 3 unit PC modern dengan monitor glowing biru neon & kursi ergonomis, podium riset dengan laptop, serta **Simulator Pemilihan 4 Mapel Pilihan Fase F**.
+       - **Zona 3 (Sayap Timur / Kanan)**: `③ HALL OF FAME & PRESTASI SISWA` — Lemari etalase kaca megah berisi 3 Piala Emas 3D berkilau, medali berbingkai emas di dinding, karpet merah VIP, dan filter interaktif kategori prestasi siswa.
+     - **Panduan HUD Dinamis**: Indikator langkah di atas layar secara aktif memandu pengunjung menyelesaikan tur dari Zona 1 ➔ Zona 2 ➔ Zona 3 hingga selesai.
    - **Panel Dialog Interaksi Lebar & Responsif**: Modal popup interaksi telah diperlebar hingga `960px / 95vw` dengan tata letak multi-kolom yang nyaman dibaca tanpa terpotong.
 
 2. **Karakter & Animasi**

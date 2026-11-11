@@ -263,6 +263,15 @@ function sfx(t){
       const st=now+i*.08;g.gain.setValueAtTime(.1,st);g.gain.exponentialRampToValueAtTime(.001,st+.4);
       o.connect(g);g.connect(audioCtx.destination);o.start(st);o.stop(st+.4);
     });
+  } else if(t==='door'){
+    const o1=audioCtx.createOscillator(),g1=audioCtx.createGain();o1.type='sine';
+    o1.frequency.setValueAtTime(160,now);o1.frequency.exponentialRampToValueAtTime(320,now+.24);
+    g1.gain.setValueAtTime(.12,now);g1.gain.exponentialRampToValueAtTime(.001,now+.26);
+    o1.connect(g1);g1.connect(audioCtx.destination);o1.start(now);o1.stop(now+.26);
+    const o2=audioCtx.createOscillator(),g2=audioCtx.createGain();o2.type='triangle';
+    o2.frequency.setValueAtTime(420,now+.08);o2.frequency.exponentialRampToValueAtTime(680,now+.32);
+    g2.gain.setValueAtTime(.08,now+.08);g2.gain.exponentialRampToValueAtTime(.001,now+.32);
+    o2.connect(g2);g2.connect(audioCtx.destination);o2.start(now+.08);o2.stop(now+.32);
   } else if(t==='step'){
     const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='triangle';
     o.frequency.setValueAtTime(100,now);o.frequency.exponentialRampToValueAtTime(40,now+.06);
@@ -324,9 +333,270 @@ T('Tentang',`<p>SMA Cahaya Nusantara adalah sekolah menengah atas unggulan yang 
 T('Visi & Misi',`<h3>Visi Sekolah</h3><p>Menjadi institusi pendidikan menengah atas teladan yang melahirkan generasi cerdas bernalar kritis, berakhlak mulia, berwawasan lingkungan, serta berdaya saing global pada tahun 2030.</p><h3>Misi Sekolah</h3><ul class="l"><li>Menyelenggarakan proses pembelajaran aktif, inovatif, dan terintegrasi dengan teknologi digital modern.</li><li>Mengembangkan potensi bakat dan minat peserta didik secara optimal melalui kegiatan akademik maupun non-akademik.</li><li>Membina karakter peserta didik melalui penguatan budaya 5S (Senyum, Salam, Sapa, Sopan, Santun) dan Profil Pelajar Pancasila.</li><li>Membangun jejaring kolaborasi strategis dengan berbagai perguruan tinggi negeri, swasta terkemuka, dan dunia industri.</li></ul>`),
 T('Sejarah Sekolah',`<ul class="tl"><li><b>1998</b>Didirikan oleh Yayasan Cahaya Bangsa dengan 3 ruang kelas awal dan 90 peserta didik pertama.</li><li><b>2008</b>Berhasil meraih predikat Akreditasi A (Unggul) untuk pertama kalinya.</li><li><b>2016</b>Peresmian gedung laboratorium terpadu, perpustakaan digital e-library, dan aula serbaguna.</li><li><b>2023</b>Implementasi penuh Kurikulum Merdeka dan peresmian laboratorium robotika & kecerdasan buatan.</li><li><b>Hari Ini</b>Kampus hijau terakreditasi Adiwiyata Mandiri dengan 36 rombongan belajar lengkap.</li></ul>`)]},
 akademik:{n:'Gedung Akademik',i:'📚',tabs:[
-T('Program Peminatan',`<p>SMA Cahaya Nusantara menyelenggarakan 3 peminatan utama dengan kurikulum berbasis riset dan aplikatif:</p><div class="g"><div><b>Peminatan IPA</b><span>Matematika Tingkat Lanjut, Fisika Terapan, Kimia Analitik, dan Biologi Molekuler. Dirancang bagi calon dokter, ilmuwan data, dan insinyur masa depan.</span></div><div><b>Peminatan IPS</b><span>Ekonomi Makro & Bisnis, Sosiologi, Geografi Terapan, dan Sejarah Dunia. Dirancang bagi calon ekonom, diplomat, jurnalis, dan advokat.</span></div><div><b>Peminatan Bahasa</b><span>Linguistik Bahasa Indonesia, English for Academic Purposes, Bahasa Jepang, dan Bahasa Jerman beserta pengenalan diplomasi internasional.</span></div></div>`),
-T('Kurikulum & Pembelajaran',`<p>Kami menerapkan <b>Kurikulum Merdeka</b> yang fleksibel dan berpusat pada siswa:</p><ul class="l"><li><b>Pembelajaran Intrakurikuler</b>: Pembelajaran mendalam berbasis proyek nyata (*project-based learning*).</li><li><b>P5 (Projek Profil Pelajar Pancasila)</b>: Kegiatan kewirausahaan, rekayasa teknologi, dan kearifan lokal setiap semester.</li><li><b>Program Bimbingan Sukses UTBK & Kedinasan</b>: Pelatihan intensif soal skolastik, tes minat bakat karier, serta pendampingan SNBP/SNBT kelas XII.</li></ul>`),
-T('Galeri Prestasi',`<ul class="tl"><li><b>Juara 2 Kompetisi Robotika Tingkat Provinsi (2025)</b>Kategori Autonomous Line Follower oleh Tim Cahaya Bot.</li><li><b>Medali Perak Olimpiade Sains Nasional (OSN) Bidang Kimia (2025)</b>Tingkat Kabupaten/Kota.</li><li><b>Juara 1 Lomba Debat Bahasa Inggris Nasional (2024)</b>Diselenggarakan oleh Universitas Indonesia.</li><li><b>Penghargaan Sekolah Adiwiyata Nasional (2024)</b>Atas inisiatif kebun hidroponik mandiri dan pemilahan sampah cerdas berbasis IoT.</li></ul>`)]},
+T('Program Peminatan',`
+<div style="background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:14px 18px;border-radius:16px;margin-bottom:14px;border:1px solid #60a5fa;">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <div>
+      <span style="background:rgba(255,255,255,.2);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">📍 Zona 1 · Langkah Pertama</span>
+      <h3 style="margin:4px 0 2px;color:#fff;font-size:22px;">Program Peminatan Siswa</h3>
+    </div>
+    <span style="font-size:32px;">🔬📈🌏</span>
+  </div>
+  <p style="margin:4px 0 0;font-size:13.5px;color:#dbeafe;">Pilihan rumpun peminatan berbasis riset, eksplorasi minat bakat, dan kesiapan perguruan tinggi masa depan.</p>
+</div>
+
+<div class="g" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:16px;">
+  <!-- MIPA -->
+  <div style="background:rgba(30,58,138,.35);border:2px solid #3b82f6;border-radius:14px;padding:14px;position:relative;overflow:hidden;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <span style="font-size:32px;background:rgba(59,130,246,.25);width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;">🔬</span>
+      <div>
+        <b style="font-size:18px;color:#93c5fd;">Peminatan MIPA</b>
+        <span style="font-size:12px;color:#bfdbfe;display:block;">Sains Terapan & Rekayasa Teknologi</span>
+      </div>
+    </div>
+    <p style="font-size:13px;color:#e2e8f0;margin:0 0 10px;">Fokus pada pembelajaran analitis kuantitatif, eksperimen laboratorium sains modern, dan teknologi komputasi AI.</p>
+    <div style="margin-bottom:8px;">
+      <span style="font-size:11.5px;font-weight:700;color:#93c5fd;text-transform:uppercase;">Mapel Unggulan:</span>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
+        <span style="background:rgba(59,130,246,.3);border:1px solid #60a5fa;border-radius:6px;padding:2px 8px;font-size:11.5px;">Matematika Lanjut</span>
+        <span style="background:rgba(59,130,246,.3);border:1px solid #60a5fa;border-radius:6px;padding:2px 8px;font-size:11.5px;">Fisika Terapan</span>
+        <span style="background:rgba(59,130,246,.3);border:1px solid #60a5fa;border-radius:6px;padding:2px 8px;font-size:11.5px;">Kimia Analitik</span>
+        <span style="background:rgba(59,130,246,.3);border:1px solid #60a5fa;border-radius:6px;padding:2px 8px;font-size:11.5px;">Biologi Molekuler</span>
+        <span style="background:rgba(59,130,246,.3);border:1px solid #60a5fa;border-radius:6px;padding:2px 8px;font-size:11.5px;">Informatika & AI</span>
+      </div>
+    </div>
+    <div style="background:rgba(15,23,42,.6);border-radius:8px;padding:8px 10px;font-size:12px;color:#cbd5e1;">
+      <b>🎯 Target Karier:</b> Dokter, Software Engineer, Data Scientist, Ahli Bioteknologi, Arsitek.
+    </div>
+  </div>
+
+  <!-- IPS -->
+  <div style="background:rgba(120,53,15,.35);border:2px solid #f59e0b;border-radius:14px;padding:14px;position:relative;overflow:hidden;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <span style="font-size:32px;background:rgba(245,158,11,.25);width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;">📈</span>
+      <div>
+        <b style="font-size:18px;color:#fcd34d;">Peminatan IPS</b>
+        <span style="font-size:12px;color:#fde68a;display:block;">Sosial, Bisnis, & Hukum Global</span>
+      </div>
+    </div>
+    <p style="font-size:13px;color:#e2e8f0;margin:0 0 10px;">Fokus pada dinamika ekonomi makro, kebijakan publik, sosiologi terapan, dan negosiasi diplomasi.</p>
+    <div style="margin-bottom:8px;">
+      <span style="font-size:11.5px;font-weight:700;color:#fcd34d;text-transform:uppercase;">Mapel Unggulan:</span>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
+        <span style="background:rgba(245,158,11,.3);border:1px solid #fbbf24;border-radius:6px;padding:2px 8px;font-size:11.5px;">Ekonomi & Akuntansi</span>
+        <span style="background:rgba(245,158,11,.3);border:1px solid #fbbf24;border-radius:6px;padding:2px 8px;font-size:11.5px;">Sosiologi Terapan</span>
+        <span style="background:rgba(245,158,11,.3);border:1px solid #fbbf24;border-radius:6px;padding:2px 8px;font-size:11.5px;">Geografi Digital (GIS)</span>
+        <span style="background:rgba(245,158,11,.3);border:1px solid #fbbf24;border-radius:6px;padding:2px 8px;font-size:11.5px;">Sejarah Dunia</span>
+      </div>
+    </div>
+    <div style="background:rgba(15,23,42,.6);border-radius:8px;padding:8px 10px;font-size:12px;color:#cbd5e1;">
+      <b>🎯 Target Karier:</b> Ekonom, Diplomat, Corporate Lawyer, Akuntan Publik, Konsultan Bisnis.
+    </div>
+  </div>
+
+  <!-- BAHASA -->
+  <div style="background:rgba(16,185,129,.25);border:2px solid #10b981;border-radius:14px;padding:14px;position:relative;overflow:hidden;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <span style="font-size:32px;background:rgba(16,185,129,.25);width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;">🌏</span>
+      <div>
+        <b style="font-size:18px;color:#6ee7b7;">Peminatan Bahasa</b>
+        <span style="font-size:12px;color:#a7f3d0;display:block;">Komunikasi Global & Budaya</span>
+      </div>
+    </div>
+    <p style="font-size:13px;color:#e2e8f0;margin:0 0 10px;">Fokus pada bahasa internasional, sastra komparatif, diplomasi kultural, dan public relations.</p>
+    <div style="margin-bottom:8px;">
+      <span style="font-size:11.5px;font-weight:700;color:#6ee7b7;text-transform:uppercase;">Mapel Unggulan:</span>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
+        <span style="background:rgba(16,185,129,.3);border:1px solid #34d399;border-radius:6px;padding:2px 8px;font-size:11.5px;">English for Academics</span>
+        <span style="background:rgba(16,185,129,.3);border:1px solid #34d399;border-radius:6px;padding:2px 8px;font-size:11.5px;">Bahasa Jepang (JLPT)</span>
+        <span style="background:rgba(16,185,129,.3);border:1px solid #34d399;border-radius:6px;padding:2px 8px;font-size:11.5px;">Bahasa Jerman (Goethe)</span>
+        <span style="background:rgba(16,185,129,.3);border:1px solid #34d399;border-radius:6px;padding:2px 8px;font-size:11.5px;">Kajian Sastra</span>
+      </div>
+    </div>
+    <div style="background:rgba(15,23,42,.6);border-radius:8px;padding:8px 10px;font-size:12px;color:#cbd5e1;">
+      <b>🎯 Target Karier:</b> Penerjemah Konferensi PBB, Duta Budaya, Jurnalis Luar Negeri, Content Creator Global.
+    </div>
+  </div>
+</div>
+
+<!-- Kuis Rekomendasi Peminatan Mandiri -->
+<div class="form-box" style="border-left:4px solid #38bdf8;background:rgba(15,35,55,.85);">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+    <div>
+      <h3 style="margin:0;color:#38bdf8;font-size:18px;">🎯 Tes Cepat Rekomendasi Peminatan (Simulasi Mandiri)</h3>
+      <p style="margin:2px 0 0;font-size:13px;color:var(--mut);">Pilih minat utamamu di bawah ini untuk melihat hasil kecocokan rumpun studi:</p>
+    </div>
+    <span style="background:rgba(56,189,248,.2);border:1px solid #38bdf8;color:#7dd3fc;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">Interaktif</span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px;">
+    <button onclick="window.calcMinat('mipa')" style="background:rgba(30,58,138,.6);border:1px solid #3b82f6;color:#fff;padding:12px;border-radius:10px;text-align:left;cursor:pointer;transition:.2s;">
+      <b style="color:#93c5fd;display:block;margin-bottom:4px;">🔬 Suka Sains & Eksperimen</b>
+      <span style="font-size:12px;color:#cbd5e1;line-height:1.4;display:block;">Praktikum laboratorium, pemrograman AI, biologi kedokteran, & logika analitis.</span>
+    </button>
+    <button onclick="window.calcMinat('ips')" style="background:rgba(120,53,15,.6);border:1px solid #f59e0b;color:#fff;padding:12px;border-radius:10px;text-align:left;cursor:pointer;transition:.2s;">
+      <b style="color:#fcd34d;display:block;margin-bottom:4px;">📈 Suka Bisnis & Diskusi</b>
+      <span style="font-size:12px;color:#cbd5e1;line-height:1.4;display:block;">Pasar modal, hukum masyarakat, debat publik, & dinamika ekonomi sosial.</span>
+    </button>
+    <button onclick="window.calcMinat('bahasa')" style="background:rgba(6,78,59,.6);border:1px solid #10b981;color:#fff;padding:12px;border-radius:10px;text-align:left;cursor:pointer;transition:.2s;">
+      <b style="color:#6ee7b7;display:block;margin-bottom:4px;">🌏 Suka Bahasa & Budaya</b>
+      <span style="font-size:12px;color:#cbd5e1;line-height:1.4;display:block;">Bahasa Jepang/Jerman, diplomasi internasional, sastra, & komunikasi global.</span>
+    </button>
+  </div>
+  <div id="minat-result" style="display:none;margin-top:14px;padding:14px;border-radius:10px;background:rgba(15,23,42,.9);border:1px solid #38bdf8;"></div>
+</div>
+`),
+T('Kurikulum & Pembelajaran',`
+<div style="background:linear-gradient(135deg,#78350f,#d97706);color:#fff;padding:14px 18px;border-radius:16px;margin-bottom:14px;border:1px solid #fbbf24;">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <div>
+      <span style="background:rgba(255,255,255,.2);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">📍 Zona 2 · Langkah Kedua</span>
+      <h3 style="margin:4px 0 2px;color:#fff;font-size:22px;">Kurikulum Merdeka & Riset P5</h3>
+    </div>
+    <span style="font-size:32px;">📋💻🚀</span>
+  </div>
+  <p style="margin:4px 0 0;font-size:13.5px;color:#fef3c7;">Implementasi Kurikulum Merdeka mandiri berbagi dengan kebebasan memilih kombinasi mata pelajaran Fase F.</p>
+</div>
+
+<!-- Alur 2 Fase Belajar -->
+<div class="g" style="margin-bottom:14px;">
+  <div style="background:rgba(30,41,59,.8);border-left:4px solid #38bdf8;">
+    <b style="color:#38bdf8;font-size:17px;">Fase E (Kelas X) · Pondasi Akademik</b>
+    <p style="margin:6px 0 0;font-size:13px;color:#cbd5e1;">Mempelajari seluruh mata pelajaran umum, asesmen diagnostik gaya belajar, literasi riset ilmiah, dan pembentukan karakter Profil Pelajar Pancasila.</p>
+  </div>
+  <div style="background:rgba(30,41,59,.8);border-left:4px solid #f59e0b;">
+    <b style="color:#f59e0b;font-size:17px;">Fase F (Kelas XI & XII) · Peminatan Fleksibel</b>
+    <p style="margin:6px 0 0;font-size:13px;color:#cbd5e1;">Siswa bebas memilih 4 - 5 mata pelajaran pilihan sesuai cita-cita karier, pendampingan intensif UTBK SNBP/SNBT, dan riset karya tulis ilmiah mandiri.</p>
+  </div>
+</div>
+
+<!-- Simulasi Mapel Pilihan Interaktif -->
+<div class="form-box" style="border-left:4px solid #f59e0b;background:rgba(25,20,10,.85);">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+    <div>
+      <h3 style="margin:0;color:#fcd34d;font-size:18px;">🎛️ Simulator Pemilihan Mata Pelajaran Fase F (Kelas XI - XII)</h3>
+      <p style="margin:2px 0 0;font-size:13px;color:var(--mut);">Centang mata pelajaran pilihan (rekomendasi 4 mapel) untuk memvalidasi keselarasan program studi perguruan tinggi:</p>
+    </div>
+    <span id="mapel-count-badge" style="background:rgba(245,158,11,.2);border:1px solid #f59e0b;color:#fcd34d;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">4 Mapel Terpilih (20 JP)</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:10px;">
+    <label class="form-check" style="background:rgba(15,23,42,.6);padding:8px 10px;border-radius:8px;border:1px solid #334155;">
+      <input type="checkbox" class="mapel-chk" data-rumpun="mipa" data-name="Matematika Lanjut" checked onchange="window.updateMapelSim()">
+      <span>Matematika Lanjut <small style="color:#93c5fd;display:block;">5 Jam/Minggu · MIPA</small></span>
+    </label>
+    <label class="form-check" style="background:rgba(15,23,42,.6);padding:8px 10px;border-radius:8px;border:1px solid #334155;">
+      <input type="checkbox" class="mapel-chk" data-rumpun="mipa" data-name="Fisika Terapan" checked onchange="window.updateMapelSim()">
+      <span>Fisika Terapan <small style="color:#93c5fd;display:block;">5 Jam/Minggu · MIPA</small></span>
+    </label>
+    <label class="form-check" style="background:rgba(15,23,42,.6);padding:8px 10px;border-radius:8px;border:1px solid #334155;">
+      <input type="checkbox" class="mapel-chk" data-rumpun="mipa" data-name="Kimia Analisis" checked onchange="window.updateMapelSim()">
+      <span>Kimia Analisis <small style="color:#93c5fd;display:block;">5 Jam/Minggu · MIPA</small></span>
+    </label>
+    <label class="form-check" style="background:rgba(15,23,42,.6);padding:8px 10px;border-radius:8px;border:1px solid #334155;">
+      <input type="checkbox" class="mapel-chk" data-rumpun="mipa" data-name="Biologi Kedokteran" checked onchange="window.updateMapelSim()">
+      <span>Biologi Kedokteran <small style="color:#93c5fd;display:block;">5 Jam/Minggu · MIPA</small></span>
+    </label>
+    <label class="form-check" style="background:rgba(15,23,42,.6);padding:8px 10px;border-radius:8px;border:1px solid #334155;">
+      <input type="checkbox" class="mapel-chk" data-rumpun="mipa" data-name="Informatika & AI" onchange="window.updateMapelSim()">
+      <span>Informatika & AI <small style="color:#93c5fd;display:block;">5 Jam/Minggu · MIPA</small></span>
+    </label>
+    <label class="form-check" style="background:rgba(15,23,42,.6);padding:8px 10px;border-radius:8px;border:1px solid #334155;">
+      <input type="checkbox" class="mapel-chk" data-rumpun="ips" data-name="Ekonomi Makro" onchange="window.updateMapelSim()">
+      <span>Ekonomi Makro <small style="color:#fcd34d;display:block;">5 Jam/Minggu · IPS</small></span>
+    </label>
+    <label class="form-check" style="background:rgba(15,23,42,.6);padding:8px 10px;border-radius:8px;border:1px solid #334155;">
+      <input type="checkbox" class="mapel-chk" data-rumpun="ips" data-name="Sosiologi Terapan" onchange="window.updateMapelSim()">
+      <span>Sosiologi Terapan <small style="color:#fcd34d;display:block;">5 Jam/Minggu · IPS</small></span>
+    </label>
+    <label class="form-check" style="background:rgba(15,23,42,.6);padding:8px 10px;border-radius:8px;border:1px solid #334155;">
+      <input type="checkbox" class="mapel-chk" data-rumpun="ips" data-name="Geografi GIS" onchange="window.updateMapelSim()">
+      <span>Geografi Digital GIS <small style="color:#fcd34d;display:block;">5 Jam/Minggu · IPS</small></span>
+    </label>
+    <label class="form-check" style="background:rgba(15,23,42,.6);padding:8px 10px;border-radius:8px;border:1px solid #334155;">
+      <input type="checkbox" class="mapel-chk" data-rumpun="bahasa" data-name="English Academics" onchange="window.updateMapelSim()">
+      <span>English Academics <small style="color:#6ee7b7;display:block;">5 Jam/Minggu · Bahasa</small></span>
+    </label>
+    <label class="form-check" style="background:rgba(15,23,42,.6);padding:8px 10px;border-radius:8px;border:1px solid #334155;">
+      <input type="checkbox" class="mapel-chk" data-rumpun="bahasa" data-name="Bahasa Jepang" onchange="window.updateMapelSim()">
+      <span>Bahasa Jepang (JLPT) <small style="color:#6ee7b7;display:block;">5 Jam/Minggu · Bahasa</small></span>
+    </label>
+  </div>
+
+  <div id="mapel-feedback" style="margin-top:12px;padding:12px 14px;border-radius:10px;background:rgba(15,23,42,.9);border:1px solid #f59e0b;">
+    <b style="color:#fcd34d;display:block;margin-bottom:4px;">🎯 Rekomendasi Program Studi Perguruan Tinggi yang Selaras:</b>
+    <span style="font-size:13.5px;color:#e2e8f0;line-height:1.5;display:block;">
+      Kombinasi mapel MIPA (Matematika Lanjut, Fisika, Kimia, Biologi) sangat direkomendasikan untuk mendaftar di <b>Fakultas Kedokteran (FK), Farmasi, Teknik Kimia, Bioteknologi, dan Ilmu Lingkungan</b> di PTN Favorit (UI, UGM, Unair).
+    </span>
+  </div>
+</div>
+
+<h3>Projek Penguatan Profil Pelajar Pancasila (P5) Unggulan</h3>
+<ul class="tl">
+  <li><b>1. Smart Sorting Bin berbasis IoT (Rekayasa & Teknologi)</b>Siswa kelas X mendesain tempat sampah cerdas berdaya surya yang mampu memilah sampah logam, organik, dan plastik secara otomatis.</li>
+  <li><b>2. Festival Batik Ecoprint Nusantara (Kearifan Lokal)</b>Mengeksplorasi tanaman obat di halaman sekolah untuk pewarna alami batik ecoprint bernilai jual tinggi.</li>
+  <li><b>3. Inkubator Startup Siswa & Bazar Mandiri (Kewirausahaan)</b>Pelatihan business plan, pembukuan digital, dan expo produk siswa setiap akhir semester.</li>
+</ul>
+`),
+T('Galeri Prestasi',`
+<div style="background:linear-gradient(135deg,#065f46,#10b981);color:#fff;padding:14px 18px;border-radius:16px;margin-bottom:14px;border:1px solid #34d399;">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <div>
+      <span style="background:rgba(255,255,255,.2);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">📍 Zona 3 · Langkah Ketiga</span>
+      <h3 style="margin:4px 0 2px;color:#fff;font-size:22px;">Hall of Fame & Galeri Prestasi Siswa</h3>
+    </div>
+    <span style="font-size:32px;">🏆🥇🌟</span>
+  </div>
+  <p style="margin:4px 0 0;font-size:13.5px;color:#d1fae5;">Rekam jejak membanggakan putra-putri SMA Cahaya Nusantara di kancah daerah, nasional, dan internasional.</p>
+</div>
+
+<!-- Statistik Kelulusan PTN -->
+<div class="g" style="margin-bottom:14px;">
+  <div style="text-align:center;background:rgba(6,78,59,.4);border:1px solid #10b981;">
+    <b style="font-size:28px;color:#34d399;">94.2%</b>
+    <span style="color:#a7f3d0;font-weight:700;display:block;">Tembus PTN & Luar Negeri</span>
+    <span style="font-size:12px;color:#cbd5e1;">Dari total 360 lulusan tahun 2025</span>
+  </div>
+  <div style="text-align:center;background:rgba(30,58,138,.4);border:1px solid #3b82f6;">
+    <b style="font-size:28px;color:#93c5fd;">42 Siswa</b>
+    <span style="color:#bfdbfe;font-weight:700;display:block;">Jalur SNBP (Prestasi Rapor)</span>
+    <span style="font-size:12px;color:#cbd5e1;">ITB (12), UI (15), UGM (15)</span>
+  </div>
+  <div style="text-align:center;background:rgba(120,53,15,.4);border:1px solid #f59e0b;">
+    <b style="font-size:28px;color:#fcd34d;">98 Siswa</b>
+    <span style="color:#fde68a;font-weight:700;display:block;">Jalur SNBT (UTBK Skolastik)</span>
+    <span style="font-size:12px;color:#cbd5e1;">Rata-rata skor UTBK 685.4</span>
+  </div>
+  <div style="text-align:center;background:rgba(88,28,135,.4);border:1px solid #a855f7;">
+    <b style="font-size:28px;color:#d8b4fe;">18 Siswa</b>
+    <span style="color:#e9d5ff;font-weight:700;display:block;">Beasiswa Luar Negeri</span>
+    <span style="font-size:12px;color:#cbd5e1;">Jepang, Jerman, & Singapura</span>
+  </div>
+</div>
+
+<!-- Filter Prestasi -->
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 10px;">
+  <button class="pres-pill on" onclick="window.filterPrestasi('all',this)" style="background:#10b981;color:#fff;border:0;padding:6px 14px;border-radius:20px;font-size:12.5px;font-weight:700;cursor:pointer;">Semua Prestasi</button>
+  <button class="pres-pill" onclick="window.filterPrestasi('sains',this)" style="background:rgba(15,23,42,.6);color:#cbd5e1;border:1px solid #334155;padding:6px 14px;border-radius:20px;font-size:12.5px;font-weight:700;cursor:pointer;">Sains & OSN</button>
+  <button class="pres-pill" onclick="window.filterPrestasi('robotik',this)" style="background:rgba(15,23,42,.6);color:#cbd5e1;border:1px solid #334155;padding:6px 14px;border-radius:20px;font-size:12.5px;font-weight:700;cursor:pointer;">Robotika & AI</button>
+  <button class="pres-pill" onclick="window.filterPrestasi('bahasa',this)" style="background:rgba(15,23,42,.6);color:#cbd5e1;border:1px solid #334155;padding:6px 14px;border-radius:20px;font-size:12.5px;font-weight:700;cursor:pointer;">Debat & Humaniora</button>
+  <button class="pres-pill" onclick="window.filterPrestasi('adiwiyata',this)" style="background:rgba(15,23,42,.6);color:#cbd5e1;border:1px solid #334155;padding:6px 14px;border-radius:20px;font-size:12.5px;font-weight:700;cursor:pointer;">Adiwiyata & Lingkungan</button>
+</div>
+
+<ul class="tl" id="pres-list">
+  <li data-cat="robotik"><b>🤖 Juara 2 Kontes Robotika Nasional (2025)</b>Kategori Autonomous Line Follower & AI Vision oleh Tim Cahaya Bot (Puspresnas).</li>
+  <li data-cat="sains"><b>🥈 Medali Perak OSN Bidang Kimia & Fisika (2025)</b>Tingkat Nasional diselenggarakan oleh Balai Pengembangan Talenta Indonesia (BPTI).</li>
+  <li data-cat="bahasa"><b>🥇 Juara 1 National English Debate Championship (2024)</b>Diselenggarakan oleh Universitas Indonesia, menjuarai kategori Best Speaker.</li>
+  <li data-cat="adiwiyata"><b>🌿 Sekolah Adiwiyata Mandiri Tingkat Nasional (2024)</b>Penghargaan langsung dari Menteri LHK Republik Indonesia atas inisiatif zero-waste campus.</li>
+  <li data-cat="sains"><b>📊 Medali Emas National Economics Olympiad (2024)</b>Diselenggarakan oleh Fakultas Ekonomika dan Bisnis Universitas Gadjah Mada (UGM).</li>
+</ul>
+
+<h3>Testimoni Alumni Siswa</h3>
+<div style="background:rgba(15,23,42,.7);border-left:4px solid #34d399;border-radius:10px;padding:12px 16px;margin-top:10px;">
+  <p style="margin:0 0 4px;font-style:italic;color:#e2e8f0;font-size:13.5px;">"Lingkungan belajar di SMA Cahaya Nusantara sangat mendukung kemandirian riset. Praktik di lab komputer AI dan pendampingan olimpiade membimbing saya hingga berhasil diterima di Kedokteran UI tanpa bimbel luar."</p>
+  <b style="color:#6ee7b7;font-size:13px;">— dr. Muhammad Farhan (Alumni 2021 · Dokter & Peneliti Muda)</b>
+</div>
+`)]},
 ekskul:{n:'Aula & Ekskul',i:'🎭',tabs:[
 T('Ekstrakurikuler',`<p>Tersedia lebih dari 15 klub minat bakat untuk mengasah kepemimpinan dan kreativitas:</p><div class="g"><div><b>Klub Robotika & AI</b><span>Rabu, 15.30 · Lab Komputer</span></div><div><b>Basket & Futsal</b><span>Selasa & Kamis, 16.00 · Lapangan Utama</span></div><div><b>Paduan Suara & Orkestra</b><span>Jumat, 14.30 · Aula Seni</span></div><div><b>Pramuka Penegak</b><span>Sabtu, 07.30 · Halaman Utama</span></div><div><b>Klub Debat Bahasa Inggris</b><span>Senin, 15.30 · Ruang Audiovisual</span></div><div><b>Palang Merah Remaja (PMR)</b><span>Kamis, 15.00 · Ruang UKS Terpadu</span></div></div>`),
 T('Fasilitas Kampus',`<ul class="l"><li>36 ruang kelas modern ber-AC dengan Interactive Smart Board & Proyektor 4K.</li><li>3 Laboratorium Sains canggih (Fisika, Kimia, Biologi) berstandar keselamatan nasional.</li><li>Laboratorium Komputer Multimedia & Studio Coding dengan koneksi internet Gigabit Fiber.</li><li>Perpustakaan modern dua lantai dengan 12.000+ buku fisik dan akses ke ribuan jurnal internasional.</li><li>Aula Serbaguna berkapasitas 600 kursi, Masjid Sekolah, Kantin Sehat Higienis, dan UKS dengan dokter jaga.</li><li>Lapangan olahraga multifungsi berstandar untuk Basket, Futsal, Voli, dan Bulu Tangkis.</li></ul>`),
@@ -496,14 +766,59 @@ T('Kontak & Lokasi',`<div class="form-box" style="margin-bottom:14px;">
 const RX=500,RS={},rooms={},EX={exit:1,v:'Keluar',i:'🚪',n:'Pintu keluar',x:RX,z:7};
 const RM={
 profil:{f:0xc9a66b,w:0xf0e2c0,rug:0xd9534f,F:[[0,-6,7,1.4,1.8,0x7a4a2b],[-8,-5,3,2.8,1.2,0x6b4a2a],[8,-5,3,2.8,1.2,0x6b4a2a],[8,4,3.5,1,1.8,0x3b7d6a]],S:[[0,-3.5],[-7,0],[7,0]]},
-akademik:{f:0xb98a5a,w:0xdfe9d0,rug:0x3b82f6,F:[[0,-6.5,8,2.4,.4,0xffffff],[8,-5,2.6,3.2,1.2,0x7a4a2b],[-4,1.6,2,.9,1.2,0x9a6b3d],[0,1.6,2,.9,1.2,0x9a6b3d],[4,1.6,2,.9,1.2,0x9a6b3d],[-4,4.5,2,.9,1.2,0x9a6b3d],[0,4.5,2,.9,1.2,0x9a6b3d],[4,4.5,2,.9,1.2,0x9a6b3d]],S:[[0,-4.2],[7.5,-2],[-7,-1.5]]},
+akademik:{f:0xbf9868,w:0xe2ebf5,rug:0x1e3a8a,F:[[0,-5.8,6.8,.9,1.4,0xf1f5f9],[-8.5,-4.5,3.2,.9,1.3,0x1e293b],[-8.5,1.5,3.2,.9,1.3,0x78350f],[-4.2,-4.5,2.0,.9,1.2,0x334155],[9.8,-1.5,1.5,3.2,4.8,0x78350f],[3.6,-4.0,1.1,1.1,1.0,0x475569]],S:[[-6.8,-1.5],[0,-4.2],[6.8,-1.5]]},
 ekskul:{f:0xc58b5a,w:0xf3d9a6,rug:0xf59e0b,F:[[0,-6,10,1,2.4,0x8a5a2b],[-8,-2,1.6,2.4,1.6,0x6b8f5a],[8,4,2,.9,2,0x2a7fa6]],S:[[0,-3.2],[-6,2.2],[6,1.5]]},
 ppdb:{f:0xb08a62,w:0xd9efe3,rug:0x10b981,F:[[0,-4.5,8,1.2,1.2,0x8a5a2b],[-8,-5.5,2.6,2,1.4,0x5a6b7a],[8,-5.5,2.6,2,1.4,0x5a6b7a]],S:[[0,-2],[-7,1.8],[7,2.2]]}};
 
-function roomMt(){const n=P[room].tabs.filter((t,i)=>S.s[room+i]).length;return '<b>'+P[room].n+' <i>'+n+'/3</i></b><div class="bar"><u style="width:'+n/3*100+'%"></u></div><span>Masuk ke lingkaran kuning, lalu tekan E</span>'}
+function roomMt(){
+  const n=P[room].tabs.filter((t,i)=>S.s[room+i]).length;
+  if(room==='akademik'){
+    let nextStep='Langkah 1: Kunjungi <b>① Zona Peminatan (Kiri)</b>';
+    if(S.s['akademik0']&&!S.s['akademik1']) nextStep='Langkah 2: Eksplorasi <b>② Lab Kurikulum Merdeka (Tengah)</b>';
+    else if(S.s['akademik0']&&S.s['akademik1']&&!S.s['akademik2']) nextStep='Langkah 3: Saksikan <b>③ Hall of Fame & Prestasi (Kanan)</b>';
+    else if(n===3) nextStep='🎓 <b>Tur Akademik Lengkap!</b> Boleh keluar lewat pintu belakang.';
+    return `<b>Gedung Akademik · Tur Terpandu <i>${n}/3 Zona</i></b><div class="bar"><u style="width:${n/3*100}%"></u></div><span>${nextStep}</span>`;
+  }
+  return '<b>'+P[room].n+' <i>'+n+'/3</i></b><div class="bar"><u style="width:'+n/3*100+'%"></u></div><span>Masuk ke lingkaran penanda, lalu tekan E</span>';
+}
 function go2(f){if(busy)return;busy=1;$('#fd').classList.add('on');setTimeout(()=>{f();snap=1;$('#fd').classList.remove('on');setTimeout(()=>busy=0,350)},380)}
-function enterRoom(id){sfx('enter');go2(()=>{room=id;p.x=RX;p.z=4.5;tgt=null;auto=null;pitch=.95;dist=16;pl.rotation.y=Math.PI;rooms[id].visible=true;document.body.classList.add('inroom');if(!S.v[id]){S.v[id]=1;save();prog()}toast('Masuk '+P[id].n+'. Jalan ke lingkaran kuning, lalu tekan E.')})}
-function exitRoom(){sfx('click');if(!room)return;go2(()=>{const b=B.find(x=>x.id===room);rooms[room].visible=false;room=null;p.x=b.x+Math.sin(b.r)*7.5;p.z=b.z+Math.cos(b.r)*7.5;tgt=null;yaw=b.r+Math.PI;pitch=.5;dist=11;pl.rotation.y=b.r;document.body.classList.remove('inroom');const n=B.find(x=>!S.v[x.id]);toast(n?'Berikutnya: '+n.i+' '+n.n+'. Ikuti tanda kuning.':'🎓 Semua gedung dikunjungi! Lencana Siswa Teladan untukmu.')})}
+function enterRoom(id){
+  const b=B.find(x=>x.id===id);
+  if(b)b.isOpening=1;
+  sfx('door');
+  if(b){
+    p.x+=Math.sin(b.r)*1.1;
+    p.z+=Math.cos(b.r)*1.1;
+  }
+  setTimeout(()=>{
+    sfx('enter');
+    go2(()=>{
+      room=id;p.x=RX;p.z=4.8;tgt=null;auto=null;pitch=.95;dist=16;pl.rotation.y=Math.PI;
+      rooms[id].visible=true;document.body.classList.add('inroom');
+      if(!S.v[id]){S.v[id]=1;save();prog()}
+      if(id==='akademik') toast('📚 Masuk Gedung Akademik. Ikuti jalur karpet: Langkah 1 ➔ 2 ➔ 3.');
+      else toast('Masuk '+P[id].n+'. Jalan ke lingkaran penanda, lalu tekan E.');
+      if(b)b.isOpening=0;
+    });
+  },220);
+}
+function exitRoom(){
+  if(!room)return;
+  sfx('door');
+  const b=B.find(x=>x.id===room);
+  p.z=6.6;
+  setTimeout(()=>{
+    sfx('click');
+    go2(()=>{
+      rooms[room].visible=false;room=null;
+      p.x=b.x+Math.sin(b.r)*5.4;p.z=b.z+Math.cos(b.r)*5.4;
+      tgt=null;yaw=b.r+Math.PI;pitch=.5;dist=11;pl.rotation.y=b.r;
+      document.body.classList.remove('inroom');
+      const n=B.find(x=>!S.v[x.id]);
+      toast(n?'Berikutnya: '+n.i+' '+n.n+'. Ikuti tanda kuning.':'🎓 Semua gedung dikunjungi! Lencana Siswa Teladan untukmu.');
+    });
+  },200);
+}
 function act(){if(!near||busy)return;if(near.exit)exitRoom();else if(near.st)openP(near.id,near.idx);else if(near.id==='satpam')openP('satpam');else enterRoom(near.id)}
 $('#ex').onclick=exitRoom;
 const GUIDE={n:'Cara bermain',i:'❓',tabs:[T('Kontrol & Fitur',`<ul class="l"><li><b>Halaman Sekolah Luas</b>: Anda bebas berlari, berputar, dan menjelajahi halaman upacara, lapangan olahraga, taman, dan gedung-gedung.</li><li><b>Langkah 1</b>: Mulai dari luar gerbang, jalan maju melintasi Gerbang Utama sekolah untuk mengawali tur kampus.</li><li><b>Pak Budi (Satpam)</b>: Berdiri di pos keamanan dekat gerbang. Dekati dan tekan E untuk berbicara.</li><li><b>Jalan & Lari</b>: Gunakan WASD atau tombol panah. Tahan <b>Shift</b> untuk berlari cepat di halaman.</li><li><b>Lompat</b>: Tekan Spasi (atau tombol Lompat di HP).</li><li><b>Kamera 360°</b>: Seret mouse / geser layar untuk melihat seluruh penjuru sekolah; scroll mouse untuk zoom in/out.</li><li><b>Interaksi Gedung</b>: Dekati pintu gedung lalu tekan E atau tombol Masuk. Di dalam ruangan, dekati lingkaran kuning penanda.</li><li><b>Tombol AR (👓)</b>: Memproyeksikan maskot siswa, miniatur gerbang, atau gedung sekolah di meja Anda lewat kamera ponsel!</li></ul>`),T('Misi Eksplorasi',`<p>Masuki gerbang utama, jelajahi 4 gedung sekolah, dan kumpulkan 7 bintang fakta rahasia yang melayang di halaman kampus. Kemajuan Anda tersimpan otomatis.</p>`)]};
@@ -598,6 +913,48 @@ window.resetPPDB = function resetPPDB(){
   ['ppdb-doc1','ppdb-doc2','ppdb-doc3'].forEach(id=>{const el=$('#'+id);if(el)el.checked=true});
   const d4=$('#ppdb-doc4');if(d4)d4.checked=false;
   toast('Formulir pendaftaran telah dibersihkan.');
+};
+
+window.calcMinat = function(tipe){
+  sfx('star');
+  const res=$('#minat-result');if(!res)return;
+  res.style.display='block';
+  if(tipe==='mipa'){
+    res.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="font-size:28px;">🔬</span><div><b style="color:#93c5fd;font-size:16px;">Hasil Rekomendasi: 95% Cocok untuk RUMPUN MIPA</b><span style="font-size:12px;color:#38bdf8;display:block;">Sains Terapan, Rekayasa Teknologi, & Kedokteran</span></div></div><p style="font-size:13px;color:#cbd5e1;margin:0 0 8px;">Karakter berpikir logis dan minat praktikum laboratorium Anda sangat kuat. Anda disarankan mengambil paket pilihan: <b>Matematika Lanjut, Fisika Terapan, Kimia Analitik, dan Biologi/Informatika</b>.</p><div style="font-size:12px;color:#94a3b8;border-top:1px dashed #334155;padding-top:6px;">💡 <i>Langkah berikutnya: Masuki Zona 2 (Tengah) untuk mencoba Simulator Mata Pelajaran Kurikulum Merdeka!</i></div>`;
+  }else if(tipe==='ips'){
+    res.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="font-size:28px;">📈</span><div><b style="color:#fcd34d;font-size:16px;">Hasil Rekomendasi: 94% Cocok untuk RUMPUN IPS</b><span style="font-size:12px;color:#f59e0b;display:block;">Ekonomi Bisnis, Diplomasi, & Ilmu Hukum</span></div></div><p style="font-size:13px;color:#cbd5e1;margin:0 0 8px;">Kekuatan observasi sosial dan pemikiran kritis Anda sangat menonjol. Anda disarankan mengambil paket pilihan: <b>Ekonomi Makro, Sosiologi Terapan, Geografi Digital (GIS), dan Sejarah Dunia</b>.</p><div style="font-size:12px;color:#94a3b8;border-top:1px dashed #334155;padding-top:6px;">💡 <i>Langkah berikutnya: Masuki Zona 2 (Tengah) untuk mencoba Simulator Mata Pelajaran Kurikulum Merdeka!</i></div>`;
+  }else if(tipe==='bahasa'){
+    res.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="font-size:28px;">🌏</span><div><b style="color:#6ee7b7;font-size:16px;">Hasil Rekomendasi: 92% Cocok untuk RUMPUN BAHASA</b><span style="font-size:12px;color:#10b981;display:block;">Komunikasi Internasional & Kajian Kultural</span></div></div><p style="font-size:13px;color:#cbd5e1;margin:0 0 8px;">Kepekaan linguistik dan kemampuan adaptasi kultural Anda luar biasa. Anda disarankan mengambil paket pilihan: <b>English for Academic Purposes, Bahasa Jepang (JLPT), Bahasa Jerman (Goethe), dan Sastra Komparatif</b>.</p><div style="font-size:12px;color:#94a3b8;border-top:1px dashed #334155;padding-top:6px;">💡 <i>Langkah berikutnya: Masuki Zona 2 (Tengah) untuk mencoba Simulator Mata Pelajaran Kurikulum Merdeka!</i></div>`;
+  }
+};
+window.updateMapelSim = function(){
+  sfx('click');
+  const chks=document.querySelectorAll('.mapel-chk:checked');
+  const count=chks.length;
+  const badge=$('#mapel-count-badge'),fb=$('#mapel-feedback');
+  if(badge)badge.textContent=`${count} Mapel Terpilih (${count*5} JP)`;
+  const names=Array.from(chks).map(c=>c.dataset.name);
+  let rec='';
+  if(names.includes('Biologi Kedokteran')&&names.includes('Kimia Analisis')) rec='<b>Fakultas Kedokteran (FK), Farmasi, Ilmu Gizi, Bioteknologi</b> di UI, UGM, Unair.';
+  else if(names.includes('Matematika Lanjut')&&names.includes('Informatika & AI')) rec='<b>Teknik Informatika, Ilmu Komputer, Software Engineering, Data Science</b> di ITB, UI, ITS.';
+  else if(names.includes('Matematika Lanjut')&&names.includes('Fisika Terapan')) rec='<b>Teknik Elektro, Teknik Mesin, Teknik Sipil, Penerbangan</b> di ITB, UGM, ITS.';
+  else if(names.includes('Ekonomi Makro')) rec='<b>Manajemen Bisnis, Ilmu Ekonomi, Akuntansi, Ilmu Hukum</b> di UI, UGM, Undip.';
+  else if(names.includes('English Academics')||names.includes('Bahasa Jepang')) rec='<b>Hubungan Internasional (HI), Ilmu Komunikasi, Diplomasi, Jurnalisme</b> di UI, UGM, Unpad.';
+  else rec='<b>Pilihan Multidisiplin Fleksibel</b> yang memperluas jangkauan seleksi SNBP/SNBT.';
+  if(fb){
+    fb.innerHTML=`<b style="color:#fcd34d;display:block;margin-bottom:4px;">🎯 Rekomendasi Program Studi Perguruan Tinggi yang Selaras:</b><span style="font-size:13.5px;color:#e2e8f0;line-height:1.5;display:block;">${count===0?'Silakan centang minimal 3 hingga 5 mata pelajaran pilihan di atas.':'Kombinasi '+count+' mapel pilihan Anda sangat selaras untuk program studi: '+rec}</span><div style="margin-top:6px;font-size:11.5px;color:${count>=4&&count<=5?'#4ade80':'#f87171'};font-weight:700;">${count>=4&&count<=5?'✅ Beban Jam Pelajaran Ideal Sesuai Standar Kurikulum Merdeka (20 - 25 JP).':(count<4?'⚠️ Direkomendasikan memilih minimal 4 mata pelajaran (20 JP).':'⚠️ Beban belajar melebihi batas maksimal (maksimal 5 mata pelajaran).')}</div>`;
+  }
+};
+window.filterPrestasi = function(cat,btn){
+  sfx('click');
+  document.querySelectorAll('.pres-pill').forEach(b=>{
+    const on=b===btn;b.classList.toggle('on',on);
+    b.style.background=on?'#10b981':'rgba(15,23,42,.6)';
+    b.style.color=on?'#fff':'#cbd5e1';
+  });
+  document.querySelectorAll('#pres-list li').forEach(li=>{
+    li.style.display=(cat==='all'||li.dataset.cat===cat)?'block':'none';
+  });
 };
 
 // ===== UI & STATE =====
@@ -836,7 +1193,27 @@ else if(T==='ppdb'){const r=add(new THREE.ConeGeometry(6,2,4),M(0x2f7d5a),0,H+1,
 else{add(new THREE.BoxGeometry(GW+.6,.35,7.1),M(0x8a8f99),0,H+.18,0,g);
 if(T==='profil'){add(new THREE.BoxGeometry(2.2,2.8,2.2),M(0xf3ead2),0,H+1.7,0,g);const r=add(new THREE.ConeGeometry(1.8,1.4,4),M(b.c),0,H+3.8,0,g);r.rotation.y=Math.PI/4;add(new THREE.CircleGeometry(.7,24),new THREE.MeshBasicMaterial({color:0xffffff}),0,H+1.8,1.12,g);add(new THREE.BoxGeometry(.07,.5,.02),M(0x111111),0,H+1.9,1.14,g)}
 else{add(new THREE.CylinderGeometry(.9,.9,1.4,12),M(0x9aa5b1),-2.5,H+1,-1,g);add(new THREE.BoxGeometry(4.2,.8,.14),M(0xffffff),0,H+.6,3.35,g)}}
-add(new THREE.BoxGeometry(1.6,2.6,.2),M(0x8a5a2b),0,1.3,3.3,g);add(new THREE.BoxGeometry(.6,.9,.05),winM,0,1.85,3.42,g);add(new THREE.BoxGeometry(3,.2,1.2),M(0xcfcfcf),0,.1,3.8,g);
+// Kusen & Bingkai Pintu Masuk Megah
+add(new THREE.BoxGeometry(2.4, 2.9, .32), M(0x2d3748), 0, 1.45, 3.3, g);
+add(new THREE.BoxGeometry(1.95, 2.7, .1), M(0x111827), 0, 1.35, 3.22, g);
+add(new THREE.BoxGeometry(2.8, .12, 1.3), M(0xd1d5db), 0, .06, 3.8, g);
+add(new THREE.BoxGeometry(.8, .18, .3), M(0xffea88), 0, 2.95, 3.42, g);
+
+// Daun Pintu Kiri (Poros Hinge di x = -0.92)
+const bDoorL = new THREE.Group(); bDoorL.position.set(-0.92, 0, 3.3); g.add(bDoorL);
+add(new THREE.BoxGeometry(.92, 2.6, .08), M(0x7c4a27), .46, 1.3, 0, bDoorL);
+add(new THREE.BoxGeometry(.56, 1.15, .09), winM, .46, 1.7, 0, bDoorL);
+add(new THREE.CylinderGeometry(.022, .022, .38, 8), M(0xe2e8f0), .82, 1.25, .06, bDoorL);
+add(new THREE.CylinderGeometry(.022, .022, .38, 8), M(0xe2e8f0), .82, 1.25, -.06, bDoorL);
+b.doorL = bDoorL;
+
+// Daun Pintu Kanan (Poros Hinge di x = 0.92)
+const bDoorR = new THREE.Group(); bDoorR.position.set(0.92, 0, 3.3); g.add(bDoorR);
+add(new THREE.BoxGeometry(.92, 2.6, .08), M(0x7c4a27), -.46, 1.3, 0, bDoorR);
+add(new THREE.BoxGeometry(.56, 1.15, .09), winM, -.46, 1.7, 0, bDoorR);
+add(new THREE.CylinderGeometry(.022, .022, .38, 8), M(0xe2e8f0), -.82, 1.25, .06, bDoorR);
+add(new THREE.CylinderGeometry(.022, .022, .38, 8), M(0xe2e8f0), -.82, 1.25, -.06, bDoorR);
+b.doorR = bDoorR;
 if(T==='ekskul')add(new THREE.BoxGeometry(3.4,3,.14),M(0xe08a1c),0,1.5,3.28,g);
 if(T==='profil'){add(new THREE.BoxGeometry(5.2,.35,1.6),M(0xffffff),0,3.2,3.85,g);[-2.3,-1.15,1.15,2.3].forEach(x=>add(new THREE.CylinderGeometry(.15,.15,3.1,10),M(0xffffff),x,1.6,3.85,g))}
 if(T==='ppdb'){add(new THREE.BoxGeometry(4.6,.14,1.6),M(0x10b981),0,3.1,3.8,g).rotation.x=.22;const bs=new THREE.Group();bs.position.set(6.2,0,.5);g.add(bs);add(new THREE.BoxGeometry(2,1.6,4.6),M(0xffc400),0,1.1,0,bs);add(new THREE.BoxGeometry(2.05,.48,4),M(0x233040),0,1.6,0,bs);[-1.5,1.5].forEach(z=>[-.95,.95].forEach(x=>add(new THREE.CylinderGeometry(.38,.38,.32,12),M(0x222222),x,.38,z,bs).rotation.z=Math.PI/2))}
@@ -1010,16 +1387,204 @@ const tc=document.createElement('canvas');tc.width=tc.height=64;{const q=tc.getC
 const IC={profil:['🏫','🎯','📜'],akademik:['🎓','📚','🏆'],ekskul:['⚽','🏟','📅'],ppdb:['📝','✍','📞']};
 
 // Ruangan Dalam Luas & Nyaman (22 x 16 meter)
-Object.keys(RM).forEach(id=>{const d=RM[id],g=new THREE.Group();g.position.x=RX;g.visible=false;sc.add(g);
-add(new THREE.BoxGeometry(22,.35,16),new THREE.MeshLambertMaterial({color:d.f,map:tile}),0,-.15,0,g);
-add(new THREE.BoxGeometry(22,4.8,.35),M(d.w),0,2.4,-8.15,g);add(new THREE.BoxGeometry(.35,4.8,16),M(d.w),-11.15,2.4,0,g);
-add(new THREE.BoxGeometry(3.2,2.2,.1),new THREE.MeshBasicMaterial({color:0x9bd3ff}),-6,2.8,-7.95,g);
-add(new THREE.BoxGeometry(22,.4,.36),M(0xb5483b),0,1.2,-8.1,g);add(new THREE.BoxGeometry(.36,.4,16),M(0xb5483b),-11.1,1.2,0,g);
-add(new THREE.BoxGeometry(2.8,1.6,.08),M(0xc9a06a),6,2.9,-7.95,g);[0,1].forEach(k=>add(new THREE.BoxGeometry(.7,.55,.02),M(k?0xff8a65:0x7ec8ff),5.4+k*1.1,2.9,-7.9,g));
-for(let k=0;k<5;k++)add(new THREE.BoxGeometry(1,2.4,1.1),M(k%2?0x1f8a8a:0x2aa3a3),-10.4,1.2,.5+k*1.5,g);
-add(new THREE.CylinderGeometry(3.2,3.2,.05,28),M(d.rug),0,.03,.8,g);add(new THREE.BoxGeometry(3.8,.05,1.4),M(0xf5c26b),0,.03,7.2,g);lbl('Keluar',0,1.3,7.2,g);
-d.F.forEach(f=>add(new THREE.BoxGeometry(f[2],f[3],f[4]),M(f[5]),f[0],f[3]/2,f[1],g));
-RS[id]=P[id].tabs.map((t,i)=>{const q=d.S[i],ic=IC[id][i],c=S.s[id+i]?0x4ade80:0xffc83d,r=add(new THREE.TorusGeometry(.8,.1,8,24),M(c),q[0],.12,q[1],g),bm=add(new THREE.CylinderGeometry(.8,.8,2.8,20,1,true),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.2,side:2,depthWrite:false}),q[0],1.4,q[1],g);r.rotation.x=Math.PI/2;lbl(ic+' '+t.t,q[0],3.2,q[1],g);return{id,idx:i,i:ic,n:t.t,v:'Buka',st:1,x:RX+q[0],z:q[1],ring:r,beam:bm}});rooms[id]=g});
+Object.keys(RM).forEach(id=>{
+  const d=RM[id],g=new THREE.Group();g.position.x=RX;g.visible=false;sc.add(g);
+  add(new THREE.BoxGeometry(22,.35,16),new THREE.MeshLambertMaterial({color:d.f,map:tile}),0,-.15,0,g);
+  add(new THREE.BoxGeometry(22,4.8,.35),M(d.w),0,2.4,-8.15,g);
+  add(new THREE.BoxGeometry(.35,4.8,16),M(d.w),-11.15,2.4,0,g);
+  add(new THREE.BoxGeometry(.35,4.8,16),M(d.w),11.15,2.4,0,g);
+  add(new THREE.BoxGeometry(22,4.8,.35),M(d.w),0,2.4,8.15,g);
+  add(new THREE.BoxGeometry(3.2,2.2,.1),new THREE.MeshBasicMaterial({color:0x9bd3ff}),-6,2.8,-7.95,g);
+  add(new THREE.BoxGeometry(22,.4,.36),M(0xb5483b),0,1.2,-8.1,g);
+  add(new THREE.BoxGeometry(.36,.4,16),M(0xb5483b),-11.1,1.2,0,g);
+  add(new THREE.BoxGeometry(.36,.4,16),M(0xb5483b),11.1,1.2,0,g);
+
+  // Kusen & Pintu Keluar Ruangan Interior (z = 7.3)
+  add(new THREE.BoxGeometry(2.4,2.9,.3),M(0x2d3748),0,1.45,7.3,g);
+  add(new THREE.BoxGeometry(1.95,2.7,.1),M(0x111827),0,1.35,7.38,g);
+  add(new THREE.BoxGeometry(2.8,.1,1.4),M(0xf5c26b),0,.04,6.8,g);
+  add(new THREE.BoxGeometry(1.6,.35,.15),M(0x10b981),0,2.95,7.25,g);
+  lbl('🚪 PINTU KELUAR',0,3.35,7.25,g);
+
+  // Daun Pintu Keluar Kiri (Hinge di x = -0.92)
+  const rmExL=new THREE.Group();rmExL.position.set(-0.92,0,7.3);g.add(rmExL);
+  add(new THREE.BoxGeometry(.92,2.6,.08),M(0x7c4a27),.46,1.3,0,rmExL);
+  add(new THREE.BoxGeometry(.56,1.15,.09),winM,.46,1.7,0,rmExL);
+  add(new THREE.CylinderGeometry(.022,.022,.38,8),M(0xe2e8f0),.82,1.25,-.06,rmExL);
+  g.exitDoorL=rmExL;
+
+  // Daun Pintu Keluar Kanan (Hinge di x = 0.92)
+  const rmExR=new THREE.Group();rmExR.position.set(0.92,0,7.3);g.add(rmExR);
+  add(new THREE.BoxGeometry(.92,2.6,.08),M(0x7c4a27),-.46,1.3,0,rmExR);
+  add(new THREE.BoxGeometry(.56,1.15,.09),winM,-.46,1.7,0,rmExR);
+  add(new THREE.CylinderGeometry(.022,.022,.38,8),M(0xe2e8f0),-.82,1.25,-.06,rmExR);
+  g.exitDoorR=rmExR;
+
+  if(id==='akademik'){
+    // Jalur Karpet Runner Terpandu (Wayfinding Blue & Gold)
+    add(new THREE.BoxGeometry(3.2,.03,7.2),M(0x1e3a8a),0,.02,3.4,g);
+    add(new THREE.BoxGeometry(3.5,.02,7.2),M(0xf59e0b),0,.01,3.4,g);
+    add(new THREE.BoxGeometry(7.2,.03,2.4),M(0x1e3a8a),-3.6,.02,-1.5,g);
+    add(new THREE.BoxGeometry(7.2,.02,2.6),M(0xf59e0b),-3.6,.01,-1.5,g);
+    add(new THREE.BoxGeometry(2.4,.03,4.4),M(0x1e3a8a),0,.02,-2.3,g);
+    add(new THREE.BoxGeometry(2.6,.02,4.4),M(0xf59e0b),0,.01,-2.3,g);
+    add(new THREE.BoxGeometry(7.2,.03,2.4),M(0x1e3a8a),3.6,.02,-1.5,g);
+    add(new THREE.BoxGeometry(7.2,.02,2.6),M(0xf59e0b),3.6,.01,-1.5,g);
+
+    [[-6.8,-1.5,0x2563eb],[0,-4.2,0xf59e0b],[6.8,-1.5,0x10b981]].forEach(pt=>{
+      add(new THREE.CylinderGeometry(1.3,1.3,.04,24),M(pt[2]),pt[0],.03,pt[1],g);
+    });
+
+    lbl('① ZONA PEMINATAN (MIPA · IPS · BAHASA)',-6.8,3.8,-1.5,g);
+    lbl('② SMART LAB KURIKULUM MERDEKA',0,4.0,-4.2,g);
+    lbl('③ HALL OF FAME & PRESTASI SISWA',6.8,3.8,-1.5,g);
+
+    // Smartboard Digital Raksasa di dinding utara
+    const sbCan=document.createElement('canvas');sbCan.width=1024;sbCan.height=384;
+    const sbX=sbCan.getContext('2d');
+    sbX.fillStyle='#0f172a';sbX.fillRect(0,0,1024,384);
+    sbX.fillStyle='#1e293b';sbX.fillRect(16,16,992,352);
+    sbX.fillStyle='#38bdf8';sbX.font='bold 38px "Baloo 2",sans-serif';sbX.textAlign='center';
+    sbX.fillText('KURIKULUM MERDEKA · PUSAT RISET & INOVASI SISWA',512,65);
+    sbX.fillStyle='#f8fafc';sbX.font='22px sans-serif';
+    sbX.fillText('SMA CAHAYA NUSANTARA — BERBASIS RISET & PROFIL PELAJAR PANCASILA',512,110);
+    sbX.fillStyle='#1e3a8a';sbX.fillRect(50,145,280,185);
+    sbX.fillStyle='#93c5fd';sbX.font='bold 22px sans-serif';sbX.fillText('1. FASE E (KELAS X)',190,185);
+    sbX.fillStyle='#cbd5e1';sbX.font='18px sans-serif';sbX.fillText('Pondasi Mapel Umum,',190,225);sbX.fillText('Literasi & Diagnostik',190,260);
+
+    sbX.fillStyle='#78350f';sbX.fillRect(372,145,280,185);
+    sbX.fillStyle='#fcd34d';sbX.font='bold 22px sans-serif';sbX.fillText('2. FASE F (KELAS XI-XII)',512,185);
+    sbX.fillStyle='#cbd5e1';sbX.font='18px sans-serif';sbX.fillText('Paket Mapel Pilihan',512,225);sbX.fillText('& Sukses SNBP/SNBT',512,260);
+
+    sbX.fillStyle='#065f46';sbX.fillRect(694,145,280,185);
+    sbX.fillStyle='#6ee7b7';sbX.font='bold 22px sans-serif';sbX.fillText('3. PROJEK RISET P5',834,185);
+    sbX.fillStyle='#cbd5e1';sbX.font='18px sans-serif';sbX.fillText('IoT Smart Waste Bin,',834,225);sbX.fillText('Batik & Bazar Startup',834,260);
+
+    const sbTex=new THREE.CanvasTexture(sbCan);
+    add(new THREE.BoxGeometry(8.2,2.6,.1),M(0x334155),0,2.8,-7.98,g);
+    add(new THREE.PlaneGeometry(8,2.4),new THREE.MeshBasicMaterial({map:sbTex}),0,2.8,-7.92,g);
+
+    // 3 Unit PC Modern di Meja Lab Komputer
+    [-2.2,0,2.2].forEach(cx=>{
+      add(new THREE.CylinderGeometry(.12,.14,.04,12),M(0x64748b),cx,.92,-5.7,g);
+      add(new THREE.BoxGeometry(.05,.35,.05),M(0x64748b),cx,1.1,-5.7,g);
+      add(new THREE.BoxGeometry(.95,.6,.04),M(0x0f172a),cx,1.4,-5.7,g);
+      add(new THREE.BoxGeometry(.88,.52,.02),new THREE.MeshBasicMaterial({color:0x38bdf8}),cx,1.4,-5.67,g);
+      add(new THREE.BoxGeometry(.52,.02,.2),M(0x1e293b),cx,.91,-5.3,g);
+      add(new THREE.BoxGeometry(.08,.02,.12),M(0x38bdf8),cx+.35,.91,-5.3,g);
+      add(new THREE.BoxGeometry(.25,.5,.45),M(0x0f172a),cx+.6,.26,-5.7,g);
+      const ch=new THREE.Group();ch.position.set(cx,0,-4.6);g.add(ch);
+      add(new THREE.CylinderGeometry(.25,.25,.08,12),M(0x1e293b),0,.5,0,ch);
+      add(new THREE.BoxGeometry(.45,.45,.06),M(0x1e293b),0,.8,.2,ch);
+      add(new THREE.CylinderGeometry(.04,.04,.48,8),M(0x94a3b8),0,.24,0,ch);
+    });
+
+    // Zona 1 Props
+    const mic=new THREE.Group();mic.position.set(-8.5,.9,-4.5);g.add(mic);
+    add(new THREE.CylinderGeometry(.16,.18,.08,16),M(0x0f172a),0,.04,0,mic);
+    add(new THREE.BoxGeometry(.06,.45,.08),M(0x334155),-.04,.28,-.06,mic);
+    const mBody=add(new THREE.CylinderGeometry(.04,.04,.34,10),M(0x0f172a),.04,.42,.02,mic);mBody.rotation.x=-.4;
+    add(new THREE.CylinderGeometry(.025,.02,.1,8),M(0xd1d5db),.04,.24,.09,mic);
+    add(new THREE.BoxGeometry(.2,.02,.16),M(0x64748b),0,.2,.05,mic);
+
+    const trk=new THREE.Group();trk.position.set(-7.5,.9,-4.5);g.add(trk);
+    add(new THREE.BoxGeometry(.4,.15,.1),M(0x78350f),0,.08,0,trk);
+    [-.12,0,.12].forEach((tx,ti)=>{
+      add(new THREE.CylinderGeometry(.025,.025,.24,8),new THREE.MeshBasicMaterial({color:[0x06b6d4,0xef4444,0xfacc15][ti]}),tx,.16,0,trk);
+    });
+
+    const mol=new THREE.Group();mol.position.set(-9.5,.9,-4.5);g.add(mol);
+    add(new THREE.SphereGeometry(.1,12,10),M(0xef4444),0,.18,0,mol);
+    [[.18,.25,.08,0x3b82f6],[-.18,.25,-.08,0x10b981],[.08,.08,-.18,0xffffff]].forEach(ap=>{
+      add(new THREE.SphereGeometry(.06,10,8),M(ap[3]),ap[0],ap[1],ap[2],mol);
+      add(new THREE.CylinderGeometry(.012,.012,.2,6),M(0xcccccc),ap[0]/2,(ap[1]+.18)/2,ap[2]/2,mol).lookAt(ap[0],ap[1],ap[2]);
+    });
+
+    const glb=new THREE.Group();glb.position.set(-8.5,.9,1.5);g.add(glb);
+    add(new THREE.CylinderGeometry(.12,.16,.06,16),M(0x78350f),0,.03,0,glb);
+    add(new THREE.CylinderGeometry(.03,.03,.2,8),M(0xd97706),0,.14,0,glb);
+    const gRing=add(new THREE.TorusGeometry(.24,.02,8,20,Math.PI*1.2),M(0xd97706),0,.38,0,glb);gRing.rotation.z=-Math.PI/4;
+    add(new THREE.SphereGeometry(.2,16,12),M(0x2563eb),0,.38,0,glb);
+    [-.08,.08].forEach(ex=>add(new THREE.SphereGeometry(.08,8,6),M(0x16a34a),ex,.38,.14,glb));
+
+    [-.8,-.6].forEach((bx,bi)=>{
+      const bk=add(new THREE.BoxGeometry(.4,.12,.5),M(bi?0x991b1b:0x1e3a8a),-7.5+bx,.96,1.5,g);
+      bk.rotation.y=(bi*.2);
+    });
+
+    // Zona 3 Props (Etalase Piala, 3 Piala 3D, Piagam, Red Carpet)
+    add(new THREE.BoxGeometry(1.6,3.4,5.0),M(0x78350f),9.8,1.7,-1.5,g);
+    add(new THREE.BoxGeometry(1.4,3.1,4.7),M(0x0f172a),9.7,1.7,-1.5,g);
+    add(new THREE.BoxGeometry(.1,3.1,4.7),new THREE.MeshBasicMaterial({color:0xa5f3fc,transparent:true,opacity:.35}),9.0,1.7,-1.5,g);
+    [-.7,0,.7].forEach(ry=>add(new THREE.BoxGeometry(1.2,.04,4.6),M(0x38bdf8),9.7,1.7+ry,-1.5,g));
+    add(new THREE.BoxGeometry(2.0,.02,5.2),M(0xd9534f),8.0,.025,-1.5,g);
+
+    // 3 Piala 3D
+    const tp1=new THREE.Group();tp1.position.set(9.6,1.74,-1.5);g.add(tp1);
+    add(new THREE.BoxGeometry(.32,.18,.32),M(0x111111),0,.09,0,tp1);
+    add(new THREE.CylinderGeometry(.06,.1,.16,12),M(0xffd700),0,.25,0,tp1);
+    add(new THREE.CylinderGeometry(.2,.12,.4,16),M(0xffd700),0,.5,0,tp1);
+    add(new THREE.TorusGeometry(.14,.022,8,16),M(0xffd700),.2,.52,0,tp1);
+    add(new THREE.TorusGeometry(.14,.022,8,16),M(0xffd700),-.2,.52,0,tp1);
+    add(new THREE.OctahedronGeometry(.1),M(0xffd700),0,.76,0,tp1);
+
+    const tp2=new THREE.Group();tp2.position.set(9.6,1.74,-.5);g.add(tp2);
+    add(new THREE.BoxGeometry(.26,.15,.26),M(0x111111),0,.08,0,tp2);
+    add(new THREE.CylinderGeometry(.16,.1,.32,14),M(0xe2e8f0),0,.38,0,tp2);
+    add(new THREE.TorusGeometry(.11,.02,8,14),M(0xe2e8f0),.16,.4,0,tp2);
+    add(new THREE.TorusGeometry(.11,.02,8,14),M(0xe2e8f0),-.16,.4,0,tp2);
+
+    const tp3=new THREE.Group();tp3.position.set(9.6,1.74,-2.5);g.add(tp3);
+    add(new THREE.BoxGeometry(.26,.15,.26),M(0x111111),0,.08,0,tp3);
+    add(new THREE.CylinderGeometry(.15,.09,.3,14),M(0xd97706),0,.36,0,tp3);
+    add(new THREE.TorusGeometry(.1,.02,8,14),M(0xd97706),.15,.38,0,tp3);
+    add(new THREE.TorusGeometry(.1,.02,8,14),M(0xd97706),-.15,.38,0,tp3);
+
+    [-2.8,-1.9,-1.0,-.1].forEach((pz,pi)=>{
+      add(new THREE.BoxGeometry(.08,.9,.7),M(0xffd700),10.9,2.8,pz,g);
+      add(new THREE.BoxGeometry(.06,.82,.62),M(pi%2?0xffffff:0xfef08a),10.88,2.8,pz,g);
+    });
+
+    add(new THREE.BoxGeometry(1.1,1.1,1.0),M(0x475569),3.6,.55,-4.0,g);
+    add(new THREE.BoxGeometry(1.2,.08,1.1),M(0x1e293b),3.6,1.12,-4.0,g);
+    const lp=new THREE.Group();lp.position.set(3.6,1.16,-4.0);g.add(lp);
+    add(new THREE.BoxGeometry(.35,.02,.25),M(0x94a3b8),0,0,0,lp);
+    const lpScr=add(new THREE.BoxGeometry(.35,.24,.02),M(0x0f172a),0,.12,-.12,lp);lpScr.rotation.x=.2;
+    add(new THREE.BoxGeometry(.32,.2,.01),new THREE.MeshBasicMaterial({color:0x38bdf8}),0,.12,-.11,lpScr);
+
+    [[-10,-7],[10,-7],[-10,7],[10,7]].forEach(pos=>{
+      const pln=new THREE.Group();pln.position.set(pos[0],0,pos[1]);g.add(pln);
+      add(new THREE.CylinderGeometry(.35,.28,.7,16),M(0xffffff),0,.35,0,pln);
+      add(new THREE.CylinderGeometry(.32,.3,.05,12),M(0x3e2723),0,.68,0,pln);
+      for(let l=0;l<5;l++){
+        const ang=l/5*Math.PI*2;
+        const lf=add(new THREE.SphereGeometry(.28,8,6),M(0x16a34a),Math.cos(ang)*.25,1.0,Math.sin(ang)*.25,pln);
+        lf.scale.set(1.1,.15,.8);lf.rotation.y=ang;
+      }
+    });
+
+    const clk=new THREE.Group();clk.position.set(0,3.8,7.85);g.add(clk);
+    add(new THREE.CylinderGeometry(.45,.45,.06,24),M(0x1e293b),0,0,0,clk).rotation.x=Math.PI/2;
+    add(new THREE.CylinderGeometry(.4,.4,.07,24),M(0xffffff),0,0,-.01,clk).rotation.x=Math.PI/2;
+    add(new THREE.BoxGeometry(.03,.25,.08),M(0x111111),0,.08,-.03,clk);
+    add(new THREE.BoxGeometry(.18,.04,.08),M(0xe11d48),.06,0,-.03,clk);
+  } else {
+    add(new THREE.BoxGeometry(2.8,1.6,.08),M(0xc9a06a),6,2.9,-7.95,g);[0,1].forEach(k=>add(new THREE.BoxGeometry(.7,.55,.02),M(k?0xff8a65:0x7ec8ff),5.4+k*1.1,2.9,-7.9,g));
+    for(let k=0;k<5;k++)add(new THREE.BoxGeometry(1,2.4,1.1),M(k%2?0x1f8a8a:0x2aa3a3),-10.4,1.2,.5+k*1.5,g);
+    add(new THREE.CylinderGeometry(3.2,3.2,.05,28),M(d.rug),0,.03,.8,g);
+  }
+
+  d.F.forEach(f=>add(new THREE.BoxGeometry(f[2],f[3],f[4]),M(f[5]),f[0],f[3]/2,f[1],g));
+  RS[id]=P[id].tabs.map((t,i)=>{
+    const q=d.S[i],ic=IC[id][i],c=S.s[id+i]?0x4ade80:0xffc83d;
+    const r=add(new THREE.TorusGeometry(.8,.1,8,24),M(c),q[0],.12,q[1],g);
+    const bm=add(new THREE.CylinderGeometry(.8,.8,2.8,20,1,true),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.2,side:2,depthWrite:false}),q[0],1.4,q[1],g);
+    r.rotation.x=Math.PI/2;
+    lbl(ic+' '+t.t,q[0],3.2,q[1],g);
+    return{id,idx:i,i:ic,n:t.t,v:'Buka',st:1,x:RX+q[0],z:q[1],ring:r,beam:bm};
+  });
+  rooms[id]=g;
+});
 
 function colR(){p.x=Math.min(RX+10.2,Math.max(RX-10.2,p.x));p.z=Math.min(7.4,Math.max(-7.2,p.z));for(const f of RM[room].F){const lx=p.x-RX-f[0],lz=p.z-f[1],hx=f[2]/2+.4,hz=f[4]/2+.4;if(Math.abs(lx)<hx&&Math.abs(lz)<hz){if(hx-Math.abs(lx)<hz-Math.abs(lz))p.x=RX+f[0]+Math.sign(lx||1)*hx;else p.z=f[1]+Math.sign(lz||1)*hz}}}
 
@@ -1140,7 +1705,7 @@ function loop(){
 
   let nb=null;
   if(play&&!room){
-    for(const b of B)if(Math.hypot(b.dx-p.x,b.dz-p.z)<2.8)nb=b;
+    for(const b of B)if(Math.hypot(b.dx-p.x,b.dz-p.z)<3.0)nb={id:b.id,n:b.n,i:b.i,v:'Masuk Pintu'};
     // Interaksi dengan Pak Budi (Satpam) di dekat pos
     if(Math.hypot(-6.5-p.x,24.5-p.z)<2.8){
       nb={id:'satpam',n:'Pak Budi (Satpam)',i:'👮',v:'Bicara'};
@@ -1148,6 +1713,29 @@ function loop(){
   }
   if(room){for(const s of RS[room].concat(EX))if(Math.hypot(s.x-p.x,s.z-p.z)<1.5)nb=s}
   if(nb!==near){near=nb;const g=$('#go');g.style.display=nb&&!cur?'block':'none';if(nb)g.innerHTML=(nb.v||'Masuk')+' <small>'+nb.i+' '+nb.n+'</small>'}
+
+  // Animasi Daun Pintu Gedung Luar (Terbuka saat pemain mendekat)
+  if(!room){
+    B.forEach(b=>{
+      if(!b.doorL||!b.doorR)return;
+      const dist=Math.hypot(b.dx-p.x,b.dz-p.z);
+      const isOpen=dist<3.6||b.isOpening;
+      const targetAngle=isOpen?1.45:0;
+      b.doorL.rotation.y+=((-targetAngle)-b.doorL.rotation.y)*Math.min(1,dt*6.5);
+      b.doorR.rotation.y+=((targetAngle)-b.doorR.rotation.y)*Math.min(1,dt*6.5);
+    });
+  }
+
+  // Animasi Pintu Keluar Dalam Ruangan (Terbuka saat pemain mendekati pintu keluar)
+  if(room&&rooms[room]){
+    const rg=rooms[room];
+    if(rg.exitDoorL&&rg.exitDoorR){
+      const nearExit=(p.z>5.2&&Math.abs(p.x-RX)<2.5);
+      const tgtEx=nearExit?1.45:0;
+      rg.exitDoorL.rotation.y+=((-tgtEx)-rg.exitDoorL.rotation.y)*Math.min(1,dt*6.5);
+      rg.exitDoorR.rotation.y+=((tgtEx)-rg.exitDoorR.rotation.y)*Math.min(1,dt*6.5);
+    }
+  }
 
   clouds.forEach(c=>{c.position.x+=dt*.8;if(c.position.x>110)c.position.x=-110});cm.color.setScalar(1-.75*nk);
 
