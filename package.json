@@ -1,0 +1,19 @@
+{
+  "name": "sma-cahaya-nusantara-3d-ar",
+  "version": "1.0.0",
+  "description": "Website 3D Interaktif & Augmented Reality SMA Cahaya Nusantara menggunakan Three.js untuk Ujian Tengah Semester (UTS)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "threejs",
+    "augmented-reality",
+    "webgl",
+    "uts",
+    "virtual-tour"
+  ],
+  "author": "Mahasiswa",
+  "license": "MIT"
+}
