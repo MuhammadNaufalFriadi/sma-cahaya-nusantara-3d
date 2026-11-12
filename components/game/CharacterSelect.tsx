@@ -223,23 +223,30 @@ function buildCharacter(
   }
 
   // Add outline glow pass (backside scale)
+  // PENTING: kumpulkan mesh dulu, BARU tambahkan outline setelah traverse selesai
+  // agar tidak terjadi infinite recursion (stack overflow)
+  const meshesToOutline: THREE.Mesh[] = [];
   group.traverse((o) => {
     if (
       (o as THREE.Mesh).isMesh &&
-      !(o.userData.pedestal) &&
+      !o.userData.pedestal &&
+      !o.userData.ol &&
       (o as THREE.Mesh).material
     ) {
-      const outline = new THREE.Mesh(
-        (o as THREE.Mesh).geometry,
-        new THREE.MeshBasicMaterial({
-          color: 0x1a1210,
-          side: THREE.BackSide,
-        })
-      );
-      outline.scale.setScalar(1.06);
-      outline.userData.ol = true;
-      o.add(outline);
+      meshesToOutline.push(o as THREE.Mesh);
     }
+  });
+  meshesToOutline.forEach((o) => {
+    const outline = new THREE.Mesh(
+      o.geometry,
+      new THREE.MeshBasicMaterial({
+        color: 0x1a1210,
+        side: THREE.BackSide,
+      })
+    );
+    outline.scale.setScalar(1.06);
+    outline.userData.ol = true;
+    o.add(outline);
   });
 
   return { group, legs, arms, headG, ring, plat };
