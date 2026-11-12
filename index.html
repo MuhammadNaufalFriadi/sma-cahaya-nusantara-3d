@@ -139,6 +139,7 @@ input,select,textarea{width:100%;padding:10px 12px;border-radius:8px;border:2px 
   <button class="chip b" id="pf">🏫 Profil</button>
   <div class="row">
     <button id="bar" aria-label="Buka Mode AR">👓 Mode AR</button>
+    <button class="ib" id="btn-gate-toggle" title="Buka/Tutup Gerbang Utama">🚪</button>
     <button class="ib" id="bs" aria-label="Toggle Suara">🔇</button>
     <button class="ib" id="bn" aria-label="Ganti siang atau malam">🌙</button>
     <button class="ib" id="br" aria-label="Hidupkan hujan">🌧</button>
@@ -218,6 +219,7 @@ input,select,textarea{width:100%;padding:10px 12px;border-radius:8px;border:2px 
       </div>
       <div class="ar-actions">
         <button class="ar-btn" id="ar-snap">📸 Ambil Foto AR</button>
+        <button class="ar-btn-sec" id="ar-gate-btn" style="display:none;background:linear-gradient(90deg,#1e4b75,#2563eb);color:#fff;border-color:#60a5fa;">🚪 Buka/Tutup Gerbang</button>
         <button class="ar-btn-sec" id="ar-reset">🔄 Reset Ukuran</button>
       </div>
     </div>
@@ -230,7 +232,18 @@ input,select,textarea{width:100%;padding:10px 12px;border-radius:8px;border:2px 
 const $=s=>document.querySelector(s),T=(t,h)=>({t,h}),rnd=Math.random,SAVE='sma-cn-world-v1';
 let S={v:{},f:{},s:{},gate:0};try{S=Object.assign(S,JSON.parse(localStorage.getItem(SAVE)||'{}'))}catch(e){}
 const save=()=>{try{localStorage.setItem(SAVE,JSON.stringify({v:S.v,f:S.f,s:S.s,gate:S.gate}))}catch(e){}};
-let enteredGate=S.gate||0;
+let enteredGate=S.gate||0,mainGateOpen=1,arGateOpen=1;
+window.toggleMainGate = function(){
+  initAudio();sfx('gate');
+  mainGateOpen = mainGateOpen ? 0 : 1;
+  const qb = $('#btn-gate-toggle');
+  if(qb){
+    qb.textContent = mainGateOpen ? '🚪' : '🔒';
+    qb.style.background = mainGateOpen ? 'rgba(15,42,36,.88)' : '#dc2626';
+    qb.title = mainGateOpen ? 'Gerbang Utama Terbuka (Klik untuk Tutup)' : 'Gerbang Utama Terkunci (Klik untuk Buka)';
+  }
+  toast(mainGateOpen ? '🚪 Gerbang Utama SMA Cahaya Nusantara DIBUKA LEBAR' : '🔒 Gerbang Utama SMA Cahaya Nusantara DITUTUP & TERKUNCI RAPAT');
+};
 
 // ===== WEB AUDIO SYNTHESIZER =====
 let audioCtx=null,soundOn=false,bgmTimer=null;
@@ -272,6 +285,15 @@ function sfx(t){
     o2.frequency.setValueAtTime(420,now+.08);o2.frequency.exponentialRampToValueAtTime(680,now+.32);
     g2.gain.setValueAtTime(.08,now+.08);g2.gain.exponentialRampToValueAtTime(.001,now+.32);
     o2.connect(g2);g2.connect(audioCtx.destination);o2.start(now+.08);o2.stop(now+.32);
+  } else if(t==='gate'){
+    const o1=audioCtx.createOscillator(),g1=audioCtx.createGain();o1.type='sawtooth';
+    o1.frequency.setValueAtTime(140,now);o1.frequency.linearRampToValueAtTime(105,now+.35);
+    g1.gain.setValueAtTime(.09,now);g1.gain.exponentialRampToValueAtTime(.001,now+.38);
+    o1.connect(g1);g1.connect(audioCtx.destination);o1.start(now);o1.stop(now+.38);
+    const o2=audioCtx.createOscillator(),g2=audioCtx.createGain();o2.type='sine';
+    o2.frequency.setValueAtTime(280,now+.18);o2.frequency.exponentialRampToValueAtTime(120,now+.45);
+    g2.gain.setValueAtTime(.11,now+.18);g2.gain.exponentialRampToValueAtTime(.001,now+.45);
+    o2.connect(g2);g2.connect(audioCtx.destination);o2.start(now+.18);o2.stop(now+.45);
   } else if(t==='step'){
     const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='triangle';
     o.frequency.setValueAtTime(100,now);o.frequency.exponentialRampToValueAtTime(40,now+.06);
@@ -327,6 +349,13 @@ T('Sambutan',`<div style="display:flex;align-items:center;gap:16px;margin-bottom
 <li><b>Kantor PPDB</b>: Di sebelah kanan jalan masuk dari gerbang untuk pendaftaran siswa baru.</li>
 <li><b>Bintang Rahasia</b>: Ada 7 bintang fakta menarik yang tersebar di halaman kampus. Temukan semuanya!</li>
 </ul>
+<div style="margin:14px 0 10px;padding:12px;background:rgba(15,23,42,.6);border:1px solid var(--line);border-radius:12px;">
+  <b style="color:var(--y);font-size:14px;display:block;margin-bottom:4px;">🚪 Akses Buka/Tutup Gerbang Utama:</b>
+  <p style="margin:0 0 8px;font-size:12.5px;color:var(--mut);">Anda dapat meminta Pak Budi untuk membuka atau menutup pintu gerbang utama:</p>
+  <button onclick="window.toggleMainGate()" class="btn-wa" style="background:linear-gradient(90deg,#1e4b75,#2563eb);cursor:pointer;font-size:13px;padding:8px 16px;">
+    🚪 Buka / Tutup Gerbang Sekolah
+  </button>
+</div>
 <p style="color:var(--y);font-weight:700;">Selamat menjelajah kampus dengan leluasa!</p>`)]},
 profil:{n:'Gedung Utama',i:'🏫',tabs:[
 T('Tentang',`<p>SMA Cahaya Nusantara adalah sekolah menengah atas unggulan yang menumbuhkan siswa berprestasi, berkarakter kuat, dan siap menghadapi jenjang perguruan tinggi maupun dunia kerja global.</p><div class="g"><div><b>1.200</b><span>Siswa Aktif</span></div><div><b>78</b><span>Guru & Tenaga Pendidik</span></div><div><b>A (Unggul)</b><span>Akreditasi BAN-S/M</span></div><div><b>28 Tahun</b><span>Tahun Berdiri Sejak 1998</span></div></div><h3>Sambutan Kepala Sekolah</h3><p>Dra. Sri Wahyuni, M.Pd. — "Kami berkomitmen mewujudkan ekosistem pendidikan yang inklusif, modern, berbasis teknologi digital, serta senantiasa mengedepankan integritas moral dan budaya budi pekerti luhur."</p>`),
@@ -819,8 +848,9 @@ function exitRoom(){
     });
   },200);
 }
-function act(){if(!near||busy)return;if(near.exit)exitRoom();else if(near.st)openP(near.id,near.idx);else if(near.id==='satpam')openP('satpam');else enterRoom(near.id)}
+function act(){if(!near||busy)return;if(near.exit)exitRoom();else if(near.id==='gate_toggle')toggleMainGate();else if(near.st)openP(near.id,near.idx);else if(near.id==='satpam')openP('satpam');else enterRoom(near.id)}
 $('#ex').onclick=exitRoom;
+const btnGt=$('#btn-gate-toggle');if(btnGt)btnGt.onclick=()=>window.toggleMainGate();
 const GUIDE={n:'Cara bermain',i:'❓',tabs:[T('Kontrol & Fitur',`<ul class="l"><li><b>Halaman Sekolah Luas</b>: Anda bebas berlari, berputar, dan menjelajahi halaman upacara, lapangan olahraga, taman, dan gedung-gedung.</li><li><b>Langkah 1</b>: Mulai dari luar gerbang, jalan maju melintasi Gerbang Utama sekolah untuk mengawali tur kampus.</li><li><b>Pak Budi (Satpam)</b>: Berdiri di pos keamanan dekat gerbang. Dekati dan tekan E untuk berbicara.</li><li><b>Jalan & Lari</b>: Gunakan WASD atau tombol panah. Tahan <b>Shift</b> untuk berlari cepat di halaman.</li><li><b>Lompat</b>: Tekan Spasi (atau tombol Lompat di HP).</li><li><b>Kamera 360°</b>: Seret mouse / geser layar untuk melihat seluruh penjuru sekolah; scroll mouse untuk zoom in/out.</li><li><b>Interaksi Gedung</b>: Dekati pintu gedung lalu tekan E atau tombol Masuk. Di dalam ruangan, dekati lingkaran kuning penanda.</li><li><b>Tombol AR (👓)</b>: Memproyeksikan maskot siswa, miniatur gerbang, atau gedung sekolah di meja Anda lewat kamera ponsel!</li></ul>`),T('Misi Eksplorasi',`<p>Masuki gerbang utama, jelajahi 4 gedung sekolah, dan kumpulkan 7 bintang fakta rahasia yang melayang di halaman kampus. Kemajuan Anda tersimpan otomatis.</p>`)]};
 
 window.wa = function wa(){
@@ -1126,13 +1156,15 @@ const gTexBack=add(new THREE.PlaneGeometry(8.6,1.2),new THREE.MeshBasicMaterial(
 gTexBack.rotation.y=Math.PI;
 
 // Dua Daun Pintu Gerbang Biru Terbuka Lebar
-const dL=new THREE.Group();dL.position.set(-3.7,0,0);dL.rotation.y=1.1;gateG.add(dL);
+const dL=new THREE.Group();dL.position.set(-3.7,0,0);dL.rotation.y=1.15;gateG.add(dL);
 add(new THREE.BoxGeometry(3.4,3.4,.14),doorMat,1.7,1.9,0,dL);
 for(let k=0;k<5;k++){add(new THREE.BoxGeometry(.12,3.1,.16),M(0x13304a),.5+k*.65,1.9,0,dL)}
+add(new THREE.BoxGeometry(.14,.6,.2),M(0xf59e0b),3.3,1.9,0,dL);
 
-const dR=new THREE.Group();dR.position.set(3.7,0,0);dR.rotation.y=-1.1;gateG.add(dR);
+const dR=new THREE.Group();dR.position.set(3.7,0,0);dR.rotation.y=-1.15;gateG.add(dR);
 add(new THREE.BoxGeometry(3.4,3.4,.14),doorMat,-1.7,1.9,0,dR);
 for(let k=0;k<5;k++){add(new THREE.BoxGeometry(.12,3.1,.16),M(0x13304a),-.5-k*.65,1.9,0,dR)}
+add(new THREE.BoxGeometry(.14,.6,.2),M(0xf59e0b),-3.3,1.9,0,dR);
 
 // Tembok Pagar Keliling Sekolah Kiri & Kanan
 add(new THREE.BoxGeometry(42,3.2,.6),gateMat,-26.5,1.6,0,gateG);
@@ -1612,9 +1644,9 @@ const DAY=new THREE.Color(0x8fd3f4),NI=new THREE.Color(0x0b1230),GR=new THREE.Co
 
 // Collision detection halaman luas & tertata
 function col(){
-  // Tembok pagar sekolah pada z = 28 (bukaan leluasa dari -3.5 s/d 3.5)
+  // Tembok pagar sekolah pada z = 28 (bukaan leluasa jika gerbang terbuka)
   if(Math.abs(p.z-28)<.85){
-    if(p.x<-3.5||p.x>3.5){
+    if(p.x<-3.5||p.x>3.5||!mainGateOpen){
       p.z=28+Math.sign(p.z-28||1)*.85;
     }
   }
@@ -1710,9 +1742,20 @@ function loop(){
     if(Math.hypot(-6.5-p.x,24.5-p.z)<2.8){
       nb={id:'satpam',n:'Pak Budi (Satpam)',i:'👮',v:'Bicara'};
     }
+    // Interaksi Tombol Buka/Tutup Gerbang Utama
+    if(Math.abs(p.x)<4.2&&Math.abs(p.z-28)<3.2){
+      nb={id:'gate_toggle',n:'Gerbang Utama',i:'🚪',v:mainGateOpen?'Tutup Gerbang':'Buka Gerbang'};
+    }
   }
   if(room){for(const s of RS[room].concat(EX))if(Math.hypot(s.x-p.x,s.z-p.z)<1.5)nb=s}
   if(nb!==near){near=nb;const g=$('#go');g.style.display=nb&&!cur?'block':'none';if(nb)g.innerHTML=(nb.v||'Masuk')+' <small>'+nb.i+' '+nb.n+'</small>'}
+
+  // Animasi Buka/Tutup Daun Gerbang Utama Kampus
+  if(!room&&typeof dL!=='undefined'&&typeof dR!=='undefined'){
+    const targetGateAngle=mainGateOpen?1.15:0.0;
+    dL.rotation.y+=((targetGateAngle)-dL.rotation.y)*Math.min(1,dt*5.5);
+    dR.rotation.y+=(((-targetGateAngle))-dR.rotation.y)*Math.min(1,dt*5.5);
+  }
 
   // Animasi Daun Pintu Gedung Luar (Terbuka saat pemain mendekat)
   if(!room){
@@ -1802,14 +1845,66 @@ function createMascotModel(){
 function createGateModelAR(){
   const g=new THREE.Group();
   const M=(c)=>new THREE.MeshLambertMaterial({color:c});
-  const gm=M(0x8f4333),gt=M(0x6b2e22),dm=M(0x1e4b75);
-  const pL=new THREE.Mesh(new THREE.BoxGeometry(.6,2.2,.6),gm);pL.position.set(-1.4,1.1,0);g.add(pL);
-  const pR=new THREE.Mesh(new THREE.BoxGeometry(.6,2.2,.6),gm);pR.position.set(1.4,1.1,0);g.add(pR);
-  const b=new THREE.Mesh(new THREE.BoxGeometry(3.6,.6,.6),gm);b.position.set(0,2,0);g.add(b);
-  const cap=new THREE.Mesh(new THREE.BoxGeometry(4,.2,.9),gt);cap.position.set(0,2.4,0);g.add(cap);
-  const d1=new THREE.Mesh(new THREE.BoxGeometry(1,1.2,.05),dm);d1.position.set(-.8,.6,.3);d1.rotation.y=.5;g.add(d1);
-  const d2=new THREE.Mesh(new THREE.BoxGeometry(1,1.2,.05),dm);d2.position.set(.8,.6,.3);d2.rotation.y=-.5;g.add(d2);
-  g.position.set(0,-.8,0);g.scale.setScalar(1.1);
+  const gm=M(0x8f4333),gt=M(0x6b2e22),dm=M(0x1e4b75),metalBar=M(0x13304a);
+
+  // Dua Tiang Pilar Terracotta Utama
+  const pL=new THREE.Mesh(new THREE.BoxGeometry(.6,2.4,.6),gm);pL.position.set(-1.4,1.2,0);g.add(pL);
+  const pR=new THREE.Mesh(new THREE.BoxGeometry(.6,2.4,.6),gm);pR.position.set(1.4,1.2,0);g.add(pR);
+  // Dasar Tiang (Pedestal)
+  const bL=new THREE.Mesh(new THREE.BoxGeometry(.76,.3,.76),gt);bL.position.set(-1.4,.15,0);g.add(bL);
+  const bR=new THREE.Mesh(new THREE.BoxGeometry(.76,.3,.76),gt);bR.position.set(1.4,.15,0);g.add(bR);
+
+  // Balok Atas Gerbang
+  const b=new THREE.Mesh(new THREE.BoxGeometry(3.8,.6,.6),gm);b.position.set(0,2.15,0);g.add(b);
+  // Kanopi Atap Gerbang
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(4.2,.2,.9),gt);cap.position.set(0,2.5,0);g.add(cap);
+
+  // Plang Nama "SMA CAHAYA NUSANTARA" di balok gerbang AR
+  const acv=document.createElement('canvas');acv.width=512;acv.height=96;
+  const ax=acv.getContext('2d');
+  ax.fillStyle='#6b2e22';ax.fillRect(0,0,512,96);
+  ax.strokeStyle='#ffc83d';ax.lineWidth=4;ax.strokeRect(6,6,500,84);
+  ax.fillStyle='#ffffff';ax.font='bold 34px "Baloo 2", sans-serif';ax.textAlign='center';ax.textBaseline='middle';
+  ax.fillText('SMA CAHAYA NUSANTARA',256,48);
+  const aTex=new THREE.CanvasTexture(acv);
+  const aSign=new THREE.Mesh(new THREE.PlaneGeometry(3.0,.45),new THREE.MeshBasicMaterial({map:aTex}));
+  aSign.position.set(0,2.15,.31);g.add(aSign);
+  const aSignBack=new THREE.Mesh(new THREE.PlaneGeometry(3.0,.45),new THREE.MeshBasicMaterial({map:aTex}));
+  aSignBack.position.set(0,2.15,-.31);aSignBack.rotation.y=Math.PI;g.add(aSignBack);
+
+  // Tembok Pagar Samping Miniatur
+  const wL=new THREE.Mesh(new THREE.BoxGeometry(1.6,1.4,.25),gm);wL.position.set(-2.5,.7,0);g.add(wL);
+  const wR=new THREE.Mesh(new THREE.BoxGeometry(1.6,1.4,.25),gm);wR.position.set(2.5,.7,0);g.add(wR);
+  const wCapL=new THREE.Mesh(new THREE.BoxGeometry(1.7,.12,.35),gt);wCapL.position.set(-2.5,1.46,0);g.add(wCapL);
+  const wCapR=new THREE.Mesh(new THREE.BoxGeometry(1.7,.12,.35),gt);wCapR.position.set(2.5,1.46,0);g.add(wCapR);
+
+  // Daun Gerbang Kiri AR (Poros Hinge di x = -1.1)
+  const arDL=new THREE.Group();arDL.position.set(-1.1,0,0);g.add(arDL);
+  const pnlL=new THREE.Mesh(new THREE.BoxGeometry(1.1,1.5,.06),dm);pnlL.position.set(.55,.75,0);arDL.add(pnlL);
+  for(let k=0;k<4;k++){
+    const bar=new THREE.Mesh(new THREE.BoxGeometry(.04,1.4,.08),metalBar);
+    bar.position.set(.18+k*.24,.75,0);arDL.add(bar);
+  }
+  const ltcL=new THREE.Mesh(new THREE.BoxGeometry(.06,.25,.1),M(0xf59e0b));
+  ltcL.position.set(1.05,.75,0);arDL.add(ltcL);
+
+  // Daun Gerbang Kanan AR (Poros Hinge di x = 1.1)
+  const arDR=new THREE.Group();arDR.position.set(1.1,0,0);g.add(arDR);
+  const pnlR=new THREE.Mesh(new THREE.BoxGeometry(1.1,1.5,.06),dm);pnlR.position.set(-.55,.75,0);arDR.add(pnlR);
+  for(let k=0;k<4;k++){
+    const bar=new THREE.Mesh(new THREE.BoxGeometry(.04,1.4,.08),metalBar);
+    bar.position.set(-.18-k*.24,.75,0);arDR.add(bar);
+  }
+  const ltcR=new THREE.Mesh(new THREE.BoxGeometry(.06,.25,.1),M(0xf59e0b));
+  ltcR.position.set(-1.05,.75,0);arDR.add(ltcR);
+
+  window.arGateL=arDL;
+  window.arGateR=arDR;
+  const initialAngle=arGateOpen?1.2:0.0;
+  arDL.rotation.y=initialAngle;
+  arDR.rotation.y=-initialAngle;
+
+  g.position.set(0,-.8,0);g.scale.setScalar(1.05);
   return g;
 }
 
@@ -1896,10 +1991,23 @@ function loadARModel(type){
   if(!arModelGroup)return;
   while(arModelGroup.children.length>0){arModelGroup.remove(arModelGroup.children[0])}
   arRotY=0;arScale=1;
-  if(type==='mascot')arModelGroup.add(createMascotModel());
-  else if(type==='gate')arModelGroup.add(createGateModelAR());
-  else if(type==='building')arModelGroup.add(createBuildingModel());
-  else if(type==='trophy')arModelGroup.add(createTrophyModel());
+  const gateBtn=$('#ar-gate-btn');
+  if(type==='mascot'){
+    if(gateBtn)gateBtn.style.display='none';
+    arModelGroup.add(createMascotModel());
+  } else if(type==='gate'){
+    if(gateBtn){
+      gateBtn.style.display='inline-flex';
+      gateBtn.textContent=arGateOpen?'🚪 Tutup Gerbang AR':'🚪 Buka Gerbang AR';
+    }
+    arModelGroup.add(createGateModelAR());
+  } else if(type==='building'){
+    if(gateBtn)gateBtn.style.display='none';
+    arModelGroup.add(createBuildingModel());
+  } else if(type==='trophy'){
+    if(gateBtn)gateBtn.style.display='none';
+    arModelGroup.add(createTrophyModel());
+  }
 }
 
 async function startAR(){
@@ -1938,11 +2046,27 @@ function renderAR(){
     arModelGroup.rotation.y=arRotY;
     arModelGroup.scale.setScalar(arScale);
   }
+  // Animasi Daun Pintu Gerbang AR Berayun Mulus
+  if(window.arGateL&&window.arGateR){
+    const targetAngle=arGateOpen?1.2:0.0;
+    window.arGateL.rotation.y+=((targetAngle)-window.arGateL.rotation.y)*0.12;
+    window.arGateR.rotation.y+=(((-targetAngle))-window.arGateR.rotation.y)*0.12;
+  }
   arRenderer.render(arScene,arCam);
 }
 
 $('#bar').onclick=startAR;
 $('#ar-close').onclick=stopAR;
+
+const arGb=$('#ar-gate-btn');
+if(arGb){
+  arGb.onclick=()=>{
+    arGateOpen=arGateOpen?0:1;
+    sfx('gate');
+    arGb.textContent=arGateOpen?'🚪 Tutup Gerbang AR':'🚪 Buka Gerbang AR';
+    toast(arGateOpen?'🚪 Pintu Gerbang AR DIBUKA LEBAR':'🔒 Pintu Gerbang AR DITUTUP RAPAT');
+  };
+}
 
 document.querySelectorAll('.ar-selector button').forEach(btn=>{
   btn.onclick=e=>{

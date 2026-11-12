@@ -8,7 +8,13 @@ Website sekolah 3D interaktif berbasis WebGL / Three.js yang memungkinkan calon 
 
 1. **Gerbang Utama & Halaman Kampus 3D Super Luas**
    - **Halaman Sekolah Luas & Lapang**: Area pulau kampus diperluas hampir 2x lipat (radius 48-53m) dengan lapangan upacara dan olahraga serbaguna (basket/futsal lengkap dengan ring & garis lapangan) di bagian tengah.
-   - **Gerbang Sekolah Megah (Main Gate)**: Terinspirasi dari gambar referensi nyata dengan pilar terracotta kokoh, kanopi pelindung, plang nama "SMA CAHAYA NUSANTARA", dua daun pintu besi biru yang terbuka lebar (bukaan 7.4m), pos satpam, NPC Pak Budi (petugas keamanan), serta pagar tembok keliling sekolah (*perimeter wall*).
+   - **Gerbang Sekolah Megah (Main Gate) dengan Fitur Tutup & Buka**:
+     - Terinspirasi dari gambar referensi nyata dengan pilar terracotta kokoh, kanopi pelindung, plang nama "SMA CAHAYA NUSANTARA", dua daun pintu besi biru (bukaan 7.4m), pos satpam, NPC Pak Budi (petugas keamanan), serta pagar tembok keliling sekolah (*perimeter wall*).
+     - **Fitur Interaktif Buka/Tutup Gerbang (3D & AR)**:
+       - Daun gerbang besi biru kiri dan kanan dapat dibuka lebar atau ditutup rapat secara halus dengan efek suara besi gerbang (`sfx('gate')`).
+       - Memiliki 3 metode interaksi: Tombol aksi `E` saat mendekati gerbang, tombol navigasi cepat `🚪` di bilah atas, atau lewat dialog Satpam Pak Budi.
+       - Saat gerbang ditutup rapat, sistem tabrakan fisik (*solid collision*) aktif sehingga karakter tidak dapat menerobos masuk sampai gerbang dibuka kembali.
+       - Pada Mode AR, tersedia tombol khusus **`🚪 Buka/Tutup Gerbang AR`** untuk memperagakan animasi gerbang terbuka/tertutup langsung di atas meja/lantai nyata.
    - **Alur Masuk Leluasa**: Karakter mulai dari halaman depan luar gerbang (`z = 36`), berjalan menyusuri jalan masuk melintasi gerbang utama untuk memulai tur sekolah.
    - **4 Gedung Utama & Interior Megah**:
      - 🏫 **Gedung Utama (Profil & Visi Misi)** di sisi utara.

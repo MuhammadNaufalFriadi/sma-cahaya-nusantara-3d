@@ -129,6 +129,7 @@ Akses melalui peramban: `http://localhost:8080/`
 | 17 | Pemilihan Model AR Gerbang Sekolah | Memilih tab "Gerbang Sekolah" di jendela AR | Objek 3D miniatur gerbang sekolah termuat dan siap diputar | **BERHASIL** |
 | 18 | Animasi Daun Pintu Masuk Gedung | Mendekati pintu gedung (< 3.8 meter) dan menekan tombol Masuk | Sepasang daun pintu ganda membuka otomatis, suara engsel pintu terdengar (`sfx door`), dan karakter melangkah masuk | **BERHASIL** |
 | 19 | Alur Terpandu & Simulator Gedung Akademik | Memasuki Gedung Akademik dan mencoba tes peminatan serta simulator mapel Fase F | Jalur karpet memandu Zona 1 ➔ 2 ➔ 3 secara urut, kuis peminatan menghitung skor kecocokan secara real-time | **BERHASIL** |
+| 20 | Fitur Buka/Tutup Gerbang Utama (3D & AR) | Menekan tombol gerbang `🚪` di navigasi atas atau tombol aksi di Mode AR | Daun pintu gerbang berayun membuka/menutup mulus dengan suara engsel besi (`sfx gate`), dan tabrakan fisik aktif saat gerbang tertutup rapat | **BERHASIL** |
 
 ---
 
