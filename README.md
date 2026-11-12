@@ -79,38 +79,80 @@ Website sekolah 3D interaktif berbasis WebGL / Three.js yang memungkinkan calon 
 
 ---
 
-## 🚀 Cara Menjalankan
+## 🚀 Cara Menjalankan & Membangun
 
-### Cara 1: Menggunakan Node.js Server Bawaan (Sangat Direkomendasikan)
-Proyek ini sudah dilengkapi server HTTP lokal tanpa dependensi tambahan:
+### Cara 1: Mode Pengembangan Next.js (Modern Dev Server)
 ```bash
-# Buka terminal di folder tugas_uts_ar
-node server.js
+# Jalankan server pengembangan Next.js
+npm run dev
 ```
-Akses di browser: **`http://localhost:8080/`**
+Akses di browser: **`http://localhost:3000/`**
 
-### Cara 2: Langsung Buka File HTML
-Klik dua kali file `index.html` pada File Explorer untuk membukanya di Google Chrome, Microsoft Edge, atau Mozilla Firefox.
+### Cara 2: Build & Production (Siap Deploy Vercel)
+```bash
+# Kompilasi & build static / SSR Next.js
+npm run build
+
+# Menjalankan server production
+npm run start
+```
+Proyek ini sepenuhnya kompatibel dan siap di-*deploy* langsung ke **Vercel** hanya dengan menghubungkan repository GitHub.
+
+### Cara 3: File Statis Standalone (Cadangan / Offline)
+Versi standalone single-file tetap tersedia secara aman di:
+- `public/index.html` (dapat dibuka langsung di browser offline atau diakses lewat `http://localhost:3000/index.html`)
 
 ---
 
-## 📁 Struktur File
+## 📁 Struktur Folder & Arsitektur Kode
+
+Struktur proyek telah dimodularisasi sesuai standar arsitektur Next.js & React:
 
 ```
 tugas_uts_ar/
-├── index.html        # Halaman utama aplikasi (HTML5, Three.js 3D Tour, UI HUD, & Fitur AR)
-├── server.js         # HTTP server Node.js ringan (CORS & no-cache headers)
-├── three.min.js      # Pustaka Three.js lokal (memungkinkan jalan 100% offline)
-├── README.md         # Dokumentasi petunjuk & fitur proyek
-└── LAPORAN_UTS.md    # Laporan akademik lengkap UTS (Arsitektur & Black Box Testing)
+├── app/
+│   ├── globals.css              # Styling global, glassmorphism UI, safe-area & print styles
+│   ├── layout.tsx               # Root layout Next.js, font Baloo 2 & Nunito, meta tags
+│   └── page.tsx                 # Dynamic client page loader (SSR disabled untuk Three.js)
+├── components/
+│   └── game/
+│       ├── AcademicModal.tsx    # Tur terpandu 3-zona Gedung Akademik (Kuis, Simulator Mapel, Prestasi)
+│       ├── ARModal.tsx          # Fitur Augmented Reality kamera dengan 4 model 3D & snapshot
+│       ├── BuildingModal.tsx    # Modal responsif gedung kampus, profil, ekskul & satpam
+│       ├── CharacterSelect.tsx  # Layar pemilihan karakter (Naufal, Rani, Sari)
+│       ├── GameContainer.tsx    # Main orchestrator yang mengoordinasikan HUD, 3D, dan modal
+│       ├── GameHUD.tsx          # Bilah navigasi atas, minimap radar, progress bar & tombol aksi
+│       ├── PPDBModal.tsx        # Formulir pendaftaran PPDB online & integrasi WhatsApp
+│       ├── PPDBReceipt.tsx      # Tanda terima pendaftaran resmi yang dapat dicetak/PDF
+│       └── SchoolWorld.tsx      # Core Three.js 3D world: gerbang, gedung, karakter, & physics
+├── lib/
+│   ├── audio.ts                 # Web Audio API synthesizer (SFX & BGM)
+│   ├── constants.ts             # Data karakter, gedung, koordinat, bintang, & masterplan
+│   ├── storage.ts               # LocalStorage persistence helper
+│   ├── types.ts                 # Interface & type definitions TypeScript
+│   └── utils.ts                 # Utility helper function
+├── public/
+│   ├── index.html               # File cadangan standalone offline
+│   ├── LAPORAN_UTS.md           # Laporan akademik lengkap UTS
+│   └── three.min.js             # Pustaka Three.js lokal
+├── .gitignore                   # Konfigurasi file yang diabaikan Git
+├── README.md                    # Dokumentasi lengkap proyek
+├── components.json              # Konfigurasi shadcn UI
+├── eslint.config.mjs            # Konfigurasi ESLint modern
+├── next.config.ts               # Konfigurasi Next.js 16+
+├── package.json                 # Dependensi & skrip Next.js, React, Three.js
+├── package-lock.json            # Lockfile versi paket npm
+├── postcss.config.mjs           # Konfigurasi PostCSS
+└── tsconfig.json                # Konfigurasi TypeScript compiler
 ```
 
 ---
 
 ## 🛠️ Teknologi yang Digunakan
-- **HTML5 & CSS3**: Antarmuka responsif modern, glassmorphism UI, safe-area inset support untuk smartphone.
-- **JavaScript (ES6+)**: Logika game loop, state management, navigasi, localStorage, dan gesture handler.
-- **Three.js (r128)**: Rendering grafis 3D real-time, pencahayaan directional + hemisphere, bayangan (*shadow map*), collision detection, partikel hujan, dan canvas textures.
+- **Next.js 16 (App Router) & React 19**: Arsitektur komponen modular modern, client dynamic rendering.
+- **TypeScript**: Type safety untuk seluruh entitas game, karakter, gedung, formulir, dan state.
+- **Three.js**: Rendering grafis 3D real-time, pencahayaan directional + hemisphere, bayangan (*shadow map*), collision detection, partikel hujan, dan canvas textures.
 - **MediaDevices API & Canvas Composite**: Feed video kamera AR dan snapshot composite photo downloader.
-- **Web Audio API**: Sintesis audio prosedural tanpa file audio eksternal (SFX langkah kaki, lompat, raihan bintang, klik, dan musik latar lofi).
+- **Web Audio API**: Sintesis audio prosedural tanpa file audio eksternal (SFX gerbang, pintu, langkah, lompat, bintang, dan musik latar).
+- **Vercel**: Platform hosting cloud berkecepatan tinggi untuk deployment publik.
 

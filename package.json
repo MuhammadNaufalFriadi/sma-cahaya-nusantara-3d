@@ -4,17 +4,31 @@
   "description": "Website 3D Interaktif & Augmented Reality SMA Cahaya Nusantara menggunakan Three.js untuk Ujian Tengah Semester (UTS)",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "serve:static": "node server.js"
   },
   "keywords": [
     "threejs",
     "augmented-reality",
     "webgl",
     "uts",
-    "virtual-tour"
+    "virtual-tour",
+    "nextjs"
   ],
   "author": "Mahasiswa",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.187.0",
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "three": "^0.187.0",
+    "typescript": "^7.0.2"
+  }
 }
-
