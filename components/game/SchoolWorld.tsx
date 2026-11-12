@@ -51,7 +51,14 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
     const sceneRef = useRef<THREE.Scene | null>(null);
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-    const clockRef = useRef<THREE.Clock>(new THREE.Clock());
+    // Use performance.now() instead of deprecated THREE.Clock
+    const clockRef = useRef<{ getElapsedTime: () => number; getDelta: () => number; _last: number; _start: number }>({
+      _start: performance.now() / 1000,
+      _last: performance.now() / 1000,
+      get elapsedTime() { return performance.now() / 1000 - this._start; },
+      getElapsedTime() { return performance.now() / 1000 - this._start; },
+      getDelta() { const now = performance.now() / 1000; const d = now - this._last; this._last = now; return d; },
+    });
 
     // Game states
     const playerGroupRef = useRef<THREE.Group | null>(null);
