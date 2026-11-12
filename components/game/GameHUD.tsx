@@ -331,6 +331,11 @@ export const GameHUD: React.FC<GameHUDProps> = ({
         Lompat
       </button>
 
+      {/* Virtual Joystick for Mobile/Touch Devices */}
+      <div id="jb">
+        <div id="jk"></div>
+      </div>
+
       {/* Action Prompt Button (Dekati gedung/objek) */}
       {nearObject && (
         <button

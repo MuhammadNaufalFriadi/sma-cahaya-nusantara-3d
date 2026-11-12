@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import * as THREE from "three";
-import { BUILDINGS, CHARS, CRY, FACTS, GATE_POS, RM, RX, EX, IC } from "@/lib/constants";
+import { BUILDINGS, CHARS, CRY, FACTS, GATE_POS, RM, RX } from "@/lib/constants";
 import { SaveState } from "@/lib/types";
 import { sfx } from "@/lib/audio";
 
@@ -60,6 +60,22 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
     const raniGRef = useRef<THREE.Group | null>(null);
     const sariGRef = useRef<THREE.Group | null>(null);
 
+    // Animation limbs and parts
+    const legsRef = useRef<THREE.Group[]>([]);
+    const armsRef = useRef<THREE.Group[]>([]);
+    const torsoRef = useRef<THREE.Mesh | null>(null);
+    const headRef = useRef<THREE.Group | null>(null);
+
+    // 3D Name Tag billboard above character
+    const nameTagCanvasRef = useRef<HTMLCanvasElement | null>(null);
+    const nameTagTexRef = useRef<THREE.CanvasTexture | null>(null);
+
+    // Wandering student NPCs
+    const npcsRef = useRef<any[]>([]);
+
+    // Touch Virtual Joystick
+    const joyRef = useRef<{ id: number; x: number; y: number; dx: number; dy: number } | null>(null);
+
     const mainGateOpenRef = useRef(true);
     const isNightRef = useRef(!!saveState.night);
     const isRainingRef = useRef(false);
@@ -89,7 +105,6 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
     const lampsRef = useRef<THREE.Mesh[]>([]);
     const rainPointsRef = useRef<THREE.Points | null>(null);
     const rainCoordsRef = useRef<Float32Array | null>(null);
-    const npcsListRef = useRef<any[]>([]);
 
     const animFrameId = useRef<number | null>(null);
 
@@ -165,6 +180,26 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       },
     }));
 
+    const updateNameTag = (idx: number) => {
+      const nc = nameTagCanvasRef.current;
+      const nT = nameTagTexRef.current;
+      if (!nc || !nT) return;
+      const nx = nc.getContext("2d");
+      if (!nx) return;
+      nx.clearRect(0, 0, 256, 64);
+      nx.fillStyle = "rgba(15,42,36,0.88)";
+      nx.beginPath();
+      if ((nx as any).roundRect) (nx as any).roundRect(8, 6, 240, 52, 26);
+      else nx.rect(8, 6, 240, 52);
+      nx.fill();
+      nx.fillStyle = "#ffc83d";
+      nx.font = '800 32px "Baloo 2", sans-serif';
+      nx.textAlign = "center";
+      nx.textBaseline = "middle";
+      nx.fillText(CHARS[idx].name, 128, 34);
+      nT.needsUpdate = true;
+    };
+
     const applyCharacterSkin = (idx: number) => {
       const c = CHARS[idx];
       const PM = playerMatRef.current;
@@ -183,6 +218,8 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           if (o.userData.isSari) o.visible = idx === 2;
         });
       }
+
+      updateNameTag(idx);
     };
 
     const doEnterRoom = (id: string) => {
@@ -582,7 +619,9 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       });
       starsListRef.current = stars;
 
-      // Player 3D Character
+      // ==========================================
+      // ===== PLAYER 3D CHARACTER (LENGKAP) ======
+      // ==========================================
       const pl = new THREE.Group();
       scene.add(pl);
       pl.scale.setScalar(0.9);
@@ -606,6 +645,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       // Torso & Tie
       const torso = addMesh(new THREE.CylinderGeometry(0.43, 0.38, 0.78, 16), PM.j, 0, 1.09, 0, pl);
       torso.scale.z = 0.8;
+      torsoRef.current = torso;
       addMesh(new THREE.BoxGeometry(0.3, 0.5, 0.06), PM.sh, 0, 1.2, 0.33, pl);
       addMesh(new THREE.BoxGeometry(0.09, 0.42, 0.05), PM.rd, 0, 1.14, 0.37, pl);
       addMesh(new THREE.BoxGeometry(0.4, 0.09, 0.1), PM.sh, 0, 1.5, 0.3, pl);
@@ -617,6 +657,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       const head = new THREE.Group();
       head.position.y = 1.95;
       pl.add(head);
+      headRef.current = head;
       addMesh(new THREE.SphereGeometry(0.5, 24, 18), PM.k, 0, 0, 0, head);
 
       // Face features
@@ -663,7 +704,8 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       const sariSkirt = addMesh(new THREE.CylinderGeometry(0.38, 0.64, 0.96, 16), PM.skirt, 0, 0.46, 0, pl);
       sariSkirt.userData.isSari = 1;
 
-      // Legs
+      // Legs (Bisa mengayun saat berjalan)
+      const legs: THREE.Group[] = [];
       [-0.14, 0.14].forEach((x) => {
         const lg = new THREE.Group();
         lg.position.set(x, 0.73, 0);
@@ -673,7 +715,69 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         const rLg = addMesh(new THREE.CylinderGeometry(0.13, 0.13, 0.35, 12), PM.white, 0, -0.35, 0, lg);
         rLg.userData.isRani = 1;
         addMesh(new THREE.BoxGeometry(0.28, 0.17, 0.46), M(0x151515), 0, -0.65, 0.08, lg);
+        addMesh(new THREE.BoxGeometry(0.3, 0.06, 0.48), M(0xffffff), 0, -0.72, 0.08, lg);
+        lg.userData.leg = 1;
+        legs.push(lg);
       });
+      legsRef.current = legs;
+
+      // Arms (Bisa mengayun saat berjalan & melambai)
+      const arms: THREE.Group[] = [];
+      [-1, 1].forEach((s) => {
+        const g = new THREE.Group();
+        g.position.set(s * 0.5, 1.38, 0);
+        pl.add(g);
+        addMesh(new THREE.CylinderGeometry(0.115, 0.1, 0.66, 12), PM.j, 0, -0.33, 0, g);
+        addMesh(new THREE.SphereGeometry(0.14, 12, 10), PM.j, 0, 0, 0, g);
+        addMesh(new THREE.SphereGeometry(0.12, 12, 10), PM.k, 0, -0.74, 0, g);
+        g.userData.arm = 1;
+        arms.push(g);
+      });
+      armsRef.current = arms;
+
+      // 3D Billboard Name Tag di atas kepala karakter
+      const nc = document.createElement("canvas");
+      nc.width = 256;
+      nc.height = 64;
+      nameTagCanvasRef.current = nc;
+      const nT = new THREE.CanvasTexture(nc);
+      nameTagTexRef.current = nT;
+      const ns = new THREE.Sprite(new THREE.SpriteMaterial({ map: nT, depthTest: false }));
+      ns.scale.set(2, 0.5, 1);
+      ns.position.y = 3.05;
+      ns.renderOrder = 9;
+      pl.add(ns);
+
+      // Student NPCs (Orang-orang / Siswa-siswi lain yang berjalan di sekolah)
+      const npcsConfig = [
+        [0x2b1b12, 0xb03a48, 0xd9a577, 14, 0.18, 1],
+        [0xc58b3a, 0x3b7d5a, 0xe8b98f, 12, 0.22, -1],
+        [0x1a1a1a, 0x7a4bb0, 0xf2c9a0, 28, 0.06, 1],
+        [0x8a3b1f, 0xe08a2c, 0xd9a577, 26, 0.05, -1],
+        [0x30200f, 0x2a8aa8, 0xe8b98f, 16, 0.15, 1],
+      ];
+      const npcs = npcsConfig.map((c, i) => {
+        const g = pl.clone(true);
+        g.children.filter((o) => o.isSprite).forEach((o) => g.remove(o));
+        g.traverse((o: any) => {
+          if (o.isMesh && !o.userData.ol) {
+            const m = o.material;
+            if (m === PM.h) o.material = M(c[0]);
+            else if (m === PM.j) o.material = M(c[1]);
+            else if (m === PM.k) o.material = M(c[2]);
+          }
+        });
+        scene.add(g);
+        return {
+          g,
+          r: c[3],
+          w: (c[4] as number) * (c[5] as number),
+          a: i * 1.7,
+          lg: g.children.filter((o) => o.userData.leg),
+          ar: g.children.filter((o) => o.userData.arm),
+        };
+      });
+      npcsRef.current = npcs;
 
       // Rain particles
       const rv = new Float32Array(1500);
@@ -784,7 +888,98 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       window.addEventListener("keydown", handleKeyDown);
       window.addEventListener("keyup", handleKeyUp);
 
-      // Main Loop
+      // Mouse drag camera orbit, touch joystick & click-to-move
+      let dn: { x: number; y: number } | null = null;
+      let mv = 0;
+      const ray = new THREE.Raycaster();
+      const pln = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+      const hit = new THREE.Vector3();
+
+      const jb = document.getElementById("jb");
+      const jk = document.getElementById("jk");
+
+      const handlePointerDown = (e: PointerEvent) => {
+        if (play && !roomRef.current && e.pointerType === "touch" && e.clientX < window.innerWidth * 0.55 && !joyRef.current) {
+          joyRef.current = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, dy: 0 };
+          if (jb) {
+            jb.style.left = e.clientX + "px";
+            jb.style.top = e.clientY + "px";
+            jb.classList.add("on");
+          }
+          if (jk) jk.style.transform = "";
+          targetPos.current = null;
+          autoEnterRoomId.current = null;
+          return;
+        }
+        dn = { x: e.clientX, y: e.clientY };
+        mv = 0;
+      };
+
+      const handlePointerMove = (e: PointerEvent) => {
+        if (joyRef.current && e.pointerId === joyRef.current.id) {
+          let dx = e.clientX - joyRef.current.x;
+          let dy = e.clientY - joyRef.current.y;
+          const l = Math.hypot(dx, dy);
+          const m = 48;
+          if (l > m) {
+            dx *= m / l;
+            dy *= m / l;
+          }
+          joyRef.current.dx = dx / m;
+          joyRef.current.dy = dy / m;
+          if (jk) jk.style.transform = `translate(${dx}px,${dy}px)`;
+          return;
+        }
+        if (!dn) return;
+        const ax = e.clientX - dn.x;
+        const ay = e.clientY - dn.y;
+        mv += Math.abs(ax) + Math.abs(ay);
+        playerYaw.current -= ax * 0.006;
+        playerPitch.current = Math.min(1.2, Math.max(0.15, playerPitch.current + ay * 0.004));
+        dn = { x: e.clientX, y: e.clientY };
+      };
+
+      const handlePointerUp = (e: PointerEvent) => {
+        if (joyRef.current && e.pointerId === joyRef.current.id) {
+          joyRef.current = null;
+          if (jb) jb.classList.remove("on");
+          return;
+        }
+        if (dn && mv < 8 && play && !roomRef.current) {
+          ray.setFromCamera(
+            {
+              x: (e.clientX / window.innerWidth) * 2 - 1,
+              y: -(e.clientY / window.innerHeight) * 2 + 1,
+            },
+            camera
+          );
+          if (ray.ray.intersectPlane(pln, hit)) {
+            targetPos.current = { x: hit.x, z: hit.z };
+            autoEnterRoomId.current = null;
+          }
+        }
+        dn = null;
+      };
+
+      const handlePointerCancel = () => {
+        joyRef.current = null;
+        if (jb) jb.classList.remove("on");
+        dn = null;
+      };
+
+      const handleWheel = (e: WheelEvent) => {
+        playerDist.current = Math.min(24, Math.max(6, playerDist.current + e.deltaY * 0.012));
+      };
+
+      canvas.addEventListener("pointerdown", handlePointerDown);
+      window.addEventListener("pointermove", handlePointerMove);
+      window.addEventListener("pointerup", handlePointerUp);
+      window.addEventListener("pointercancel", handlePointerCancel);
+      canvas.addEventListener("wheel", handleWheel, { passive: true });
+
+      // ==========================================
+      // ===== MAIN GAME LOOP & ANIMATION =========
+      // ==========================================
       const animateLoop = () => {
         animFrameId.current = requestAnimationFrame(animateLoop);
         const dt = Math.min(clockRef.current.getDelta(), 0.05);
@@ -794,8 +989,13 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         const K = keys.current;
 
         if (play) {
-          const f = (K.w || K.arrowup ? 1 : 0) - (K.s || K.arrowdown ? 1 : 0);
-          const r = (K.d || K.arrowright ? 1 : 0) - (K.a || K.arrowleft ? 1 : 0);
+          let f = (K.w || K.arrowup ? 1 : 0) - (K.s || K.arrowdown ? 1 : 0);
+          let r = (K.d || K.arrowright ? 1 : 0) - (K.a || K.arrowleft ? 1 : 0);
+
+          if (joyRef.current && Math.hypot(joyRef.current.dx, joyRef.current.dy) > 0.15) {
+            f = -joyRef.current.dy;
+            r = joyRef.current.dx;
+          }
 
           if (f || r) {
             targetPos.current = null;
@@ -830,12 +1030,13 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           }
         }
 
-        // Movement
+        // Movement & Physics
         const l = Math.hypot(dx, dz);
         if (l > 0) {
           dx /= l;
           dz /= l;
-          const sp = K.shift ? 8.5 : 5.2;
+          const isSprint = K.shift || (joyRef.current && Math.hypot(joyRef.current.dx, joyRef.current.dy) > 0.9);
+          const sp = isSprint ? 8.5 : 5.2;
           playerPos.current.x += dx * sp * dt;
           playerPos.current.z += dz * sp * dt;
 
@@ -866,6 +1067,27 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
                 playerPos.current.x = -10 + Math.sign(playerPos.current.x + 10 || 1) * 2.2;
               else playerPos.current.z = 23.5 + Math.sign(playerPos.current.z - 23.5 || 1) * 1.8;
             }
+            // Buildings
+            for (const b of BUILDINGS) {
+              if (b.r != null) {
+                const c = Math.cos(b.r), s = Math.sin(b.r);
+                const bdx = playerPos.current.x - b.x, bdz = playerPos.current.z - b.z;
+                let lx = bdx * c - bdz * s, lz = bdx * s + bdz * c;
+                const hx = 5.2, hz = 4.2;
+                if (Math.abs(lx) < hx && Math.abs(lz) < hz) {
+                  if (hx - Math.abs(lx) < hz - Math.abs(lz)) lx = Math.sign(lx || 1) * hx;
+                  else lz = Math.sign(lz || 1) * hz;
+                  playerPos.current.x = b.x + lx * c + lz * s;
+                  playerPos.current.z = b.z - lx * s + lz * c;
+                }
+              }
+            }
+            // Flagpole (0, -17)
+            if (Math.hypot(playerPos.current.x, playerPos.current.z + 17) < 1.4) {
+              const dFlag = Math.hypot(playerPos.current.x, playerPos.current.z + 17);
+              playerPos.current.x = (playerPos.current.x / (dFlag || 1)) * 1.4;
+              playerPos.current.z = -17 + ((playerPos.current.z + 17) / (dFlag || 1)) * 1.4;
+            }
             // Campus island radius 47m
             const distIsland = Math.hypot(playerPos.current.x, playerPos.current.z);
             if (distIsland > 47) {
@@ -877,17 +1099,111 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           let da = Math.atan2(dx, dz) - pl.rotation.y;
           da = Math.atan2(Math.sin(da), Math.cos(da));
           pl.rotation.y += da * Math.min(1, dt * 12);
+          waveTimer.current = 0;
+        }
 
-          stepTimer.current += dt;
-          if (stepTimer.current > 0.28) {
-            stepTimer.current = 0;
-            sfx("step");
+        // ==========================================
+        // ===== ANIMASI ORANG / KARAKTER BERJALAN ==
+        // ==========================================
+        const sw = Math.sin(t * 12);
+        const b = Math.sin(t * 2);
+        const [L, Rl] = legsRef.current;
+        const [aL, aR] = armsRef.current;
+        const torsoObj = torsoRef.current;
+        const headObj = headRef.current;
+
+        if (waveTimer.current > 0) {
+          waveTimer.current -= dt;
+        }
+
+        if (L && Rl && aL && aR) {
+          if (l > 0) {
+            // Kaki mengayun natural maju mundur
+            L.rotation.x = sw * 0.7;
+            Rl.rotation.x = -sw * 0.7;
+            // Tangan mengayun berlawanan dengan kaki
+            aL.rotation.x = -sw * 0.5;
+            aR.rotation.x = sw * 0.5;
+            aL.rotation.z = -0.1;
+            aR.rotation.z = 0.1;
+            // Badan membal vertikal naik turun saat melangkah
+            pl.position.y = playerJumpY.current + Math.abs(sw) * 0.08;
+            if (headObj) headObj.rotation.set(0, 0, 0);
+            if (torsoObj) torsoObj.scale.y = 1;
+
+            // Efek suara langkah kaki
+            stepTimer.current += dt;
+            if (stepTimer.current > 0.28) {
+              stepTimer.current = 0;
+              sfx("step");
+            }
+          } else {
+            // Diam / Idle Breathing
+            L.rotation.x = 0;
+            Rl.rotation.x = 0;
+            aL.rotation.x = 0;
+            aR.rotation.x = 0;
+            pl.position.y = playerJumpY.current;
+            if (torsoObj) torsoObj.scale.y = 1 + b * 0.012;
+            aL.rotation.z = -0.1 - b * 0.02;
+
+            if (waveTimer.current > 0) {
+              // Melambaikan tangan menyapa
+              aR.rotation.z = 2.5 + Math.sin(t * 10) * 0.3;
+              if (headObj) headObj.rotation.set(0, Math.sin(t * 2) * 0.12, 0.1);
+            } else {
+              aR.rotation.z = 0.1 + b * 0.02;
+              if (headObj) headObj.rotation.set(0, 0, Math.sin(t * 1.3) * 0.04);
+            }
+          }
+
+          // Pose saat melompat
+          if (playerJumpY.current > 0) {
+            L.rotation.x = -0.5;
+            Rl.rotation.x = 0.4;
+            aL.rotation.z = -0.7;
+            aR.rotation.z = 0.7;
           }
         }
 
         pl.position.x = playerPos.current.x;
         pl.position.z = playerPos.current.z;
-        pl.position.y = playerJumpY.current;
+
+        // ==========================================
+        // ===== ANIMASI SISWA / NPC LAIN ===========
+        // ==========================================
+        npcsRef.current.forEach((n, i) => {
+          const d2 = Math.hypot(n.g.position.x - playerPos.current.x, n.g.position.z - playerPos.current.z);
+          const nr = d2 < 3.5 && play;
+          if (!nr) n.a += n.w * dt;
+          const sg = Math.sign(n.w);
+          const nxPos = Math.cos(n.a) * n.r;
+          const nzPos = Math.sin(n.a) * n.r;
+          n.g.position.x = nxPos;
+          n.g.position.z = nzPos;
+
+          // Menghadap pemain jika didekati
+          const ang = nr
+            ? Math.atan2(playerPos.current.x - nxPos, playerPos.current.z - nzPos)
+            : Math.atan2(-Math.sin(n.a) * sg, Math.cos(n.a) * sg);
+          let da = ang - n.g.rotation.y;
+          da = Math.atan2(Math.sin(da), Math.cos(da));
+          n.g.rotation.y += da * Math.min(1, dt * 6);
+
+          const npcSw = Math.sin(t * 9 + i);
+          if (n.lg[0] && n.lg[1]) {
+            n.lg[0].rotation.x = nr ? 0 : npcSw * 0.6;
+            n.lg[1].rotation.x = nr ? 0 : -npcSw * 0.6;
+          }
+          if (n.ar[0] && n.ar[1]) {
+            n.ar[0].rotation.x = nr ? 0 : -npcSw * 0.4;
+            n.ar[1].rotation.x = nr ? 0 : npcSw * 0.4;
+            n.ar[0].rotation.z = -0.1;
+            // NPC melambaikan tangan menyapa saat didekati!
+            n.ar[1].rotation.z = nr ? 2.5 + Math.sin(t * 10) * 0.3 : 0.1;
+          }
+          n.g.position.y = nr ? 0 : Math.abs(npcSw) * 0.05;
+        });
 
         // First gate pass trigger
         if (play && !saveState.gate && playerPos.current.z <= 28.2 && Math.abs(playerPos.current.x) < 3.6) {
@@ -964,7 +1280,6 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
             };
           }
         } else if (roomRef.current) {
-          const roomObj = roomsMapRef.current[roomRef.current];
           if (Math.hypot(RX - playerPos.current.x, 7 - playerPos.current.z) < 1.8) {
             nb = { exit: 1, id: "exit", n: "Pintu Keluar", i: "🚪", v: "Keluar" };
           }
@@ -1008,6 +1323,11 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         window.removeEventListener("resize", handleResize);
         window.removeEventListener("keydown", handleKeyDown);
         window.removeEventListener("keyup", handleKeyUp);
+        canvas.removeEventListener("pointerdown", handlePointerDown);
+        window.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("pointerup", handlePointerUp);
+        window.removeEventListener("pointercancel", handlePointerCancel);
+        canvas.removeEventListener("wheel", handleWheel);
         if (animFrameId.current) cancelAnimationFrame(animFrameId.current);
       };
     }, []);
@@ -1028,4 +1348,3 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 );
 
 SchoolWorld.displayName = "SchoolWorld";
-
