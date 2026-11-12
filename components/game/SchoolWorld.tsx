@@ -52,7 +52,15 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
     // Use performance.now() instead of deprecated THREE.Clock
-    const clockRef = useRef<{ getElapsedTime: () => number; getDelta: () => number; _last: number; _start: number }>({
+    interface GameClock {
+      _start: number;
+      _last: number;
+      elapsedTime: number;
+      getElapsedTime: () => number;
+      getDelta: () => number;
+    }
+
+    const clockRef = useRef<GameClock>({
       _start: performance.now() / 1000,
       _last: performance.now() / 1000,
       get elapsedTime() { return performance.now() / 1000 - this._start; },
@@ -765,7 +773,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       ];
       const npcs = npcsConfig.map((c, i) => {
         const g = pl.clone(true);
-        g.children.filter((o) => o.isSprite).forEach((o) => g.remove(o));
+        g.children.filter((o: any) => o.isSprite).forEach((o) => g.remove(o));
         g.traverse((o: any) => {
           if (o.isMesh && !o.userData.ol) {
             const m = o.material;
@@ -954,10 +962,10 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         }
         if (dn && mv < 8 && play && !roomRef.current) {
           ray.setFromCamera(
-            {
-              x: (e.clientX / window.innerWidth) * 2 - 1,
-              y: -(e.clientY / window.innerHeight) * 2 + 1,
-            },
+            new THREE.Vector2(
+              (e.clientX / window.innerWidth) * 2 - 1,
+              -(e.clientY / window.innerHeight) * 2 + 1
+            ),
             camera
           );
           if (ray.ray.intersectPlane(pln, hit)) {
