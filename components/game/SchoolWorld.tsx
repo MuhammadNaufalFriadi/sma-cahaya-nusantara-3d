@@ -91,6 +91,51 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
     // Touch Virtual Joystick
     const joyRef = useRef<{ id: number; x: number; y: number; dx: number; dy: number } | null>(null);
 
+    // Refs for props to prevent stale closure in event listeners and animation loop
+    const playRef = useRef(play);
+    useEffect(() => {
+      playRef.current = play;
+    }, [play]);
+
+    const saveStateRef = useRef(saveState);
+    useEffect(() => {
+      saveStateRef.current = saveState;
+    }, [saveState]);
+
+    const onPlayerMoveRef = useRef(onPlayerMove);
+    useEffect(() => {
+      onPlayerMoveRef.current = onPlayerMove;
+    }, [onPlayerMove]);
+
+    const onNearChangeRef = useRef(onNearChange);
+    useEffect(() => {
+      onNearChangeRef.current = onNearChange;
+    }, [onNearChange]);
+
+    const onToastRef = useRef(onToast);
+    useEffect(() => {
+      onToastRef.current = onToast;
+    }, [onToast]);
+
+    const onOpenModalRef = useRef(onOpenModal);
+    useEffect(() => {
+      onOpenModalRef.current = onOpenModal;
+    }, [onOpenModal]);
+
+    const onRoomChangeRef = useRef(onRoomChange);
+    useEffect(() => {
+      onRoomChangeRef.current = onRoomChange;
+    }, [onRoomChange]);
+
+    const onSaveStateChangeRef = useRef(onSaveStateChange);
+    useEffect(() => {
+      onSaveStateChangeRef.current = onSaveStateChange;
+    }, [onSaveStateChange]);
+
+    useEffect(() => {
+      applyCharacterSkin(charIndex);
+    }, [charIndex]);
+
     const mainGateOpenRef = useRef(true);
     const isNightRef = useRef(!!saveState.night);
     const isRainingRef = useRef(false);
@@ -130,7 +175,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       toggleMainGate: () => {
         sfx("gate");
         mainGateOpenRef.current = !mainGateOpenRef.current;
-        onToast(
+        onToastRef.current?.(
           mainGateOpenRef.current
             ? "🚪 Gerbang Utama SMA Cahaya Nusantara DIBUKA LEBAR"
             : "🔒 Gerbang Utama SMA Cahaya Nusantara DITUTUP & TERKUNCI RAPAT"
@@ -140,7 +185,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       toggleNight: () => {
         sfx("click");
         isNightRef.current = !isNightRef.current;
-        onSaveStateChange((prev) => ({
+        onSaveStateChangeRef.current?.((prev) => ({
           ...prev,
           night: isNightRef.current ? 1 : 0,
         }));
@@ -152,7 +197,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         if (rainPointsRef.current) {
           rainPointsRef.current.visible = isRainingRef.current;
         }
-        onToast(isRainingRef.current ? "Hujan turun 🌧" : "Cuaca cerah ☀️");
+        onToastRef.current?.(isRainingRef.current ? "Hujan turun 🌧" : "Cuaca cerah ☀️");
         return isRainingRef.current;
       },
       jump: () => {
@@ -169,8 +214,36 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         doExitRoom();
       },
       moveTo: (x: number, z: number, autoEnterId?: string) => {
-        targetPos.current = { x, z };
-        autoEnterRoomId.current = autoEnterId || null;
+        // Fast travel: langsung tempatkan karakter di depan pintu gedung tujuan
+        playerPos.current.x = x;
+        playerPos.current.z = z;
+        targetPos.current = null;
+        autoEnterRoomId.current = null;
+        waveTimer.current = 1.2;
+
+        // Buka gerbang jika berada di luar agar akses tidak terhalang
+        mainGateOpenRef.current = true;
+
+        if (autoEnterId) {
+          const b = BUILDINGS.find((item) => item.id === autoEnterId);
+          if (b && b.r != null) {
+            playerYaw.current = b.r;
+            if (playerGroupRef.current) {
+              playerGroupRef.current.rotation.y = b.r;
+            }
+          }
+          sfx("enter");
+          onToastRef.current?.(`Tiba di ${b?.n || "Gedung"}. Silakan masuk!`);
+          doEnterRoom(autoEnterId);
+        } else {
+          // Gerbang Utama
+          playerYaw.current = 0;
+          if (playerGroupRef.current) {
+            playerGroupRef.current.rotation.y = 0;
+          }
+          sfx("gate");
+          onToastRef.current?.("🚪 Tiba di Gerbang Utama SMA Cahaya Nusantara");
+        }
       },
       triggerNearAction: () => {
         if (!nearObjRef.current) return;
@@ -250,7 +323,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       setTimeout(() => {
         sfx("enter");
         roomRef.current = id;
-        onRoomChange(id);
+        onRoomChangeRef.current?.(id);
         playerPos.current.x = RX;
         playerPos.current.z = 4.8;
         targetPos.current = null;
@@ -265,7 +338,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           roomsMapRef.current[id].visible = true;
         }
 
-        onSaveStateChange((prev) => {
+        onSaveStateChangeRef.current?.((prev) => {
           if (!prev.v[id]) {
             const nextV = { ...prev.v, [id]: 1 };
             return { ...prev, v: nextV };
@@ -274,9 +347,9 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         });
 
         if (id === "akademik") {
-          onToast("📚 Masuk Gedung Akademik. Ikuti jalur karpet: Langkah 1 ➔ 2 ➔ 3.");
+          onToastRef.current?.("📚 Masuk Gedung Akademik. Ikuti jalur karpet: Langkah 1 ➔ 2 ➔ 3.");
         } else {
-          onToast(`Masuk ${b?.n || "Gedung"}. Jalan ke lingkaran penanda, lalu tekan E.`);
+          onToastRef.current?.(`Masuk ${b?.n || "Gedung"}. Jalan ke lingkaran penanda, lalu tekan E.`);
         }
 
         if (b) b.isOpening = 0;
@@ -296,7 +369,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           roomsMapRef.current[currentRoomId].visible = false;
         }
         roomRef.current = null;
-        onRoomChange(null);
+        onRoomChangeRef.current?.(null);
 
         if (b && b.r != null) {
           playerPos.current.x = b.x + Math.sin(b.r) * 5.4;
@@ -309,7 +382,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           }
         }
 
-        onToast("Kembali ke halaman kampus.");
+        onToastRef.current?.("Kembali ke halaman kampus.");
       }, 200);
     };
 
@@ -873,21 +946,21 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
             else if (nb.id === "gate_toggle") {
               mainGateOpenRef.current = !mainGateOpenRef.current;
               sfx("gate");
-              onToast(
+              onToastRef.current?.(
                 mainGateOpenRef.current
                   ? "🚪 Gerbang Utama SMA Cahaya Nusantara DIBUKA LEBAR"
                   : "🔒 Gerbang Utama SMA Cahaya Nusantara DITUTUP & TERKUNCI RAPAT"
               );
             } else if ((nb as any).st) {
-              onOpenModal(nb.id, (nb as any).idx);
+              onOpenModalRef.current?.(nb.id, (nb as any).idx);
             } else if (nb.id === "satpam") {
-              onOpenModal("satpam");
+              onOpenModalRef.current?.("satpam");
             } else {
               doEnterRoom(nb.id);
             }
           }
         }
-        if (e.key === " " && play) {
+        if (e.key === " " && playRef.current) {
           e.preventDefault();
           if (playerJumpY.current <= 0) {
             sfx("jump");
@@ -914,7 +987,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       const jk = document.getElementById("jk");
 
       const handlePointerDown = (e: PointerEvent) => {
-        if (play && !roomRef.current && e.pointerType === "touch" && e.clientX < window.innerWidth * 0.55 && !joyRef.current) {
+        if (playRef.current && !roomRef.current && e.pointerType === "touch" && e.clientX < window.innerWidth * 0.55 && !joyRef.current) {
           joyRef.current = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, dy: 0 };
           if (jb) {
             jb.style.left = e.clientX + "px";
@@ -960,7 +1033,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           if (jb) jb.classList.remove("on");
           return;
         }
-        if (dn && mv < 8 && play && !roomRef.current) {
+        if (dn && mv < 8 && playRef.current && !roomRef.current) {
           ray.setFromCamera(
             new THREE.Vector2(
               (e.clientX / window.innerWidth) * 2 - 1,
@@ -1003,7 +1076,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         let dx = 0, dz = 0;
         const K = keys.current;
 
-        if (play) {
+        if (playRef.current) {
           let f = (K.w || K.arrowup ? 1 : 0) - (K.s || K.arrowdown ? 1 : 0);
           let r = (K.d || K.arrowright ? 1 : 0) - (K.a || K.arrowleft ? 1 : 0);
 
@@ -1189,7 +1262,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         // ==========================================
         npcsRef.current.forEach((n, i) => {
           const d2 = Math.hypot(n.g.position.x - playerPos.current.x, n.g.position.z - playerPos.current.z);
-          const nr = d2 < 3.5 && play;
+          const nr = d2 < 3.5 && playRef.current;
           if (!nr) n.a += n.w * dt;
           const sg = Math.sign(n.w);
           const nxPos = Math.cos(n.a) * n.r;
@@ -1221,10 +1294,10 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         });
 
         // First gate pass trigger
-        if (play && !saveState.gate && playerPos.current.z <= 28.2 && Math.abs(playerPos.current.x) < 3.6) {
-          onSaveStateChange((prev) => ({ ...prev, gate: 1 }));
+        if (playRef.current && !saveStateRef.current.gate && playerPos.current.z <= 28.2 && Math.abs(playerPos.current.x) < 3.6) {
+          onSaveStateChangeRef.current?.((prev) => ({ ...prev, gate: 1 }));
           sfx("star");
-          onToast("🎉 Selamat Datang di SMA Cahaya Nusantara! Halaman sekolah kini luas dan bebas dijelajahi.");
+          onToastRef.current?.("🎉 Selamat Datang di SMA Cahaya Nusantara! Halaman sekolah kini luas dan bebas dijelajahi.");
         }
 
         // Secret star collection
@@ -1232,14 +1305,14 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           if (!m.visible) return;
           m.rotation.y = t * 2;
           m.position.y = 1.4 + Math.sin(t * 2 + idx) * 0.15;
-          if (play && Math.hypot(m.position.x - playerPos.current.x, m.position.z - playerPos.current.z) < 1.5) {
+          if (playRef.current && Math.hypot(m.position.x - playerPos.current.x, m.position.z - playerPos.current.z) < 1.5) {
             m.visible = false;
             sfx("star");
-            onSaveStateChange((prev) => ({
+            onSaveStateChangeRef.current?.((prev) => ({
               ...prev,
               f: { ...prev.f, [idx]: 1 },
             }));
-            onToast(`⭐ Fakta Ditemukan: ${FACTS[idx]}`);
+            onToastRef.current?.(`⭐ Fakta Ditemukan: ${FACTS[idx]}`);
           }
         });
 
@@ -1277,7 +1350,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
         // Check nearest interactable object
         let nb: any = null;
-        if (play && !roomRef.current) {
+        if (playRef.current && !roomRef.current) {
           for (const b of BUILDINGS) {
             if (b.dx != null && b.dz != null && Math.hypot(b.dx - playerPos.current.x, b.dz - playerPos.current.z) < 3.0) {
               nb = { id: b.id, n: b.n, i: b.i, v: "Masuk Pintu" };
@@ -1308,7 +1381,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
         if (nb !== nearObjRef.current) {
           nearObjRef.current = nb;
-          onNearChange(nb);
+          onNearChangeRef.current?.(nb);
         }
 
         // Camera follow
@@ -1323,7 +1396,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         camera.position.lerp(tv, 1 - Math.pow(0.001, dt));
         camera.lookAt(playerPos.current.x, 1.3, playerPos.current.z);
 
-        onPlayerMove({
+        onPlayerMoveRef.current?.({
           x: playerPos.current.x,
           z: playerPos.current.z,
           yaw: playerYaw.current,
