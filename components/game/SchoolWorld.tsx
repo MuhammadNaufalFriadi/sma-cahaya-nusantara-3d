@@ -624,59 +624,354 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       });
       lampsRef.current = lamps;
 
-      // Buildings
-      const winM = M(0x9bd3ff);
+      // ========================================================
+      // ===== GEDUNG-GEDUNG KAMPUS 3D ARSITEKTUR REALISTIK =====
+      // ========================================================
+      const winGlassM = new THREE.MeshLambertMaterial({
+        color: 0x93c5fd,
+        transparent: true,
+        opacity: 0.85,
+      });
+
+      // Helper untuk membuat jendela 3D berbingkai dengan visor peneduh
+      function buildWin(w: number, h: number, x: number, y: number, z: number, par: THREE.Object3D, frameCol = 0xffffff, visorCol = 0xb5483b) {
+        // Bingkai Luar Jendela
+        addMesh(new THREE.BoxGeometry(w, h, 0.12), M(frameCol), x, y, z, par);
+        // Kaca Biru Langit Berkilau
+        addMesh(new THREE.BoxGeometry(w - 0.12, h - 0.12, 0.05), winGlassM, x, y, z + 0.02, par);
+        // Teralis / Kusen Pembagi (Grid +)
+        addMesh(new THREE.BoxGeometry(w - 0.12, 0.04, 0.07), M(frameCol), x, y, z + 0.03, par);
+        addMesh(new THREE.BoxGeometry(0.04, h - 0.12, 0.07), M(frameCol), x, y, z + 0.03, par);
+        // Kanopi / Visor Peneduh Jendela
+        addMesh(new THREE.BoxGeometry(w + 0.22, 0.1, 0.35), M(visorCol), x, y + h / 2 + 0.06, z + 0.14, par);
+      }
+
+      // Helper untuk membuat pot bunga & taman hias depan gedung
+      function buildPlanter(x: number, z: number, par: THREE.Object3D) {
+        addMesh(new THREE.BoxGeometry(1.6, 0.45, 0.8), M(0xe2e8f0), x, 0.225, z, par);
+        addMesh(new THREE.BoxGeometry(1.44, 0.08, 0.66), M(0x271912), x, 0.44, z, par);
+        [-0.44, 0, 0.44].forEach((ox, idx) => {
+          const sh = addMesh(
+            new THREE.SphereGeometry(idx === 1 ? 0.34 : 0.28, 10, 8),
+            M(idx === 1 ? 0x16a34a : 0x22c55e),
+            x + ox,
+            0.66,
+            z,
+            par
+          );
+          sh.scale.set(1.1, 0.88, 1.1);
+        });
+      }
+
+      // Helper untuk membuat papan nama gedung 3D
+      function buildSignboard(title: string, x: number, y: number, z: number, par: THREE.Object3D, bgCol = 0x0f2a24, borderCol = 0xffc83d) {
+        addMesh(new THREE.BoxGeometry(4.2, 0.9, 0.12), M(bgCol), x, y, z, par);
+        addMesh(new THREE.BoxGeometry(4.34, 1.02, 0.06), M(borderCol), x, y, z - 0.02, par);
+        lbl(title, x, y, z + 0.1, par);
+      }
+
       BUILDINGS.forEach((b) => {
         const g = new THREE.Group();
         g.position.set(b.x, 0, b.z);
         if (b.r != null) g.rotation.y = b.r;
         scene.add(g);
 
-        const H = { profil: 6.5, akademik: 6.5, ekskul: 4.8, ppdb: 4.2 }[b.id] || 5;
-        const WC = { profil: 0xf3ead2, akademik: 0xdbe7f5, ekskul: 0xfbe3b0, ppdb: 0xd5f0e3 }[b.id] || 0xf3ead2;
-        const GW = { profil: 9.2, akademik: 9.2, ekskul: 8.6, ppdb: 7.6 }[b.id] || 8;
+        // Jalan Setapak Paving Block Menghubungkan Lapangan ke Tangga Masuk Gedung
+        addMesh(new THREE.BoxGeometry(4.2, 0.03, 7.5), M(0xd1d5db), 0, 0.015, 6.8, g);
+        addMesh(new THREE.BoxGeometry(4.6, 0.02, 7.5), M(0x9ca3af), 0, 0.008, 6.8, g);
 
-        addMesh(new THREE.BoxGeometry(GW, H, 6.5), M(WC), 0, H / 2, 0, g);
-        addMesh(new THREE.BoxGeometry(GW + 0.3, 0.6, 6.7), M(b.c), 0, 0.3, 0, g);
-        addMesh(new THREE.BoxGeometry(GW + 0.3, 0.4, 6.7), M(b.c), 0, H - 0.2, 0, g);
+        if (b.id === "profil") {
+          // ========================================================
+          // 🏫 GEDUNG UTAMA (Neo-Classical 2-Lantai dengan Menara Jam)
+          // ========================================================
+          const GW = 11.8, H = 7.4, D = 8.0;
 
-        if (b.id === "ekskul") {
-          const r = addMesh(new THREE.CylinderGeometry(3.6, 3.6, GW - 0.4, 20, 1, false, Math.PI / 2, Math.PI), M(0xc7791f), 0, H, 0, g);
-          r.rotation.x = Math.PI / 2;
-          r.scale.z = 0.55;
-          r.scale.x = 1.07;
-        } else if (b.id === "ppdb") {
-          const r = addMesh(new THREE.ConeGeometry(6, 2, 4), M(0x2f7d5a), 0, H + 1, 0, g);
-          r.rotation.y = Math.PI / 4;
-          r.scale.z = 0.85;
-        } else {
-          addMesh(new THREE.BoxGeometry(GW + 0.6, 0.35, 7.1), M(0x8a8f99), 0, H + 0.18, 0, g);
-          if (b.id === "profil") {
-            addMesh(new THREE.BoxGeometry(2.2, 2.8, 2.2), M(0xf3ead2), 0, H + 1.7, 0, g);
-            const r = addMesh(new THREE.ConeGeometry(1.8, 1.4, 4), M(b.c), 0, H + 3.8, 0, g);
-            r.rotation.y = Math.PI / 4;
-            addMesh(new THREE.CircleGeometry(0.7, 24), new THREE.MeshBasicMaterial({ color: 0xffffff }), 0, H + 1.8, 1.12, g);
-            addMesh(new THREE.BoxGeometry(0.07, 0.5, 0.02), M(0x111111), 0, H + 1.9, 1.14, g);
+          // Pondasi Plinth Granit Gelap
+          addMesh(new THREE.BoxGeometry(GW + 0.6, 0.5, D + 0.6), M(0x334155), 0, 0.25, 0, g);
+          // Fasad Utama Dinding Lantai 1 & 2 (Batu Gading Halus)
+          addMesh(new THREE.BoxGeometry(GW, H, D), M(0xf8fafc), 0, H / 2, 0, g);
+          // Quoin Aksen Sudut Bata Terakota
+          [-GW / 2 + 0.2, GW / 2 - 0.2].forEach((qx) => {
+            addMesh(new THREE.BoxGeometry(0.5, H, 0.5), M(0xb5483b), qx, H / 2, D / 2 - 0.2, g);
+            addMesh(new THREE.BoxGeometry(0.5, H, 0.5), M(0xb5483b), qx, H / 2, -D / 2 + 0.2, g);
+          });
+          // Lis Sabuk Molding Pembatas Lantai 1 & Lantai 2
+          addMesh(new THREE.BoxGeometry(GW + 0.4, 0.4, D + 0.4), M(0xb5483b), 0, 3.7, 0, g);
+          // Parapet & Cornice Mahkota Atap
+          addMesh(new THREE.BoxGeometry(GW + 0.6, 0.45, D + 0.6), M(0x1e293b), 0, H + 0.22, 0, g);
+          addMesh(new THREE.BoxGeometry(GW + 0.3, 0.15, D + 0.3), M(0xffc83d), 0, H + 0.48, 0, g);
+
+          // Portico / Kanopi Masuk Megah Berpilar (Lantai 1)
+          addMesh(new THREE.BoxGeometry(5.2, 0.35, 2.4), M(0xe2e8f0), 0, 0.18, 4.4, g);
+          // Tangga Masuk 3 Tingkat
+          [0.1, 0.2, 0.3].forEach((sy, i) => {
+            addMesh(new THREE.BoxGeometry(4.6 - i * 0.4, 0.12, 0.45), M(0xcbd5e1), 0, sy - 0.04, 5.5 - i * 0.4, g);
+          });
+          // 4 Pilar Kolom Silindris Megah
+          [-1.9, -0.65, 0.65, 1.9].forEach((px) => {
+            addMesh(new THREE.CylinderGeometry(0.22, 0.22, 3.4, 16), M(0xffffff), px, 1.9, 5.2, g);
+            addMesh(new THREE.BoxGeometry(0.52, 0.2, 0.52), M(0xb5483b), px, 0.45, 5.2, g);
+            addMesh(new THREE.BoxGeometry(0.56, 0.2, 0.56), M(0xb5483b), px, 3.5, 5.2, g);
+          });
+          // Atap Portico / Balkon Lantai 2
+          addMesh(new THREE.BoxGeometry(5.2, 0.35, 2.6), M(0xb5483b), 0, 3.75, 4.4, g);
+          // Pagar Balkon Besi Tempa
+          addMesh(new THREE.BoxGeometry(5.0, 0.75, 0.06), M(0x111827), 0, 4.3, 5.5, g);
+          addMesh(new THREE.BoxGeometry(0.06, 0.75, 2.3), M(0x111827), -2.5, 4.3, 4.35, g);
+          addMesh(new THREE.BoxGeometry(0.06, 0.75, 2.3), M(0x111827), 2.5, 4.3, 4.35, g);
+
+          // Papan Nama Gedung Utama
+          buildSignboard("🏫 GEDUNG UTAMA", 0, 4.8, 4.08, g, 0x111827, 0xffc83d);
+
+          // Jendela-Jendela 3D Fasad Depan (Lantai 1 & Lantai 2)
+          [-4.3, -2.8, 2.8, 4.3].forEach((wx) => {
+            buildWin(1.3, 1.8, wx, 2.0, D / 2 + 0.02, g, 0xffffff, 0xb5483b);
+          });
+          [-4.3, -2.8, -1.3, 1.3, 2.8, 4.3].forEach((wx) => {
+            buildWin(1.3, 1.7, wx, 5.6, D / 2 + 0.02, g, 0xffffff, 0xb5483b);
+          });
+          // Jendela Samping (Kiri & Kanan)
+          [-2.2, 0, 2.2].forEach((wz) => {
+            buildWin(1.3, 1.6, -GW / 2 - 0.02, 2.0, wz, g, 0xffffff, 0xb5483b);
+            buildWin(1.3, 1.6, GW / 2 + 0.02, 2.0, wz, g, 0xffffff, 0xb5483b);
+            buildWin(1.3, 1.6, -GW / 2 - 0.02, 5.6, wz, g, 0xffffff, 0xb5483b);
+            buildWin(1.3, 1.6, GW / 2 + 0.02, 5.6, wz, g, 0xffffff, 0xb5483b);
+          });
+
+          // Menara Jam Klasik (Clock Tower) di Tengah Atap
+          const tow = new THREE.Group();
+          tow.position.set(0, H + 0.4, 0);
+          g.add(tow);
+          addMesh(new THREE.BoxGeometry(3.4, 3.2, 3.4), M(0xf8fafc), 0, 1.6, 0, tow);
+          addMesh(new THREE.BoxGeometry(3.6, 0.35, 3.6), M(0xb5483b), 0, 3.3, 0, tow);
+          // Jam Dinding Raksasa 4 Sisi (Dial Putih, Lis Emas, Jarum Jam)
+          [0, Math.PI / 2, Math.PI, -Math.PI / 2].forEach((ang) => {
+            const ck = new THREE.Group();
+            ck.rotation.y = ang;
+            tow.add(ck);
+            addMesh(new THREE.CylinderGeometry(0.85, 0.85, 0.06, 24), M(0xffc83d), 0, 1.8, 1.72, ck).rotation.x = Math.PI / 2;
+            addMesh(new THREE.CylinderGeometry(0.76, 0.76, 0.08, 24), M(0xffffff), 0, 1.8, 1.73, ck).rotation.x = Math.PI / 2;
+            addMesh(new THREE.BoxGeometry(0.06, 0.42, 0.04), M(0x111111), 0, 1.95, 1.78, ck);
+            addMesh(new THREE.BoxGeometry(0.3, 0.06, 0.04), M(0x111111), 0.12, 1.8, 1.78, ck);
+          });
+          // Ruang Lonceng Terbuka & Atap Piramida Genteng
+          addMesh(new THREE.BoxGeometry(2.6, 1.4, 2.6), M(0x334155), 0, 4.0, 0, tow);
+          addMesh(new THREE.CylinderGeometry(0.3, 0.45, 0.6, 14), M(0xffd700), 0, 4.0, 0, tow); // Lonceng Emas
+          const pir = addMesh(new THREE.ConeGeometry(2.4, 2.2, 4), M(0xb5483b), 0, 5.8, 0, tow);
+          pir.rotation.y = Math.PI / 4;
+          // Tiang Penangkal Petir & Finial Emas
+          addMesh(new THREE.CylinderGeometry(0.04, 0.04, 1.4, 8), M(0xffd700), 0, 7.4, 0, tow);
+          addMesh(new THREE.SphereGeometry(0.18), M(0xffd700), 0, 7.8, 0, tow);
+
+          // Pot Tanaman Hias Bunga di Kiri & Kanan Pintu
+          buildPlanter(-3.2, 5.1, g);
+          buildPlanter(3.2, 5.1, g);
+        } else if (b.id === "akademik") {
+          // ========================================================
+          // 📚 GEDUNG AKADEMIK (Modern 2-Lantai dengan Sun-Shading Fins)
+          // ========================================================
+          const GW = 12.2, H = 7.4, D = 8.0;
+
+          // Pondasi Beton Charcoal
+          addMesh(new THREE.BoxGeometry(GW + 0.5, 0.45, D + 0.5), M(0x1e293b), 0, 0.225, 0, g);
+          // Badan Gedung Putih Bersih
+          addMesh(new THREE.BoxGeometry(GW, H, D), M(0xffffff), 0, H / 2, 0, g);
+          // Kolom Struktur Biru Edukasi (Royal Blue)
+          [-GW / 2 + 0.25, -2.4, 2.4, GW / 2 - 0.25].forEach((cx) => {
+            addMesh(new THREE.BoxGeometry(0.6, H + 0.2, 0.6), M(0x1e40af), cx, H / 2, D / 2 + 0.1, g);
+          });
+          // Lis Sabuk Horizontal Modern
+          addMesh(new THREE.BoxGeometry(GW + 0.3, 0.35, D + 0.3), M(0x1e40af), 0, 3.7, 0, g);
+          // Parapet Atap Modern
+          addMesh(new THREE.BoxGeometry(GW + 0.5, 0.5, D + 0.5), M(0x1e293b), 0, H + 0.25, 0, g);
+          addMesh(new THREE.BoxGeometry(GW + 0.2, 0.15, D + 0.2), M(0x38bdf8), 0, H + 0.55, 0, g);
+
+          // Deretan Jendela Kelas Modern (Ribbon Windows)
+          [-4.4, 4.4].forEach((wx) => {
+            buildWin(2.8, 1.7, wx, 2.0, D / 2 + 0.02, g, 0x1e293b, 0x1e40af);
+            buildWin(2.8, 1.7, wx, 5.6, D / 2 + 0.02, g, 0x1e293b, 0x1e40af);
+          });
+          buildWin(2.8, 1.7, 0, 5.6, D / 2 + 0.02, g, 0x1e293b, 0x1e40af);
+          // Jendela Samping Kelas
+          [-2.2, 0, 2.2].forEach((wz) => {
+            buildWin(1.4, 1.7, -GW / 2 - 0.02, 2.0, wz, g, 0x1e293b, 0x1e40af);
+            buildWin(1.4, 1.7, GW / 2 + 0.02, 2.0, wz, g, 0x1e293b, 0x1e40af);
+            buildWin(1.4, 1.7, -GW / 2 - 0.02, 5.6, wz, g, 0x1e293b, 0x1e40af);
+            buildWin(1.4, 1.7, GW / 2 + 0.02, 5.6, wz, g, 0x1e293b, 0x1e40af);
+          });
+
+          // Kanopi Pintu Masuk Baja & Kaca Modern
+          addMesh(new THREE.BoxGeometry(4.4, 0.25, 2.2), M(0x1e293b), 0, 3.65, 4.2, g);
+          addMesh(new THREE.BoxGeometry(4.0, 0.06, 1.9), winGlassM, 0, 3.75, 4.2, g);
+          // 2 Tiang Penyangga Stainless Steel
+          [-1.9, 1.9].forEach((px) => {
+            addMesh(new THREE.CylinderGeometry(0.08, 0.08, 3.6, 12), M(0xe2e8f0), px, 1.8, 5.1, g);
+          });
+          // Tangga Masuk 3 Tingkat
+          [0.1, 0.2, 0.3].forEach((sy, i) => {
+            addMesh(new THREE.BoxGeometry(4.2 - i * 0.4, 0.12, 0.45), M(0x94a3b8), 0, sy - 0.04, 5.4 - i * 0.4, g);
+          });
+
+          // Papan Nama Gedung Akademik
+          buildSignboard("📚 GEDUNG AKADEMIK", 0, 4.5, 4.08, g, 0x1e40af, 0xffc83d);
+
+          // Rooftop Architecture: Panel Surya & Unit Chiller AC
+          for (let k = -1; k <= 1; k++) {
+            const sp = addMesh(new THREE.BoxGeometry(2.4, 0.1, 1.6), M(0x0f172a), k * 3.2, H + 0.65, -1.0, g);
+            sp.rotation.x = -0.25;
           }
+          addMesh(new THREE.BoxGeometry(2.2, 1.2, 1.8), M(0x64748b), -3.6, H + 0.85, 1.5, g); // Chiller AC
+
+          // Pot Tanaman Depan
+          buildPlanter(-3.6, 5.0, g);
+          buildPlanter(3.6, 5.0, g);
+        } else if (b.id === "ekskul") {
+          // ========================================================
+          // 🎭 AULA & EKSKUL (Gedung Serbaguna dengan Atap Busur Lengkung)
+          // ========================================================
+          const GW = 11.6, H = 6.2, D = 9.0;
+
+          // Pondasi Batu Alam
+          addMesh(new THREE.BoxGeometry(GW + 0.5, 0.45, D + 0.5), M(0x451a03), 0, 0.225, 0, g);
+          // Dinding Fasad Travertine / Sandstone Hangat
+          addMesh(new THREE.BoxGeometry(GW, H, D), M(0xfef3c7), 0, H / 2, 0, g);
+          // Panel Kisi-Kisi Kayu Arsitektural Vertikal (Timber Louvers)
+          for (let ix = -4.8; ix <= 4.8; ix += 0.8) {
+            if (Math.abs(ix) < 1.8) continue; // Kosongkan area tengah pintu
+            addMesh(new THREE.BoxGeometry(0.12, H - 0.8, 0.18), M(0x92400e), ix, H / 2, D / 2 + 0.06, g);
+          }
+
+          // Atap Busur Megah (Curved Arched Barrel Roof) Tembaga Terakota
+          const archRoof = addMesh(
+            new THREE.CylinderGeometry(5.2, 5.2, GW + 0.6, 32, 1, false, Math.PI / 2, Math.PI),
+            M(0xc2410c),
+            0,
+            H,
+            0,
+            g
+          );
+          archRoof.rotation.x = Math.PI / 2;
+          archRoof.rotation.z = Math.PI / 2;
+          archRoof.scale.set(1.0, 0.48, 1.0);
+
+          // Jendela Kaca Busur Raksasa (Grand Transom Window) di Atas Pintu
+          addMesh(new THREE.CylinderGeometry(2.2, 2.2, 0.1, 24, 1, false, 0, Math.PI), winGlassM, 0, 4.6, D / 2 + 0.08, g).rotation.x = Math.PI / 2;
+          addMesh(new THREE.TorusGeometry(2.2, 0.08, 8, 24, Math.PI), M(0x92400e), 0, 4.6, D / 2 + 0.09, g);
+
+          // Jendela Vertikal Tinggi Aula Samping
+          [-2.6, 0, 2.6].forEach((wz) => {
+            buildWin(1.4, 3.4, -GW / 2 - 0.02, 3.4, wz, g, 0x451a03, 0xc2410c);
+            buildWin(1.4, 3.4, GW / 2 + 0.02, 3.4, wz, g, 0x451a03, 0xc2410c);
+          });
+
+          // Teras Bundar & Kanopi Portico Lengkung
+          addMesh(new THREE.CylinderGeometry(2.8, 3.0, 0.35, 24), M(0xfde68a), 0, 0.175, 4.8, g);
+          addMesh(new THREE.CylinderGeometry(2.4, 2.4, 0.25, 24, 1, false, 0, Math.PI), M(0xc2410c), 0, 3.5, 4.8, g);
+          // 2 Pilar Bulat Aula
+          [-1.7, 1.7].forEach((px) => {
+            addMesh(new THREE.CylinderGeometry(0.18, 0.18, 3.3, 16), M(0xffffff), px, 1.75, 4.8, g);
+            addMesh(new THREE.CylinderGeometry(0.24, 0.24, 0.2, 16), M(0xb45309), px, 0.35, 4.8, g);
+          });
+
+          // Papan Nama Aula & Ekskul
+          buildSignboard("🎭 AULA & EKSKUL", 0, 3.9, 4.58, g, 0x78350f, 0xffc83d);
+
+          // Papan Etalase Display Kegiatan / Poster di Dinding Depan
+          [-3.6, 3.6].forEach((bx) => {
+            addMesh(new THREE.BoxGeometry(1.8, 2.2, 0.08), M(0x451a03), bx, 2.4, D / 2 + 0.08, g);
+            addMesh(new THREE.BoxGeometry(1.6, 2.0, 0.04), M(bx > 0 ? 0xf59e0b : 0x0ea5e9), bx, 2.4, D / 2 + 0.12, g);
+          });
+
+          // Pot Tanaman
+          buildPlanter(-3.8, 5.4, g);
+          buildPlanter(3.8, 5.4, g);
+        } else if (b.id === "ppdb") {
+          // ========================================================
+          // 📝 KANTOR PPDB (Paviliun Layanan Ramah dengan Atap Limas)
+          // ========================================================
+          const GW = 10.4, H = 5.8, D = 7.8;
+
+          // Pondasi Teras Hijau Zamrud
+          addMesh(new THREE.BoxGeometry(GW + 0.5, 0.4, D + 0.5), M(0x064e3b), 0, 0.2, 0, g);
+          // Dinding Kantor Putih & Panel Kayu Modern
+          addMesh(new THREE.BoxGeometry(GW, H, D), M(0xf8fafc), 0, H / 2, 0, g);
+          // Fasad Aksen Hijau Emerald
+          addMesh(new THREE.BoxGeometry(GW + 0.2, 0.35, D + 0.2), M(0x059669), 0, 3.0, 0, g);
+          addMesh(new THREE.BoxGeometry(GW + 0.4, 0.4, D + 0.4), M(0x064e3b), 0, H + 0.2, 0, g);
+
+          // Atap Limas Tumpang Sari Tradisional-Modern (Clay Terracotta Hipped Roof)
+          const hipRoof = addMesh(new THREE.ConeGeometry(7.2, 2.4, 4), M(0x9a3412), 0, H + 1.4, 0, g);
+          hipRoof.rotation.y = Math.PI / 4;
+          hipRoof.scale.set(1.2, 1, 0.95);
+          // Bubungan & Nok Atap
+          addMesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), M(0xffc83d), 0, H + 2.7, 0, g);
+
+          // Jendela-Jendela Kantor Berjejer Rapi
+          [-3.8, -2.2, 2.2, 3.8].forEach((wx) => {
+            buildWin(1.3, 1.6, wx, 1.8, D / 2 + 0.02, g, 0xffffff, 0x059669);
+          });
+          [-1.8, 1.8].forEach((wz) => {
+            buildWin(1.3, 1.6, -GW / 2 - 0.02, 1.8, wz, g, 0xffffff, 0x059669);
+            buildWin(1.3, 1.6, GW / 2 + 0.02, 1.8, wz, g, 0xffffff, 0x059669);
+          });
+
+          // Teras Veranda Sambutan & Pergola Kayu
+          addMesh(new THREE.BoxGeometry(5.2, 0.3, 2.4), M(0xecfdf5), 0, 0.15, 4.4, g);
+          [0.1, 0.2].forEach((sy, i) => {
+            addMesh(new THREE.BoxGeometry(4.4 - i * 0.4, 0.1, 0.45), M(0xa7f3d0), 0, sy - 0.05, 5.4 - i * 0.4, g);
+          });
+          // Pergola Kayu & Kanopi Peneduh
+          addMesh(new THREE.BoxGeometry(5.0, 0.2, 2.2), M(0x78350f), 0, 3.4, 4.3, g);
+          for (let rx = -2.2; rx <= 2.2; rx += 0.8) {
+            addMesh(new THREE.BoxGeometry(0.1, 0.22, 2.4), M(0x92400e), rx, 3.52, 4.3, g);
+          }
+          // 2 Tiang Kayu Pergola
+          [-2.2, 2.2].forEach((px) => {
+            addMesh(new THREE.BoxGeometry(0.25, 3.2, 0.25), M(0x78350f), px, 1.7, 5.2, g);
+          });
+
+          // Papan Nama Kantor PPDB
+          buildSignboard("📝 KANTOR PPDB", 0, 4.2, 4.08, g, 0x064e3b, 0xffc83d);
+
+          // Spanduk / Banner Info PPDB di Depan
+          addMesh(new THREE.BoxGeometry(4.2, 0.7, 0.04), M(0xf59e0b), 0, 2.7, 4.06, g);
+
+          // Pot Tanaman Hias di Veranda
+          buildPlanter(-3.2, 5.1, g);
+          buildPlanter(3.2, 5.1, g);
         }
 
-        // Entrance Frame & Doors
-        addMesh(new THREE.BoxGeometry(2.4, 2.9, 0.32), M(0x2d3748), 0, 1.45, 3.3, g);
-        addMesh(new THREE.BoxGeometry(1.95, 2.7, 0.1), M(0x111827), 0, 1.35, 3.22, g);
+        // ========================================================
+        // KUSEN & PINTU MASUK DOUBLE DOOR BERKUALITAS TINGGI
+        // ========================================================
+        const bDoorZ = 3.65;
+        // Kusen Pintu Kayu Jati / Logam Elegan
+        addMesh(new THREE.BoxGeometry(2.4, 2.9, 0.32), M(0x1e293b), 0, 1.45, bDoorZ, g);
+        addMesh(new THREE.BoxGeometry(1.95, 2.7, 0.1), M(0x0f172a), 0, 1.35, bDoorZ - 0.08, g);
 
+        // Daun Pintu Kiri (Hinge di x = -0.92)
         const bDoorL = new THREE.Group();
-        bDoorL.position.set(-0.92, 0, 3.3);
+        bDoorL.position.set(-0.92, 0, bDoorZ);
         g.add(bDoorL);
         addMesh(new THREE.BoxGeometry(0.92, 2.6, 0.08), M(0x7c4a27), 0.46, 1.3, 0, bDoorL);
-        addMesh(new THREE.BoxGeometry(0.56, 1.15, 0.09), winM, 0.46, 1.7, 0, bDoorL);
+        addMesh(new THREE.BoxGeometry(0.58, 1.25, 0.09), winGlassM, 0.46, 1.65, 0, bDoorL);
+        addMesh(new THREE.CylinderGeometry(0.022, 0.022, 0.42, 8), M(0xf59e0b), 0.82, 1.25, 0.06, bDoorL); // Handle Emas
         b.doorL = bDoorL;
 
+        // Daun Pintu Kanan (Hinge di x = 0.92)
         const bDoorR = new THREE.Group();
-        bDoorR.position.set(0.92, 0, 3.3);
+        bDoorR.position.set(0.92, 0, bDoorZ);
         g.add(bDoorR);
         addMesh(new THREE.BoxGeometry(0.92, 2.6, 0.08), M(0x7c4a27), -0.46, 1.3, 0, bDoorR);
-        addMesh(new THREE.BoxGeometry(0.56, 1.15, 0.09), winM, -0.46, 1.7, 0, bDoorR);
+        addMesh(new THREE.BoxGeometry(0.58, 1.25, 0.09), winGlassM, -0.46, 1.65, 0, bDoorR);
+        addMesh(new THREE.CylinderGeometry(0.022, 0.022, 0.42, 8), M(0xf59e0b), -0.82, 1.25, 0.06, bDoorR); // Handle Emas
         b.doorR = bDoorR;
+
+        // Lampu Dinding Sconce di Samping Pintu Masuk
+        [-1.4, 1.4].forEach((lx) => {
+          addMesh(new THREE.BoxGeometry(0.18, 0.35, 0.18), M(0x1e293b), lx, 2.2, bDoorZ + 0.12, g);
+          addMesh(new THREE.SphereGeometry(0.12, 10, 8), new THREE.MeshBasicMaterial({ color: 0xfff0c2 }), lx, 2.2, bDoorZ + 0.18, g);
+        });
       });
 
       // Flagpole and Waving Flag
