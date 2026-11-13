@@ -535,6 +535,24 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
   const charsRef = useRef<ReturnType<typeof buildCharacter>[]>([]);
   const [selIdx, setSelIdx] = useState(selectedIndex);
   const selIdxRef = useRef(selectedIndex);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Deteksi mode mobile / smartphone
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640 || window.innerHeight > window.innerWidth);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const handleSelect = (i: number) => {
+    sfx("click");
+    setSelIdx(i);
+    selIdxRef.current = i;
+    onSelect(i);
+  };
 
   // Sync state dengan parent prop
   useEffect(() => {
@@ -547,23 +565,17 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
         const next = (selIdxRef.current - 1 + CHARS.length) % CHARS.length;
-        selIdxRef.current = next;
-        setSelIdx(next);
-        onSelect(next);
-        sfx("click");
+        handleSelect(next);
       } else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
         const next = (selIdxRef.current + 1) % CHARS.length;
-        selIdxRef.current = next;
-        setSelIdx(next);
-        onSelect(next);
-        sfx("click");
+        handleSelect(next);
       } else if (e.key === "Enter" || e.key === " ") {
         onStart();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onSelect, onStart]);
+  }, [onStart]);
 
   /* ---- Three.js 3D Viewport ---- */
   useEffect(() => {
@@ -582,15 +594,29 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
     const scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0x8cd3ff, 18, 38);
 
-    // Kamera ditempatkan pas di depan 3 podium
+    // Bangun Lingkungan 3D
+    buildEnvironment(scene);
+
+    // Bangun 3 Karakter di podium masing-masing
+    // Posisi x: Naufal = -2.75, Rani = 0, Sari = 2.75
+    const positions = [-2.75, 0, 2.75];
+    charsRef.current = CHARS.map((_, i) =>
+      buildCharacter(scene, positions[i], i, i === selIdxRef.current)
+    );
+
+    // Kamera ditempatkan pas di depan podium karakter yang dipilih
     const camera = new THREE.PerspectiveCamera(
       48,
       canvas.clientWidth / canvas.clientHeight,
       0.1,
       60
     );
-    camera.position.set(0, 2.5, 7.8);
-    camera.lookAt(0, 1.45, 0);
+    const initIsPortrait = (canvas.clientWidth || window.innerWidth) < (canvas.clientHeight || window.innerHeight);
+    const initCamX = initIsPortrait ? positions[selIdxRef.current] : 0;
+    const initCamY = initIsPortrait ? 2.15 : 2.5;
+    const initCamZ = initIsPortrait ? 6.2 : 7.8;
+    camera.position.set(initCamX, initCamY, initCamZ);
+    camera.lookAt(initCamX, initIsPortrait ? 1.35 : 1.45, 0);
 
     // SISTEM PENCAHAYAAN CERAH & SEGAR (ANTI MUDDY / GELAP)
     const ambient = new THREE.AmbientLight(0xffffff, 0.85);
@@ -603,16 +629,6 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
     const fill = new THREE.DirectionalLight(0xbadfff, 0.55);
     fill.position.set(-6, 8, 6);
     scene.add(fill);
-
-    // Bangun Lingkungan 3D
-    buildEnvironment(scene);
-
-    // Bangun 3 Karakter di podium masing-masing
-    // Posisi x: Naufal = -2.75, Rani = 0, Sari = 2.75
-    const positions = [-2.75, 0, 2.75];
-    charsRef.current = CHARS.map((_, i) =>
-      buildCharacter(scene, positions[i], i, i === selIdxRef.current)
-    );
 
     // Klik langsung pada karakter di layar 3D (Raycasting)
     const raycaster = new THREE.Raycaster();
@@ -627,10 +643,7 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
       charsRef.current.forEach((ch, i) => {
         const intersects = raycaster.intersectObjects(ch.group.children, true);
         if (intersects.length > 0) {
-          sfx("click");
-          setSelIdx(i);
-          selIdxRef.current = i;
-          onSelect(i);
+          handleSelect(i);
         }
       });
     };
@@ -712,6 +725,21 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
         }
       });
 
+      // Responsif Mobile: Pada layar HP/portrait, pusatkan kamera tepat ke karakter terpilih!
+      const w = canvas.clientWidth || window.innerWidth;
+      const h = canvas.clientHeight || window.innerHeight;
+      const isPortrait = w < h;
+
+      const targetCamX = isPortrait ? positions[curSel] : 0;
+      const targetCamY = isPortrait ? 2.15 : 2.5;
+      const targetCamZ = isPortrait ? 6.2 : 7.8;
+      const targetLookY = isPortrait ? 1.35 : 1.45;
+
+      camera.position.x += (targetCamX - camera.position.x) * Math.min(1, dt * 8);
+      camera.position.y += (targetCamY - camera.position.y) * Math.min(1, dt * 8);
+      camera.position.z += (targetCamZ - camera.position.z) * Math.min(1, dt * 8);
+      camera.lookAt(camera.position.x, targetLookY, 0);
+
       renderer.render(scene, camera);
     };
 
@@ -722,12 +750,10 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
       const h = canvas.clientHeight || window.innerHeight;
       camera.aspect = w / h;
       if (w < h) {
-        // Layar smartphone portrait: mundurkan kamera & sesuaikan FOV agar ketiga podium karakter tampak utuh
-        camera.fov = Math.min(74, 48 * (h / w) * 0.58);
-        camera.position.set(0, 2.7, 9.8);
+        // Layar smartphone portrait: sesuaikan FOV proporsional
+        camera.fov = Math.min(68, Math.max(50, 48 * (h / w) * 0.45));
       } else {
         camera.fov = 48;
-        camera.position.set(0, 2.5, 7.8);
       }
       camera.updateProjectionMatrix();
       renderer.setSize(w, h, false);
@@ -735,8 +761,43 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
     onResize();
     window.addEventListener("resize", onResize);
 
+    // Gestur Sentuh Geser Kiri / Kanan (Swipe) pada Layar HP
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    };
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (e.changedTouches.length > 0) {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) > 36 && Math.abs(dx) > Math.abs(dy)) {
+          if (dx < 0) {
+            // Geser ke kiri -> Karakter berikutnya
+            const next = Math.min(CHARS.length - 1, selIdxRef.current + 1);
+            if (next !== selIdxRef.current) {
+              handleSelect(next);
+            }
+          } else {
+            // Geser ke kanan -> Karakter sebelumnya
+            const prev = Math.max(0, selIdxRef.current - 1);
+            if (prev !== selIdxRef.current) {
+              handleSelect(prev);
+            }
+          }
+        }
+      }
+    };
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
+
     return () => {
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
       canvas.removeEventListener("click", handleCanvasClick);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       renderer.dispose();
@@ -744,13 +805,6 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
   }, []);
 
   const cur = CHARS[selIdx];
-
-  const handleSelect = (i: number) => {
-    sfx("click");
-    setSelIdx(i);
-    selIdxRef.current = i;
-    onSelect(i);
-  };
 
   return (
     <div
@@ -781,14 +835,15 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
       <div
         style={{
           position: "absolute",
-          top: "calc(16px + env(safe-area-inset-top, 0px))",
+          top: "calc(12px + env(safe-area-inset-top, 0px))",
           left: 0,
           right: 0,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 6,
+          gap: isMobile ? 4 : 6,
           textAlign: "center",
+          padding: "0 12px",
         }}
       >
         {/* Pill Badge */}
@@ -797,10 +852,10 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
             background: "rgba(15, 35, 55, 0.88)",
             color: "#ffc83d",
             borderRadius: 999,
-            padding: "5px 18px",
-            fontSize: 12,
+            padding: isMobile ? "3px 12px" : "5px 18px",
+            fontSize: isMobile ? 10.5 : 12,
             fontWeight: 800,
-            letterSpacing: 1.8,
+            letterSpacing: 1.5,
             textTransform: "uppercase",
             border: "1.5px solid rgba(255, 200, 61, 0.4)",
             boxShadow: "0 4px 14px rgba(0,0,0,0.25)",
@@ -814,7 +869,7 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
         <h1
           style={{
             margin: 0,
-            fontSize: "clamp(30px, 5.5vw, 54px)",
+            fontSize: isMobile ? "clamp(22px, 6.2vw, 32px)" : "clamp(30px, 5.5vw, 54px)",
             fontWeight: 900,
             color: "#ffffff",
             textShadow:
@@ -829,15 +884,15 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
         {/* Speech Card / Dialog Box */}
         <div
           style={{
-            marginTop: 6,
-            background: "rgba(10, 24, 40, 0.84)",
+            marginTop: isMobile ? 2 : 6,
+            background: "rgba(10, 24, 40, 0.86)",
             color: "#e8f4ff",
-            borderRadius: 18,
-            padding: "10px 22px",
-            maxWidth: "min(560px, 90vw)",
-            fontSize: "clamp(13px, 2vw, 15px)",
+            borderRadius: isMobile ? 14 : 18,
+            padding: isMobile ? "7px 14px" : "10px 22px",
+            maxWidth: isMobile ? "min(460px, 94vw)" : "min(560px, 90vw)",
+            fontSize: isMobile ? 12 : "clamp(13px, 2vw, 15px)",
             fontWeight: 600,
-            lineHeight: 1.5,
+            lineHeight: 1.45,
             border: "1.5px solid rgba(100, 180, 255, 0.28)",
             boxShadow: "0 6px 20px rgba(0, 0, 0, 0.35)",
             backdropFilter: "blur(8px)",
@@ -846,121 +901,287 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
         />
       </div>
 
+      {/* Panah Navigasi Carousel Kiri / Kanan (Khusus HP / Layar Portrait) */}
+      {isMobile && (
+        <>
+          <button
+            onClick={() => handleSelect(Math.max(0, selIdx - 1))}
+            disabled={selIdx === 0}
+            aria-label="Karakter Sebelumnya"
+            style={{
+              position: "absolute",
+              left: 10,
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 30,
+              pointerEvents: "auto",
+              width: 42,
+              height: 42,
+              borderRadius: "50%",
+              background: selIdx === 0 ? "rgba(10,25,45,0.3)" : "rgba(15,38,64,0.9)",
+              color: selIdx === 0 ? "rgba(255,255,255,0.25)" : "#ffc83d",
+              border: selIdx === 0 ? "1.5px solid rgba(255,255,255,0.15)" : "2px solid #ffc83d",
+              fontSize: 24,
+              fontWeight: "bold",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(6px)",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.35)",
+              cursor: selIdx === 0 ? "default" : "pointer",
+              transition: "all 0.15s ease",
+            }}
+          >
+            ‹
+          </button>
+          <button
+            onClick={() => handleSelect(Math.min(CHARS.length - 1, selIdx + 1))}
+            disabled={selIdx === CHARS.length - 1}
+            aria-label="Karakter Berikutnya"
+            style={{
+              position: "absolute",
+              right: 10,
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 30,
+              pointerEvents: "auto",
+              width: 42,
+              height: 42,
+              borderRadius: "50%",
+              background: selIdx === CHARS.length - 1 ? "rgba(10,25,45,0.3)" : "rgba(15,38,64,0.9)",
+              color: selIdx === CHARS.length - 1 ? "rgba(255,255,255,0.25)" : "#ffc83d",
+              border: selIdx === CHARS.length - 1 ? "1.5px solid rgba(255,255,255,0.15)" : "2px solid #ffc83d",
+              fontSize: 24,
+              fontWeight: "bold",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(6px)",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.35)",
+              cursor: selIdx === CHARS.length - 1 ? "default" : "pointer",
+              transition: "all 0.15s ease",
+            }}
+          >
+            ›
+          </button>
+        </>
+      )}
+
       {/* ============================================================
           FOOTER CONTROLS: 3 CHARACTER CARDS + MULAI JELAJAH BUTTON
           ============================================================ */}
       <div
         style={{
           position: "absolute",
-          bottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
+          bottom: "calc(14px + env(safe-area-inset-bottom, 0px))",
           left: 0,
           right: 0,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 12,
-          padding: "0 16px",
+          gap: isMobile ? 8 : 12,
+          padding: "0 14px",
         }}
       >
-        {/* 3 Character Cards Row */}
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            justifyContent: "center",
-            width: "min(680px, 96vw)",
-            pointerEvents: "auto",
-          }}
-        >
-          {CHARS.map((ch, i) => {
-            const isSel = i === selIdx;
-            const jacketHex =
-              "#" + ch.jacketColor.toString(16).padStart(6, "0");
-
-            return (
-              <button
-                key={ch.name}
-                onClick={() => handleSelect(i)}
-                style={{
-                  flex: 1,
-                  background: isSel
-                    ? "rgba(15, 38, 64, 0.92)"
-                    : "rgba(12, 26, 42, 0.76)",
-                  border: isSel
-                    ? "2.5px solid #ffc83d"
-                    : "2px solid rgba(100, 160, 220, 0.28)",
-                  borderRadius: 16,
-                  padding: "10px 14px",
-                  color: "#ffffff",
-                  textAlign: "left",
-                  cursor: "pointer",
-                  transition: "all 0.18s ease",
-                  backdropFilter: "blur(8px)",
-                  boxShadow: isSel
-                    ? "0 0 24px rgba(255, 200, 61, 0.4), 0 6px 18px rgba(0,0,0,0.3)"
-                    : "0 4px 12px rgba(0,0,0,0.25)",
-                  transform: isSel ? "translateY(-4px)" : "none",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    marginBottom: 4,
-                  }}
-                >
-                  <span
+        {isMobile ? (
+          /* TAMPILAN KHUSUS MOBILE: Segmented Tabs + Detail Card */
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+              alignItems: "center",
+              width: "min(460px, 94vw)",
+              pointerEvents: "auto",
+            }}
+          >
+            {/* 3 Tab Karakter */}
+            <div style={{ display: "flex", gap: 6, width: "100%" }}>
+              {CHARS.map((ch, i) => {
+                const isSel = i === selIdx;
+                const icons = ["👦", "👧", "🧕"];
+                return (
+                  <button
+                    key={ch.name}
+                    onClick={() => handleSelect(i)}
                     style={{
-                      display: "inline-block",
-                      width: 14,
-                      height: 14,
-                      borderRadius: "50%",
-                      background: jacketHex,
-                      border: "2px solid rgba(255, 255, 255, 0.6)",
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontFamily: "'Baloo 2', sans-serif",
-                      fontSize: 17,
-                      fontWeight: 800,
+                      flex: 1,
+                      background: isSel ? "rgba(15, 38, 64, 0.95)" : "rgba(12, 26, 42, 0.72)",
+                      border: isSel ? "2px solid #ffc83d" : "1.5px solid rgba(100, 160, 220, 0.25)",
+                      borderRadius: 12,
+                      padding: "6px 4px",
                       color: isSel ? "#ffc83d" : "#ffffff",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 2,
+                      cursor: "pointer",
+                      backdropFilter: "blur(8px)",
+                      boxShadow: isSel ? "0 0 16px rgba(255, 200, 61, 0.35)" : "none",
+                      transform: isSel ? "scale(1.03)" : "scale(1)",
+                      transition: "all 0.15s ease",
                     }}
                   >
-                    {ch.name}
-                  </span>
-                  {isSel && (
-                    <span
-                      style={{
-                        marginLeft: "auto",
-                        fontSize: 11,
-                        background: "#ffc83d",
-                        color: "#2b2100",
-                        padding: "1px 7px",
-                        borderRadius: 99,
-                        fontWeight: 800,
-                      }}
-                    >
-                      DIPILIH
-                    </span>
-                  )}
-                </div>
-                <div
+                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <span style={{ fontSize: 15 }}>{icons[i]}</span>
+                      <span style={{ fontWeight: 800, fontSize: 13.5 }}>{ch.name}</span>
+                    </div>
+                    {isSel ? (
+                      <span
+                        style={{
+                          fontSize: 9.5,
+                          background: "#ffc83d",
+                          color: "#2b2100",
+                          padding: "1px 5px",
+                          borderRadius: 99,
+                          fontWeight: 800,
+                          letterSpacing: 0.3,
+                        }}
+                      >
+                        DIPILIH
+                      </span>
+                    ) : (
+                      <span
+                        style={{
+                          fontSize: 10,
+                          color: "rgba(200, 225, 250, 0.65)",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {i === 0 ? "Putra" : i === 1 ? "Putri" : "Hijab"}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Info Badge Karakter Aktif */}
+            <div
+              style={{
+                background: "rgba(10, 24, 40, 0.85)",
+                border: "1.5px solid rgba(255, 200, 61, 0.3)",
+                borderRadius: 12,
+                padding: "6px 14px",
+                width: "100%",
+                textAlign: "center",
+                backdropFilter: "blur(8px)",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+              }}
+            >
+              <div style={{ fontSize: 12, color: "#ffc83d", fontWeight: 700 }}>
+                {CHARS[selIdx].name === "Naufal"
+                  ? "👦 Naufal · Siswa (Putra)"
+                  : CHARS[selIdx].name === "Rani"
+                  ? "👧 Rani · Siswi (Putri)"
+                  : "🧕 Sari · Siswi (Hijab)"}
+              </div>
+              <div style={{ fontSize: 11, color: "#cbd5e1", marginTop: 1 }}>
+                {CHARS[selIdx].desc}
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* TAMPILAN DESKTOP: 3 Kartu Lebar Berjajar */
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              justifyContent: "center",
+              width: "min(680px, 96vw)",
+              pointerEvents: "auto",
+            }}
+          >
+            {CHARS.map((ch, i) => {
+              const isSel = i === selIdx;
+              const jacketHex =
+                "#" + ch.jacketColor.toString(16).padStart(6, "0");
+
+              return (
+                <button
+                  key={ch.name}
+                  onClick={() => handleSelect(i)}
                   style={{
-                    fontSize: 11.5,
-                    color: isSel ? "#d4e9ff" : "rgba(200, 225, 250, 0.72)",
-                    lineHeight: 1.35,
-                    fontWeight: 500,
+                    flex: 1,
+                    background: isSel
+                      ? "rgba(15, 38, 64, 0.92)"
+                      : "rgba(12, 26, 42, 0.76)",
+                    border: isSel
+                      ? "2.5px solid #ffc83d"
+                      : "2px solid rgba(100, 160, 220, 0.28)",
+                    borderRadius: 16,
+                    padding: "10px 14px",
+                    color: "#ffffff",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    transition: "all 0.18s ease",
+                    backdropFilter: "blur(8px)",
+                    boxShadow: isSel
+                      ? "0 0 24px rgba(255, 200, 61, 0.4), 0 6px 18px rgba(0,0,0,0.3)"
+                      : "0 4px 12px rgba(0,0,0,0.25)",
+                    transform: isSel ? "translateY(-4px)" : "none",
                   }}
                 >
-                  {ch.desc}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      marginBottom: 4,
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: 14,
+                        height: 14,
+                        borderRadius: "50%",
+                        background: jacketHex,
+                        border: "2px solid rgba(255, 255, 255, 0.6)",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontFamily: "'Baloo 2', sans-serif",
+                        fontSize: 17,
+                        fontWeight: 800,
+                        color: isSel ? "#ffc83d" : "#ffffff",
+                      }}
+                    >
+                      {ch.name}
+                    </span>
+                    {isSel && (
+                      <span
+                        style={{
+                          marginLeft: "auto",
+                          fontSize: 11,
+                          background: "#ffc83d",
+                          color: "#2b2100",
+                          padding: "1px 7px",
+                          borderRadius: 99,
+                          fontWeight: 800,
+                        }}
+                      >
+                        DIPILIH
+                      </span>
+                    )}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 11.5,
+                      color: isSel ? "#d4e9ff" : "rgba(200, 225, 250, 0.72)",
+                      lineHeight: 1.35,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {ch.desc}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Big Explore Button */}
         <button
@@ -974,8 +1195,8 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
             color: "#1e1600",
             border: "none",
             borderRadius: 999,
-            padding: "13px 52px",
-            fontSize: 21,
+            padding: isMobile ? "11px 42px" : "13px 52px",
+            fontSize: isMobile ? 18 : 21,
             fontWeight: 900,
             fontFamily: "'Baloo 2', sans-serif",
             cursor: "pointer",
@@ -984,6 +1205,7 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
             letterSpacing: 0.5,
             transition: "transform 0.15s, box-shadow 0.15s",
             whiteSpace: "nowrap",
+            width: isMobile ? "min(320px, 88vw)" : "auto",
           }}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLButtonElement).style.transform =
@@ -1006,7 +1228,7 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 3,
+            gap: 2,
             pointerEvents: "auto",
           }}
         >
@@ -1019,7 +1241,7 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
               background: "none",
               border: "none",
               color: "#fffae8",
-              fontSize: 13,
+              fontSize: isMobile ? 12 : 13,
               fontWeight: 600,
               textDecoration: "underline",
               cursor: "pointer",
@@ -1032,13 +1254,15 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
           <div
             style={{
               color: "rgba(255, 255, 255, 0.75)",
-              fontSize: 11.5,
+              fontSize: isMobile ? 11 : 11.5,
               fontWeight: 600,
               textShadow: "0 1px 3px rgba(0,0,0,0.7)",
               pointerEvents: "none",
             }}
           >
-            ← → pilih karakter · Enter untuk mulai · Atau klik langsung karakter 3D
+            {isMobile
+              ? "💡 Geser layar ‹ › atau ketuk panah untuk ganti karakter"
+              : "← → pilih karakter · Enter untuk mulai · Atau klik langsung karakter 3D"}
           </div>
         </div>
       </div>
