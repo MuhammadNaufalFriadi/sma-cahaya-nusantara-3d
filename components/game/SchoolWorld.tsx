@@ -328,8 +328,8 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         playerPos.current.z = 4.8;
         targetPos.current = null;
         autoEnterRoomId.current = null;
-        playerPitch.current = 0.95;
-        playerDist.current = 16;
+        playerPitch.current = 0.78;
+        playerDist.current = 13.5;
         if (playerGroupRef.current) {
           playerGroupRef.current.rotation.y = Math.PI;
         }
@@ -882,7 +882,67 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       scene.add(rainP);
       rainPointsRef.current = rainP;
 
-      // Interior Rooms
+      // ========================================================
+      // ===== RUANGAN DALAM / INTERIOR SETIAP GEDUNG (LENGKAP) =
+      // ========================================================
+      function lbl(t: string, x: number, y: number, z: number, par: THREE.Object3D) {
+        const c = document.createElement("canvas");
+        c.width = 256;
+        c.height = 64;
+        const q = c.getContext("2d");
+        if (q) {
+          q.fillStyle = "rgba(15, 42, 36, 0.88)";
+          if ((q as any).roundRect) (q as any).roundRect(8, 8, 240, 48, 12);
+          else q.fillRect(8, 8, 240, 48);
+          q.fill();
+          q.fillStyle = "#ffffff";
+          q.font = '700 24px "Baloo 2", sans-serif';
+          q.textAlign = "center";
+          q.textBaseline = "middle";
+          q.fillText(t, 128, 32);
+        }
+        const s = new THREE.Sprite(
+          new THREE.SpriteMaterial({
+            map: new THREE.CanvasTexture(c),
+            depthTest: false,
+          })
+        );
+        s.scale.set(2.4, 0.6, 1);
+        s.position.set(x, y, z);
+        s.renderOrder = 8;
+        par.add(s);
+        return s;
+      }
+
+      // Checkered floor tile texture
+      const tc = document.createElement("canvas");
+      tc.width = tc.height = 64;
+      const tcx = tc.getContext("2d");
+      if (tcx) {
+        tcx.fillStyle = "#ffffff";
+        tcx.fillRect(0, 0, 64, 64);
+        tcx.fillStyle = "#e2e8f0";
+        tcx.fillRect(0, 0, 32, 32);
+        tcx.fillRect(32, 32, 32, 32);
+      }
+      const tile = new THREE.CanvasTexture(tc);
+      tile.wrapS = tile.wrapT = THREE.RepeatWrapping;
+      tile.repeat.set(10, 8);
+
+      const IC: Record<string, string[]> = {
+        profil: ["🏫", "🎯", "📜"],
+        akademik: ["🎓", "📚", "🏆"],
+        ekskul: ["⚽", "🏟", "📅"],
+        ppdb: ["📝", "✍", "📞"],
+      };
+
+      const TAB_NAMES: Record<string, string[]> = {
+        profil: ["Tentang Sekolah", "Visi & Misi", "Sejarah Sekolah"],
+        akademik: ["① Peminatan MIPA/IPS", "② Lab Kurikulum Merdeka", "③ Hall of Fame Prestasi"],
+        ekskul: ["Klub Ekskul & Minat", "Fasilitas Kampus", "Agenda Tahunan"],
+        ppdb: ["Jadwal & Kuota", "Formulir Pendaftaran", "Kontak & Alur PPDB"],
+      };
+
       const roomsMap: Record<string, THREE.Group> = {};
       const roomRings: Record<string, any[]> = {};
 
@@ -893,31 +953,264 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         g.visible = false;
         scene.add(g);
 
-        addMesh(new THREE.BoxGeometry(22, 0.35, 16), M(d.f), 0, -0.15, 0, g);
+        // Pencahayaan Ruangan Interior (Terang, Hangat & Nyaman)
+        const rLight = new THREE.PointLight(0xfff5e6, 1.4, 34);
+        rLight.position.set(0, 4.4, 0);
+        g.add(rLight);
+        const rAmb = new THREE.AmbientLight(0xffffff, 0.4);
+        g.add(rAmb);
+
+        // Lantai Berkeramik Halus (22 x 16 meter)
+        addMesh(new THREE.BoxGeometry(22, 0.35, 16), new THREE.MeshLambertMaterial({ color: d.f, map: tile }), 0, -0.15, 0, g);
+
+        // Dinding Ruangan & Plafon Molding
         addMesh(new THREE.BoxGeometry(22, 4.8, 0.35), M(d.w), 0, 2.4, -8.15, g);
         addMesh(new THREE.BoxGeometry(0.35, 4.8, 16), M(d.w), -11.15, 2.4, 0, g);
         addMesh(new THREE.BoxGeometry(0.35, 4.8, 16), M(d.w), 11.15, 2.4, 0, g);
         addMesh(new THREE.BoxGeometry(22, 4.8, 0.35), M(d.w), 0, 2.4, 8.15, g);
 
-        // Exit Door
-        addMesh(new THREE.BoxGeometry(2.4, 2.9, 0.3), M(0x2d3748), 0, 1.45, 7.3, g);
+        // Jendela Kaca Biru Langit & List Lis Dinding
+        addMesh(new THREE.BoxGeometry(3.2, 2.2, 0.1), new THREE.MeshBasicMaterial({ color: 0x9bd3ff }), -6, 2.8, -7.95, g);
+        addMesh(new THREE.BoxGeometry(22, 0.4, 0.36), M(0xb5483b), 0, 1.2, -8.1, g);
+        addMesh(new THREE.BoxGeometry(0.36, 0.4, 16), M(0xb5483b), -11.1, 1.2, 0, g);
+        addMesh(new THREE.BoxGeometry(0.36, 0.4, 16), M(0xb5483b), 11.1, 1.2, 0, g);
 
-        // Furniture
+        // Kusen & Pintu Keluar Ruangan Interior (z = 7.3)
+        addMesh(new THREE.BoxGeometry(2.4, 2.9, 0.3), M(0x2d3748), 0, 1.45, 7.3, g);
+        addMesh(new THREE.BoxGeometry(1.95, 2.7, 0.1), M(0x111827), 0, 1.35, 7.38, g);
+        addMesh(new THREE.BoxGeometry(2.8, 0.1, 1.4), M(0xf5c26b), 0, 0.04, 6.8, g);
+        addMesh(new THREE.BoxGeometry(1.6, 0.35, 0.15), M(0x10b981), 0, 2.95, 7.25, g);
+        lbl("🚪 PINTU KELUAR", 0, 3.35, 7.25, g);
+
+        // Daun Pintu Keluar Kiri (Hinge di x = -0.92)
+        const rmExL = new THREE.Group();
+        rmExL.position.set(-0.92, 0, 7.3);
+        g.add(rmExL);
+        addMesh(new THREE.BoxGeometry(0.92, 2.6, 0.08), M(0x7c4a27), 0.46, 1.3, 0, rmExL);
+        addMesh(new THREE.BoxGeometry(0.56, 1.15, 0.09), new THREE.MeshBasicMaterial({ color: 0x9bd3ff, transparent: true, opacity: 0.6 }), 0.46, 1.7, 0, rmExL);
+        addMesh(new THREE.CylinderGeometry(0.022, 0.022, 0.38, 8), M(0xe2e8f0), 0.82, 1.25, -0.06, rmExL);
+        g.userData.exitDoorL = rmExL;
+
+        // Daun Pintu Keluar Kanan (Hinge di x = 0.92)
+        const rmExR = new THREE.Group();
+        rmExR.position.set(0.92, 0, 7.3);
+        g.add(rmExR);
+        addMesh(new THREE.BoxGeometry(0.92, 2.6, 0.08), M(0x7c4a27), -0.46, 1.3, 0, rmExR);
+        addMesh(new THREE.BoxGeometry(0.56, 1.15, 0.09), new THREE.MeshBasicMaterial({ color: 0x9bd3ff, transparent: true, opacity: 0.6 }), -0.46, 1.7, 0, rmExR);
+        addMesh(new THREE.CylinderGeometry(0.022, 0.022, 0.38, 8), M(0xe2e8f0), -0.82, 1.25, -0.06, rmExR);
+        g.userData.exitDoorR = rmExR;
+
+        // ==========================================
+        // KHUSUS GEDUNG AKADEMIK:
+        // ==========================================
+        if (id === "akademik") {
+          // Jalur Karpet Wayfinding Terpandu (Biru & Emas)
+          addMesh(new THREE.BoxGeometry(3.2, 0.03, 7.2), M(0x1e3a8a), 0, 0.02, 3.4, g);
+          addMesh(new THREE.BoxGeometry(3.5, 0.02, 7.2), M(0xf59e0b), 0, 0.01, 3.4, g);
+          addMesh(new THREE.BoxGeometry(7.2, 0.03, 2.4), M(0x1e3a8a), -3.6, 0.02, -1.5, g);
+          addMesh(new THREE.BoxGeometry(7.2, 0.02, 2.6), M(0xf59e0b), -3.6, 0.01, -1.5, g);
+          addMesh(new THREE.BoxGeometry(2.4, 0.03, 4.4), M(0x1e3a8a), 0, 0.02, -2.3, g);
+          addMesh(new THREE.BoxGeometry(2.6, 0.02, 4.4), M(0xf59e0b), 0, 0.01, -2.3, g);
+          addMesh(new THREE.BoxGeometry(7.2, 0.03, 2.4), M(0x1e3a8a), 3.6, 0.02, -1.5, g);
+          addMesh(new THREE.BoxGeometry(7.2, 0.02, 2.6), M(0xf59e0b), 3.6, 0.01, -1.5, g);
+
+          [[-6.8, -1.5, 0x2563eb], [0, -4.2, 0xf59e0b], [6.8, -1.5, 0x10b981]].forEach((pt) => {
+            addMesh(new THREE.CylinderGeometry(1.3, 1.3, 0.04, 24), M(pt[2]), pt[0], 0.03, pt[1], g);
+          });
+
+          // Smartboard Digital Raksasa di dinding utara
+          const sbCan = document.createElement("canvas");
+          sbCan.width = 1024;
+          sbCan.height = 384;
+          const sbX = sbCan.getContext("2d");
+          if (sbX) {
+            sbX.fillStyle = "#0f172a";
+            sbX.fillRect(0, 0, 1024, 384);
+            sbX.fillStyle = "#1e293b";
+            sbX.fillRect(16, 16, 992, 352);
+            sbX.fillStyle = "#38bdf8";
+            sbX.font = 'bold 36px "Baloo 2", sans-serif';
+            sbX.textAlign = "center";
+            sbX.fillText("KURIKULUM MERDEKA · PUSAT RISET & INOVASI SISWA", 512, 65);
+            sbX.fillStyle = "#f8fafc";
+            sbX.font = "20px sans-serif";
+            sbX.fillText("SMA CAHAYA NUSANTARA — BERBASIS RISET & PROFIL PELAJAR PANCASILA", 512, 105);
+            sbX.fillStyle = "#1e3a8a";
+            sbX.fillRect(50, 140, 280, 190);
+            sbX.fillStyle = "#93c5fd";
+            sbX.font = "bold 20px sans-serif";
+            sbX.fillText("1. FASE E (KELAS X)", 190, 180);
+            sbX.fillStyle = "#cbd5e1";
+            sbX.font = "16px sans-serif";
+            sbX.fillText("Pondasi Mapel Umum,", 190, 220);
+            sbX.fillText("Literasi & Diagnostik", 190, 255);
+
+            sbX.fillStyle = "#78350f";
+            sbX.fillRect(372, 140, 280, 190);
+            sbX.fillStyle = "#fcd34d";
+            sbX.font = "bold 20px sans-serif";
+            sbX.fillText("2. FASE F (KELAS XI-XII)", 512, 180);
+            sbX.fillStyle = "#cbd5e1";
+            sbX.font = "16px sans-serif";
+            sbX.fillText("Paket Mapel Pilihan", 512, 220);
+            sbX.fillText("& Sukses SNBP/SNBT", 512, 255);
+
+            sbX.fillStyle = "#065f46";
+            sbX.fillRect(694, 140, 280, 190);
+            sbX.fillStyle = "#6ee7b7";
+            sbX.font = "bold 20px sans-serif";
+            sbX.fillText("3. PROJEK RISET P5", 834, 180);
+            sbX.fillStyle = "#cbd5e1";
+            sbX.font = "16px sans-serif";
+            sbX.fillText("IoT Smart Waste Bin,", 834, 220);
+            sbX.fillText("Batik & Bazar Startup", 834, 255);
+          }
+          const sbTex = new THREE.CanvasTexture(sbCan);
+          addMesh(new THREE.BoxGeometry(8.2, 2.6, 0.1), M(0x334155), 0, 2.8, -7.98, g);
+          addMesh(new THREE.PlaneGeometry(8, 2.4), new THREE.MeshBasicMaterial({ map: sbTex }), 0, 2.8, -7.92, g);
+
+          // 3 Unit PC Modern di Meja Lab Komputer
+          [-2.2, 0, 2.2].forEach((cx) => {
+            addMesh(new THREE.CylinderGeometry(0.12, 0.14, 0.04, 12), M(0x64748b), cx, 0.92, -5.7, g);
+            addMesh(new THREE.BoxGeometry(0.05, 0.35, 0.05), M(0x64748b), cx, 1.1, -5.7, g);
+            addMesh(new THREE.BoxGeometry(0.95, 0.6, 0.04), M(0x0f172a), cx, 1.4, -5.7, g);
+            addMesh(new THREE.BoxGeometry(0.88, 0.52, 0.02), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }), cx, 1.4, -5.67, g);
+            addMesh(new THREE.BoxGeometry(0.52, 0.02, 0.2), M(0x1e293b), cx, 0.91, -5.3, g);
+            addMesh(new THREE.BoxGeometry(0.08, 0.02, 0.12), M(0x38bdf8), cx + 0.35, 0.91, -5.3, g);
+            addMesh(new THREE.BoxGeometry(0.25, 0.5, 0.45), M(0x0f172a), cx + 0.6, 0.26, -5.7, g);
+            const ch = new THREE.Group();
+            ch.position.set(cx, 0, -4.6);
+            g.add(ch);
+            addMesh(new THREE.CylinderGeometry(0.25, 0.25, 0.08, 12), M(0x1e293b), 0, 0.5, 0, ch);
+            addMesh(new THREE.BoxGeometry(0.45, 0.45, 0.06), M(0x1e293b), 0, 0.8, 0.2, ch);
+            addMesh(new THREE.CylinderGeometry(0.04, 0.04, 0.48, 8), M(0x94a3b8), 0, 0.24, 0, ch);
+          });
+
+          // Zona 1 Props (Mikroskop, Tabung Reaksi, Model Molekul, Globe)
+          const mic = new THREE.Group();
+          mic.position.set(-8.5, 0.9, -4.5);
+          g.add(mic);
+          addMesh(new THREE.CylinderGeometry(0.16, 0.18, 0.08, 16), M(0x0f172a), 0, 0.04, 0, mic);
+          addMesh(new THREE.BoxGeometry(0.06, 0.45, 0.08), M(0x334155), -0.04, 0.28, -0.06, mic);
+          const mBody = addMesh(new THREE.CylinderGeometry(0.04, 0.04, 0.34, 10), M(0x0f172a), 0.04, 0.42, 0.02, mic);
+          mBody.rotation.x = -0.4;
+          addMesh(new THREE.CylinderGeometry(0.025, 0.02, 0.1, 8), M(0xd1d5db), 0.04, 0.24, 0.09, mic);
+
+          // Model molekul
+          const mol = new THREE.Group();
+          mol.position.set(-9.5, 0.9, -4.5);
+          g.add(mol);
+          addMesh(new THREE.SphereGeometry(0.1, 12, 10), M(0xef4444), 0, 0.18, 0, mol);
+          [[0.18, 0.25, 0.08, 0x3b82f6], [-0.18, 0.25, -0.08, 0x10b981], [0.08, 0.08, -0.18, 0xffffff]].forEach((ap) => {
+            addMesh(new THREE.SphereGeometry(0.06, 10, 8), M(ap[3]), ap[0], ap[1], ap[2], mol);
+            addMesh(new THREE.CylinderGeometry(0.012, 0.012, 0.2, 6), M(0xcccccc), ap[0] / 2, (ap[1] + 0.18) / 2, ap[2] / 2, mol).lookAt(ap[0], ap[1], ap[2]);
+          });
+
+          // Globe
+          const glb = new THREE.Group();
+          glb.position.set(-8.5, 0.9, 1.5);
+          g.add(glb);
+          addMesh(new THREE.CylinderGeometry(0.12, 0.16, 0.06, 16), M(0x78350f), 0, 0.03, 0, glb);
+          addMesh(new THREE.CylinderGeometry(0.03, 0.03, 0.2, 8), M(0xd97706), 0, 0.14, 0, glb);
+          const gRing = addMesh(new THREE.TorusGeometry(0.24, 0.02, 8, 20, Math.PI * 1.2), M(0xd97706), 0, 0.38, 0, glb);
+          gRing.rotation.z = -Math.PI / 4;
+          addMesh(new THREE.SphereGeometry(0.2, 16, 12), M(0x2563eb), 0, 0.38, 0, glb);
+
+          // Zona 3 Props (Etalase Piala, 3 Piala 3D Emas/Perak/Perunggu, Karpet Merah)
+          addMesh(new THREE.BoxGeometry(1.6, 3.4, 5.0), M(0x78350f), 9.8, 1.7, -1.5, g);
+          addMesh(new THREE.BoxGeometry(1.4, 3.1, 4.7), M(0x0f172a), 9.7, 1.7, -1.5, g);
+          addMesh(new THREE.BoxGeometry(0.1, 3.1, 4.7), new THREE.MeshBasicMaterial({ color: 0xa5f3fc, transparent: true, opacity: 0.35 }), 9.0, 1.7, -1.5, g);
+          [-0.7, 0, 0.7].forEach((ry) => addMesh(new THREE.BoxGeometry(1.2, 0.04, 4.6), M(0x38bdf8), 9.7, 1.7 + ry, -1.5, g));
+          addMesh(new THREE.BoxGeometry(2.0, 0.02, 5.2), M(0xd9534f), 8.0, 0.025, -1.5, g);
+
+          // 3 Piala 3D
+          const tp1 = new THREE.Group();
+          tp1.position.set(9.6, 1.74, -1.5);
+          g.add(tp1);
+          addMesh(new THREE.BoxGeometry(0.32, 0.18, 0.32), M(0x111111), 0, 0.09, 0, tp1);
+          addMesh(new THREE.CylinderGeometry(0.06, 0.1, 0.16, 12), M(0xffd700), 0, 0.25, 0, tp1);
+          addMesh(new THREE.CylinderGeometry(0.2, 0.12, 0.4, 16), M(0xffd700), 0, 0.5, 0, tp1);
+          addMesh(new THREE.TorusGeometry(0.14, 0.022, 8, 16), M(0xffd700), 0.2, 0.52, 0, tp1);
+          addMesh(new THREE.TorusGeometry(0.14, 0.022, 8, 16), M(0xffd700), -0.2, 0.52, 0, tp1);
+          addMesh(new THREE.OctahedronGeometry(0.1), M(0xffd700), 0, 0.76, 0, tp1);
+
+          const tp2 = new THREE.Group();
+          tp2.position.set(9.6, 1.74, -0.5);
+          g.add(tp2);
+          addMesh(new THREE.BoxGeometry(0.26, 0.15, 0.26), M(0x111111), 0, 0.08, 0, tp2);
+          addMesh(new THREE.CylinderGeometry(0.16, 0.1, 0.32, 14), M(0xe2e8f0), 0, 0.38, 0, tp2);
+          addMesh(new THREE.TorusGeometry(0.11, 0.02, 8, 14), M(0xe2e8f0), 0.16, 0.4, 0, tp2);
+
+          const tp3 = new THREE.Group();
+          tp3.position.set(9.6, 1.74, -2.5);
+          g.add(tp3);
+          addMesh(new THREE.BoxGeometry(0.26, 0.15, 0.26), M(0x111111), 0, 0.08, 0, tp3);
+          addMesh(new THREE.CylinderGeometry(0.15, 0.09, 0.3, 14), M(0xd97706), 0, 0.36, 0, tp3);
+          addMesh(new THREE.TorusGeometry(0.1, 0.02, 8, 14), M(0xd97706), 0.15, 0.38, 0, tp3);
+
+          // Jam dinding
+          const clk = new THREE.Group();
+          clk.position.set(0, 3.8, 7.85);
+          g.add(clk);
+          addMesh(new THREE.CylinderGeometry(0.45, 0.45, 0.06, 24), M(0x1e293b), 0, 0, 0, clk).rotation.x = Math.PI / 2;
+          addMesh(new THREE.CylinderGeometry(0.4, 0.4, 0.07, 24), M(0xffffff), 0, 0, -0.01, clk).rotation.x = Math.PI / 2;
+        } else {
+          // Gedung Utama, Ekskul, dan PPDB Props:
+          // Karpet bundar mewah di tengah
+          addMesh(new THREE.CylinderGeometry(3.6, 3.6, 0.05, 32), M(d.rug), 0, 0.03, 0.6, g);
+
+          // Papan display informasi & pengumuman di dinding
+          addMesh(new THREE.BoxGeometry(3.6, 2.0, 0.08), M(0xc9a06a), 6, 2.9, -7.95, g);
+          [0, 1].forEach((k) =>
+            addMesh(new THREE.BoxGeometry(1.2, 0.7, 0.02), M(k ? 0xff8a65 : 0x7ec8ff), 5.2 + k * 1.6, 2.9, -7.9, g)
+          );
+
+          // Rak buku & lemari berkas di dinding barat
+          for (let k = 0; k < 5; k++) {
+            addMesh(new THREE.BoxGeometry(1.1, 2.6, 1.2), M(k % 2 ? 0x1f8a8a : 0x2aa3a3), -10.4, 1.3, -2 + k * 1.6, g);
+          }
+
+          // Tanaman hias dalam pot di sudut
+          [[-10, -7], [10, -7]].forEach((pos) => {
+            const pln = new THREE.Group();
+            pln.position.set(pos[0], 0, pos[1]);
+            g.add(pln);
+            addMesh(new THREE.CylinderGeometry(0.35, 0.28, 0.7, 16), M(0xffffff), 0, 0.35, 0, pln);
+            addMesh(new THREE.CylinderGeometry(0.32, 0.3, 0.05, 12), M(0x3e2723), 0, 0.68, 0, pln);
+            const lf = addMesh(new THREE.SphereGeometry(0.42, 8, 6), M(0x16a34a), 0, 1.0, 0, pln);
+            lf.scale.set(1.1, 0.7, 1.1);
+          });
+        }
+
+        // Furniture meja & partisi dari data constants RM
         d.F.forEach((f: any) =>
           addMesh(new THREE.BoxGeometry(f[2], f[3], f[4]), M(f[5]), f[0], f[3] / 2, f[1], g)
         );
 
-        // Interaction Rings
+        // Lingkaran Interaksi Zona (Torus Emas/Hijau + Beam Silinder Cahaya + Billboard 3D Label)
         roomRings[id] = d.S.map((q: any, i: number) => {
-          const r = addMesh(new THREE.TorusGeometry(0.8, 0.1, 8, 24), M(0xffc83d), q[0], 0.12, q[1], g);
+          const ic = IC[id]?.[i] || "📍";
+          const tName = TAB_NAMES[id]?.[i] || "Zona";
+          const c = saveStateRef.current.s[id + i] ? 0x4ade80 : 0xffc83d;
+          const r = addMesh(new THREE.TorusGeometry(0.8, 0.1, 8, 24), M(c), q[0], 0.12, q[1], g);
           r.rotation.x = Math.PI / 2;
+          const bm = addMesh(
+            new THREE.CylinderGeometry(0.8, 0.8, 2.8, 20, 1, true),
+            new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }),
+            q[0], 1.4, q[1], g
+          );
+          lbl(ic + " " + tName, q[0], 3.2, q[1], g);
           return {
             id,
             idx: i,
+            i: ic,
+            n: tName,
+            v: "Buka Info",
             st: 1,
             x: RX + q[0],
             z: q[1],
             ring: r,
+            beam: bm,
           };
         });
 
@@ -1132,6 +1425,26 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           if (roomRef.current) {
             playerPos.current.x = Math.min(RX + 10.2, Math.max(RX - 10.2, playerPos.current.x));
             playerPos.current.z = Math.min(7.4, Math.max(-7.2, playerPos.current.z));
+            const rmData = RM[roomRef.current];
+            if (rmData && rmData.F) {
+              for (const f of rmData.F) {
+                const fx = RX + f[0];
+                const fz = f[1];
+                const hw = f[2] / 2 + 0.35;
+                const hd = f[4] / 2 + 0.35;
+                const cdx = playerPos.current.x - fx;
+                const cdz = playerPos.current.z - fz;
+                if (Math.abs(cdx) < hw && Math.abs(cdz) < hd) {
+                  const ox = hw - Math.abs(cdx);
+                  const oz = hd - Math.abs(cdz);
+                  if (ox < oz) {
+                    playerPos.current.x = fx + Math.sign(cdx || 1) * hw;
+                  } else {
+                    playerPos.current.z = fz + Math.sign(cdz || 1) * hd;
+                  }
+                }
+              }
+            }
           } else {
             // Gate wall collision (z = 28)
             if (Math.abs(playerPos.current.z - 28) < 0.85) {
@@ -1346,6 +1659,16 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
             b.doorL.rotation.y += (-targetAngle - b.doorL.rotation.y) * Math.min(1, dt * 6.5);
             b.doorR.rotation.y += (targetAngle - b.doorR.rotation.y) * Math.min(1, dt * 6.5);
           });
+        } else if (roomRef.current && roomsMapRef.current[roomRef.current]) {
+          const rg = roomsMapRef.current[roomRef.current];
+          const exL = rg.userData.exitDoorL;
+          const exR = rg.userData.exitDoorR;
+          if (exL && exR) {
+            const nearEx = Math.hypot(RX - playerPos.current.x, 7.3 - playerPos.current.z) < 3.2;
+            const tgtEx = nearEx ? 1.4 : 0;
+            exL.rotation.y += (-tgtEx - exL.rotation.y) * Math.min(1, dt * 6.5);
+            exR.rotation.y += (tgtEx - exR.rotation.y) * Math.min(1, dt * 6.5);
+          }
         }
 
         // Check nearest interactable object
@@ -1385,8 +1708,8 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         }
 
         // Camera follow
-        const d = roomRef.current ? 15 : playerDist.current;
-        const pt = roomRef.current ? 0.95 : playerPitch.current;
+        const d = roomRef.current ? 13.5 : playerDist.current;
+        const pt = roomRef.current ? 0.78 : playerPitch.current;
         const cp = Math.cos(pt);
         const tv = new THREE.Vector3(
           playerPos.current.x + Math.sin(playerYaw.current) * cp * d,
