@@ -325,14 +325,14 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         roomRef.current = id;
         onRoomChangeRef.current?.(id);
         playerPos.current.x = RX;
-        playerPos.current.z = 4.8;
+        playerPos.current.z = 2.4;
         targetPos.current = null;
         autoEnterRoomId.current = null;
-        playerPitch.current = 0.76;
-        playerDist.current = 13.5;
-        playerYaw.current = Math.PI;
+        playerPitch.current = 0.22;
+        playerDist.current = 4.5;
+        playerYaw.current = 0;
         if (playerGroupRef.current) {
-          playerGroupRef.current.rotation.y = Math.PI;
+          playerGroupRef.current.rotation.y = 0;
         }
 
         if (roomsMapRef.current[id]) {
@@ -1276,26 +1276,41 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         scene.add(g);
 
         // Pencahayaan Ruangan Interior (Terang, Hangat & Nyaman)
-        const rLight = new THREE.PointLight(0xfff5e6, 1.4, 34);
-        rLight.position.set(0, 4.4, 0);
-        g.add(rLight);
-        const rAmb = new THREE.AmbientLight(0xffffff, 0.4);
+        const rLight1 = new THREE.PointLight(0xfffaed, 2.0, 32);
+        rLight1.position.set(0, 4.2, -2.5);
+        g.add(rLight1);
+        const rLight2 = new THREE.PointLight(0xfffaed, 1.8, 32);
+        rLight2.position.set(0, 4.2, 2.5);
+        g.add(rLight2);
+        const rAmb = new THREE.AmbientLight(0xffffff, 0.5);
         g.add(rAmb);
 
         // Lantai Berkeramik Halus (22 x 16 meter)
         addMesh(new THREE.BoxGeometry(22, 0.35, 16), new THREE.MeshLambertMaterial({ color: d.f, map: tile }), 0, -0.15, 0, g);
 
-        // Plafon Atap & Lampu Downlight LED Recessed
-        addMesh(new THREE.BoxGeometry(22, 0.25, 16), M(0xf8fafc), 0, 4.85, 0, g);
+        // Plafon Atap Ruangan
+        // Menggunakan PlaneGeometry dengan side: THREE.BackSide:
+        // - Dari dalam ruangan tampak sebagai plafon putih bersih elegan
+        // - Dari atas/luar ruangan 100% tembus pandang (transparan) sehingga kamera bebas hambatan dan tidak pernah tertutup bidang abu-abu
+        const ceilMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc, side: THREE.BackSide });
+        const ceilPlane = new THREE.Mesh(new THREE.PlaneGeometry(22, 16), ceilMat);
+        ceilPlane.position.set(0, 4.85, 0);
+        ceilPlane.rotation.x = Math.PI / 2;
+        g.add(ceilPlane);
+
+        // Lis Plafon Tepi Dinding
         addMesh(new THREE.BoxGeometry(22, 0.35, 0.25), M(0x334155), 0, 4.65, -7.95, g);
         addMesh(new THREE.BoxGeometry(22, 0.35, 0.25), M(0x334155), 0, 4.65, 7.95, g);
         addMesh(new THREE.BoxGeometry(0.25, 0.35, 16), M(0x334155), -10.95, 4.65, 0, g);
         addMesh(new THREE.BoxGeometry(0.25, 0.35, 16), M(0x334155), 10.95, 4.65, 0, g);
 
-        // 6 Lampu Plafon LED Kotak
+        // 6 Lampu Plafon LED Kotak Downlight (side: THREE.BackSide agar tidak pernah menutupi kamera dari atas)
         [[-6, -4], [0, -4], [6, -4], [-6, 2], [0, 2], [6, 2]].forEach((lp) => {
-          addMesh(new THREE.BoxGeometry(2.0, 0.05, 2.0), M(0xffffff), lp[0], 4.74, lp[1], g);
-          addMesh(new THREE.BoxGeometry(1.6, 0.06, 1.6), new THREE.MeshBasicMaterial({ color: 0xfffae5 }), lp[0], 4.75, lp[1], g);
+          const lMat = new THREE.MeshBasicMaterial({ color: 0xfffae5, side: THREE.BackSide });
+          const lPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1.8), lMat);
+          lPlane.position.set(lp[0], 4.84, lp[1]);
+          lPlane.rotation.x = Math.PI / 2;
+          g.add(lPlane);
         });
 
         // Lis Plin Lantai Kayu (Baseboard)
@@ -2204,18 +2219,46 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
         // Camera follow & Mobile Responsive Angle
         const isPortrait = window.innerHeight > window.innerWidth;
-        const d = roomRef.current
-          ? (isPortrait ? 15.2 : 12.5)
-          : (isPortrait ? playerDist.current * 1.25 : playerDist.current);
-        const pt = Math.min(1.18, Math.max(0.18, playerPitch.current));
-        const cp = Math.cos(pt);
-        const tv = new THREE.Vector3(
-          playerPos.current.x + Math.sin(playerYaw.current) * cp * d,
-          1.2 + Math.sin(pt) * d,
-          playerPos.current.z + Math.cos(playerYaw.current) * cp * d
-        );
+        let tv: THREE.Vector3;
+
+        if (roomRef.current) {
+          // ==========================================
+          // KAMERA DI DALAM RUANGAN (INTERIOR 3D)
+          // ==========================================
+          // Jarak kamera proporsional untuk interior (4.6m desktop, 5.4m mobile)
+          const cd = isPortrait ? 5.4 : 4.6;
+          // Batasi sudut elevasi kamera agar tetap di dalam ruangan di bawah plafon
+          const cpt = Math.min(0.35, Math.max(0.06, playerPitch.current));
+          const cp = Math.cos(cpt);
+
+          const rawX = playerPos.current.x + Math.sin(playerYaw.current) * cp * cd;
+          const rawY = 1.35 + Math.sin(cpt) * cd;
+          const rawZ = playerPos.current.z + Math.cos(playerYaw.current) * cp * cd;
+
+          // Batasi posisi kamera selalu di dalam dinding ruangan & di bawah plafon
+          // RX = 120, lebar 22 (X: RX-11 .. RX+11), kedalaman 16 (Z: -8 .. +8), tinggi 4.85
+          tv = new THREE.Vector3(
+            Math.min(RX + 9.2, Math.max(RX - 9.2, rawX)),
+            Math.min(3.6, Math.max(1.3, rawY)),
+            Math.min(6.8, Math.max(-6.8, rawZ))
+          );
+        } else {
+          // ==========================================
+          // KAMERA DI LUAR RUANGAN (CAMPUS OUTDOOR)
+          // ==========================================
+          const d = isPortrait ? playerDist.current * 1.25 : playerDist.current;
+          const pt = Math.min(1.18, Math.max(0.18, playerPitch.current));
+          const cp = Math.cos(pt);
+          tv = new THREE.Vector3(
+            playerPos.current.x + Math.sin(playerYaw.current) * cp * d,
+            1.2 + Math.sin(pt) * d,
+            playerPos.current.z + Math.cos(playerYaw.current) * cp * d
+          );
+        }
+
         camera.position.lerp(tv, 1 - Math.pow(0.001, dt));
-        camera.lookAt(playerPos.current.x, 1.3, playerPos.current.z);
+        const lookTargetY = roomRef.current ? 1.1 : 1.3;
+        camera.lookAt(playerPos.current.x, lookTargetY, playerPos.current.z);
 
         onPlayerMoveRef.current?.({
           x: playerPos.current.x,
