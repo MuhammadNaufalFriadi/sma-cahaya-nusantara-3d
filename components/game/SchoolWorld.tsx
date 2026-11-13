@@ -1285,14 +1285,36 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         // Lantai Berkeramik Halus (22 x 16 meter)
         addMesh(new THREE.BoxGeometry(22, 0.35, 16), new THREE.MeshLambertMaterial({ color: d.f, map: tile }), 0, -0.15, 0, g);
 
-        // Dinding Ruangan & Plafon Molding
+        // Plafon Atap & Lampu Downlight LED Recessed
+        addMesh(new THREE.BoxGeometry(22, 0.25, 16), M(0xf8fafc), 0, 4.85, 0, g);
+        addMesh(new THREE.BoxGeometry(22, 0.35, 0.25), M(0x334155), 0, 4.65, -7.95, g);
+        addMesh(new THREE.BoxGeometry(22, 0.35, 0.25), M(0x334155), 0, 4.65, 7.95, g);
+        addMesh(new THREE.BoxGeometry(0.25, 0.35, 16), M(0x334155), -10.95, 4.65, 0, g);
+        addMesh(new THREE.BoxGeometry(0.25, 0.35, 16), M(0x334155), 10.95, 4.65, 0, g);
+
+        // 6 Lampu Plafon LED Kotak
+        [[-6, -4], [0, -4], [6, -4], [-6, 2], [0, 2], [6, 2]].forEach((lp) => {
+          addMesh(new THREE.BoxGeometry(2.0, 0.05, 2.0), M(0xffffff), lp[0], 4.74, lp[1], g);
+          addMesh(new THREE.BoxGeometry(1.6, 0.06, 1.6), new THREE.MeshBasicMaterial({ color: 0xfffae5 }), lp[0], 4.75, lp[1], g);
+        });
+
+        // Lis Plin Lantai Kayu (Baseboard)
+        addMesh(new THREE.BoxGeometry(22, 0.25, 0.15), M(0x1e293b), 0, 0.125, -7.98, g);
+        addMesh(new THREE.BoxGeometry(0.15, 0.25, 16), M(0x1e293b), -10.98, 0.125, 0, g);
+        addMesh(new THREE.BoxGeometry(0.15, 0.25, 16), M(0x1e293b), 10.98, 0.125, 0, g);
+
+        // Dinding Ruangan
         addMesh(new THREE.BoxGeometry(22, 4.8, 0.35), M(d.w), 0, 2.4, -8.15, g);
         addMesh(new THREE.BoxGeometry(0.35, 4.8, 16), M(d.w), -11.15, 2.4, 0, g);
         addMesh(new THREE.BoxGeometry(0.35, 4.8, 16), M(d.w), 11.15, 2.4, 0, g);
         addMesh(new THREE.BoxGeometry(22, 4.8, 0.35), M(d.w), 0, 2.4, 8.15, g);
 
         // Jendela Kaca Biru Langit & List Lis Dinding
-        addMesh(new THREE.BoxGeometry(3.2, 2.2, 0.1), new THREE.MeshBasicMaterial({ color: 0x9bd3ff }), -6, 2.8, -7.95, g);
+        [-6, 6].forEach((wx) => {
+          addMesh(new THREE.BoxGeometry(3.6, 2.2, 0.1), new THREE.MeshBasicMaterial({ color: 0x9bd3ff }), wx, 2.8, -7.95, g);
+          addMesh(new THREE.BoxGeometry(3.8, 0.12, 0.14), M(0x1e293b), wx, 3.96, -7.94, g);
+          addMesh(new THREE.BoxGeometry(3.8, 0.12, 0.14), M(0x1e293b), wx, 1.64, -7.94, g);
+        });
         addMesh(new THREE.BoxGeometry(22, 0.4, 0.36), M(0xb5483b), 0, 1.2, -8.1, g);
         addMesh(new THREE.BoxGeometry(0.36, 0.4, 16), M(0xb5483b), -11.1, 1.2, 0, g);
         addMesh(new THREE.BoxGeometry(0.36, 0.4, 16), M(0xb5483b), 11.1, 1.2, 0, g);
@@ -1323,9 +1345,55 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         g.userData.exitDoorR = rmExR;
 
         // ==========================================
-        // KHUSUS GEDUNG AKADEMIK:
+        // KHUSUS GEDUNG UTAMA (Lobby Eksekutif):
         // ==========================================
-        if (id === "akademik") {
+        if (id === "profil") {
+          // Karpet Beludru Merah Maroon Besar
+          addMesh(new THREE.CylinderGeometry(4.4, 4.4, 0.04, 32), M(0x881337), 0, 0.02, 0.5, g);
+          addMesh(new THREE.CylinderGeometry(4.6, 4.6, 0.02, 32), M(0xffc83d), 0, 0.01, 0.5, g);
+
+          // Meja Resepsionis Lengkung Kayu Jati
+          addMesh(new THREE.BoxGeometry(5.4, 1.15, 1.2), M(0x7c2d12), 0, 0.58, 2.8, g);
+          addMesh(new THREE.BoxGeometry(5.6, 0.1, 1.35), M(0xf8fafc), 0, 1.2, 2.8, g);
+          addMesh(new THREE.BoxGeometry(1.6, 0.04, 0.4), M(0xffc83d), 0, 0.85, 3.42, g); // Lis Emas
+
+          // Komputer Resepsionis & Buku Tamu
+          addMesh(new THREE.BoxGeometry(0.8, 0.5, 0.04), M(0x1e293b), 0, 1.55, 2.6, g);
+          addMesh(new THREE.BoxGeometry(0.74, 0.44, 0.02), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }), 0, 1.55, 2.58, g);
+          addMesh(new THREE.BoxGeometry(0.45, 0.03, 0.32), M(0xf59e0b), 1.4, 1.26, 2.6, g);
+
+          // Set Sofa Tamu VIP Kulit Hitam di Sisi Barat
+          addMesh(new THREE.BoxGeometry(2.8, 0.85, 1.1), M(0x1e293b), -6.8, 0.43, -0.5, g);
+          addMesh(new THREE.BoxGeometry(1.1, 0.85, 1.1), M(0x1e293b), -6.8, 0.43, 1.2, g);
+          addMesh(new THREE.BoxGeometry(1.4, 0.45, 0.8), M(0x78350f), -4.8, 0.23, 0.2, g); // Meja Kopi
+          addMesh(new THREE.BoxGeometry(1.5, 0.04, 0.9), new THREE.MeshBasicMaterial({ color: 0x93c5fd, transparent: true, opacity: 0.7 }), -4.8, 0.47, 0.2, g); // Kaca Meja
+
+          // 3 Pigura Dinding Visi, Misi & Sejarah (Dinding Utara)
+          [-4.5, 0, 4.5].forEach((px, idx) => {
+            addMesh(new THREE.BoxGeometry(3.2, 2.2, 0.08), M(0x78350f), px, 2.8, -7.95, g);
+            addMesh(new THREE.BoxGeometry(3.0, 2.0, 0.04), M(0xffffff), px, 2.8, -7.9, g);
+            addMesh(new THREE.BoxGeometry(3.3, 2.3, 0.04), M(0xffc83d), px, 2.8, -7.97, g);
+          });
+          lbl("🎯 VISI & MISI SEKOLAH", -4.5, 2.8, -7.86, g);
+          lbl("🏫 SMA CAHAYA NUSANTARA", 0, 2.8, -7.86, g);
+          lbl("📜 SEJARAH & PRESTASI", 4.5, 2.8, -7.86, g);
+
+          // Lemari Arsip Kayu Jati Penuh Buku
+          for (let k = 0; k < 4; k++) {
+            addMesh(new THREE.BoxGeometry(1.1, 2.8, 1.4), M(0x7c2d12), 10.3, 1.4, -2.4 + k * 1.6, g);
+          }
+
+          // Jam Bandul Berdiri Klasik (Grandfather Clock)
+          const gClk = new THREE.Group();
+          gClk.position.set(9.8, 0, 6.0);
+          g.add(gClk);
+          addMesh(new THREE.BoxGeometry(0.8, 2.8, 0.6), M(0x451a03), 0, 1.4, 0, gClk);
+          addMesh(new THREE.CylinderGeometry(0.24, 0.24, 0.08, 16), M(0xffffff), 0, 2.3, 0.32, gClk).rotation.x = Math.PI / 2;
+          addMesh(new THREE.CylinderGeometry(0.08, 0.08, 0.02, 12), M(0xffd700), 0, 1.3, 0.25, gClk);
+        } else if (id === "akademik") {
+          // ==========================================
+          // KHUSUS GEDUNG AKADEMIK:
+          // ==========================================
           // Jalur Karpet Wayfinding Terpandu (Biru & Emas)
           addMesh(new THREE.BoxGeometry(3.2, 0.03, 7.2), M(0x1e3a8a), 0, 0.02, 3.4, g);
           addMesh(new THREE.BoxGeometry(3.5, 0.02, 7.2), M(0xf59e0b), 0, 0.01, 3.4, g);
@@ -1476,33 +1544,122 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           g.add(clk);
           addMesh(new THREE.CylinderGeometry(0.45, 0.45, 0.06, 24), M(0x1e293b), 0, 0, 0, clk).rotation.x = Math.PI / 2;
           addMesh(new THREE.CylinderGeometry(0.4, 0.4, 0.07, 24), M(0xffffff), 0, 0, -0.01, clk).rotation.x = Math.PI / 2;
-        } else {
-          // Gedung Utama, Ekskul, dan PPDB Props:
-          // Karpet bundar mewah di tengah
-          addMesh(new THREE.CylinderGeometry(3.6, 3.6, 0.05, 32), M(d.rug), 0, 0.03, 0.6, g);
-
-          // Papan display informasi & pengumuman di dinding
-          addMesh(new THREE.BoxGeometry(3.6, 2.0, 0.08), M(0xc9a06a), 6, 2.9, -7.95, g);
-          [0, 1].forEach((k) =>
-            addMesh(new THREE.BoxGeometry(1.2, 0.7, 0.02), M(k ? 0xff8a65 : 0x7ec8ff), 5.2 + k * 1.6, 2.9, -7.9, g)
-          );
-
-          // Rak buku & lemari berkas di dinding barat
-          for (let k = 0; k < 5; k++) {
-            addMesh(new THREE.BoxGeometry(1.1, 2.6, 1.2), M(k % 2 ? 0x1f8a8a : 0x2aa3a3), -10.4, 1.3, -2 + k * 1.6, g);
-          }
-
-          // Tanaman hias dalam pot di sudut
-          [[-10, -7], [10, -7]].forEach((pos) => {
-            const pln = new THREE.Group();
-            pln.position.set(pos[0], 0, pos[1]);
-            g.add(pln);
-            addMesh(new THREE.CylinderGeometry(0.35, 0.28, 0.7, 16), M(0xffffff), 0, 0.35, 0, pln);
-            addMesh(new THREE.CylinderGeometry(0.32, 0.3, 0.05, 12), M(0x3e2723), 0, 0.68, 0, pln);
-            const lf = addMesh(new THREE.SphereGeometry(0.42, 8, 6), M(0x16a34a), 0, 1.0, 0, pln);
-            lf.scale.set(1.1, 0.7, 1.1);
+        } else if (id === "ekskul") {
+          // ==========================================
+          // KHUSUS AULA & EKSKUL (Panggung, Drum & Alat Musik, Rak Olahraga):
+          // ==========================================
+          // Panggung Utama Megah di Dinding Utara
+          addMesh(new THREE.BoxGeometry(13.0, 0.5, 4.8), M(0x78350f), 0, 0.25, -5.4, g);
+          addMesh(new THREE.BoxGeometry(13.2, 0.06, 5.0), M(0x92400e), 0, 0.52, -5.4, g);
+          // Tangga Masuk Panggung Kiri & Kanan
+          [-6.2, 6.2].forEach((sx) => {
+            addMesh(new THREE.BoxGeometry(0.8, 0.18, 0.6), M(0x78350f), sx, 0.09, -2.8, g);
+            addMesh(new THREE.BoxGeometry(0.8, 0.36, 0.6), M(0x78350f), sx, 0.18, -3.4, g);
           });
+          // Tirai Panggung Beludru Merah Kirmizi Mewah
+          addMesh(new THREE.BoxGeometry(2.4, 4.2, 0.2), M(0x991b1b), -5.5, 2.6, -3.2, g);
+          addMesh(new THREE.BoxGeometry(2.4, 4.2, 0.2), M(0x991b1b), 5.5, 2.6, -3.2, g);
+          addMesh(new THREE.BoxGeometry(13.2, 0.8, 0.2), M(0x991b1b), 0, 4.3, -3.2, g);
+
+          // Podium Pidato Kayu Jati di Tengah Panggung
+          addMesh(new THREE.BoxGeometry(1.1, 1.3, 0.8), M(0x451a03), 0, 1.15, -5.2, g);
+          addMesh(new THREE.CylinderGeometry(0.015, 0.015, 0.4, 8), M(0xffd700), 0, 1.95, -5.2, g); // Tiang Mic
+          addMesh(new THREE.SphereGeometry(0.06, 8, 8), M(0xffd700), 0, 2.15, -5.18, g); // Mikrofon Emas
+
+          // Backdrop Panggung Banner 3D
+          addMesh(new THREE.BoxGeometry(8.4, 1.4, 0.08), M(0x1e3a8a), 0, 3.2, -7.9, g);
+          lbl("🎭 AULA SERBAGUNA & SENI", 0, 3.2, -7.82, g);
+
+          // Drum Set Band / Musik 3D (Bass Drum, Snare, Cymbal Emas)
+          const drumG = new THREE.Group();
+          drumG.position.set(4.2, 0.52, -5.2);
+          g.add(drumG);
+          // Bass drum
+          const bd = addMesh(new THREE.CylinderGeometry(0.65, 0.65, 0.6, 20), M(0x1e293b), 0, 0.68, 0, drumG);
+          bd.rotation.x = Math.PI / 2;
+          addMesh(new THREE.CylinderGeometry(0.62, 0.62, 0.62), M(0xf8fafc), 0, 0.68, 0, drumG).rotation.x = Math.PI / 2;
+          // Snare & Tom
+          addMesh(new THREE.CylinderGeometry(0.32, 0.32, 0.22, 16), M(0xb91c1c), -0.65, 0.82, -0.1, drumG);
+          addMesh(new THREE.CylinderGeometry(0.28, 0.28, 0.25, 16), M(0xb91c1c), 0.25, 1.45, -0.05, drumG);
+          // Cymbal Emas Berkibar
+          addMesh(new THREE.CylinderGeometry(0.02, 0.02, 1.5, 8), M(0xcccccc), 0.85, 0.75, 0.2, drumG);
+          addMesh(new THREE.CylinderGeometry(0.42, 0.05, 0.04, 20), M(0xffd700), 0.85, 1.5, 0.2, drumG);
+
+          // Rak Peralatan Olahraga (Bola Basket, Futsal, Matras)
+          const spG = new THREE.Group();
+          spG.position.set(-8.8, 0, 1.2);
+          g.add(spG);
+          addMesh(new THREE.BoxGeometry(2.4, 1.6, 0.8), M(0x475569), 0, 0.8, 0, spG);
+          // 3 Bola Basket Oranye 3D
+          [-0.6, 0, 0.6].forEach((bx) => {
+            addMesh(new THREE.SphereGeometry(0.22, 14, 12), M(0xea580c), bx, 1.82, 0, spG);
+          });
+          // Matras Senam Biru Tebal
+          addMesh(new THREE.BoxGeometry(2.6, 0.35, 1.6), M(0x2563eb), 0, 0.175, 1.6, spG);
+        } else if (id === "ppdb") {
+          // ==========================================
+          // KHUSUS KANTOR PPDB (3 Loket Pelayanan CS, Kios Antrean, Ruang Tunggu):
+          // ==========================================
+          // 3 Meja Loket Customer Service Pelayanan
+          [-4.2, 0, 4.2].forEach((lx, idx) => {
+            // Meja CS
+            addMesh(new THREE.BoxGeometry(3.2, 1.1, 1.4), M(0x065f46), lx, 0.55, -4.5, g);
+            addMesh(new THREE.BoxGeometry(3.4, 0.08, 1.5), M(0xf8fafc), lx, 1.14, -4.5, g);
+            // Sekat Kaca Akrilik Loket
+            addMesh(new THREE.BoxGeometry(3.0, 0.65, 0.04), new THREE.MeshBasicMaterial({ color: 0xa7f3d0, transparent: true, opacity: 0.5 }), lx, 1.5, -3.85, g);
+            // Label Nomor Loket
+            lbl(`LOKET ${idx + 1}`, lx, 2.1, -3.85, g);
+            // PC All-in-One Staf
+            addMesh(new THREE.BoxGeometry(0.7, 0.45, 0.04), M(0x0f172a), lx, 1.45, -4.6, g);
+            addMesh(new THREE.BoxGeometry(0.64, 0.4, 0.02), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }), lx, 1.45, -4.58, g);
+            // Kursi Staf & Kursi Tamu Pemohon
+            addMesh(new THREE.CylinderGeometry(0.24, 0.24, 0.45, 12), M(0x047857), lx, 0.25, -5.6, g);
+            addMesh(new THREE.CylinderGeometry(0.22, 0.22, 0.45, 12), M(0x1e293b), lx, 0.25, -3.2, g);
+          });
+
+          // Kios Totem Mesin Antrean Elektronik Touchscreen di Dekat Pintu
+          const kiosk = new THREE.Group();
+          kiosk.position.set(2.4, 0, 4.6);
+          g.add(kiosk);
+          addMesh(new THREE.BoxGeometry(0.55, 1.4, 0.4), M(0x0f172a), 0, 0.7, 0, kiosk);
+          addMesh(new THREE.BoxGeometry(0.48, 0.35, 0.02), new THREE.MeshBasicMaterial({ color: 0x10b981 }), 0, 1.25, 0.21, kiosk); // Layar Sentuh
+          lbl("AMBIL TIKET", 2.4, 1.8, 4.6, g);
+
+          // 2 Deret Kursi Tunggu Stainless Steel
+          [-2.4, 2.4].forEach((qx) => {
+            const bench = new THREE.Group();
+            bench.position.set(qx, 0, 0.5);
+            g.add(bench);
+            addMesh(new THREE.BoxGeometry(2.8, 0.06, 0.6), M(0x94a3b8), 0, 0.45, 0, bench);
+            addMesh(new THREE.BoxGeometry(2.8, 0.45, 0.06), M(0x64748b), 0, 0.7, -0.3, bench);
+            [-1.2, 1.2].forEach((lx) => {
+              addMesh(new THREE.CylinderGeometry(0.04, 0.04, 0.45, 8), M(0x334155), lx, 0.225, 0, bench);
+            });
+          });
+
+          // TV Dinding LED Menampilkan Profil Sekolah
+          addMesh(new THREE.BoxGeometry(3.6, 2.0, 0.08), M(0x0f172a), -8.0, 2.8, 0.5, g).rotation.y = Math.PI / 2;
+          addMesh(new THREE.BoxGeometry(3.4, 1.8, 0.02), new THREE.MeshBasicMaterial({ color: 0x059669 }), -7.95, 2.8, 0.5, g).rotation.y = Math.PI / 2;
+          lbl("📺 PROFIL PPDB", -7.9, 2.8, 0.5, g);
+
+          // Dispenser Galon Air Mineral di Sudut
+          const disp = new THREE.Group();
+          disp.position.set(-9.8, 0, 6.0);
+          g.add(disp);
+          addMesh(new THREE.BoxGeometry(0.5, 0.95, 0.5), M(0xffffff), 0, 0.475, 0, disp);
+          addMesh(new THREE.CylinderGeometry(0.2, 0.2, 0.45, 14), new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75 }), 0, 1.18, 0, disp); // Galon Biru
         }
+
+        // Tanaman Hias Sudut Cantik
+        [[-9.8, -6.8], [9.8, -6.8]].forEach((pos) => {
+          const pln = new THREE.Group();
+          pln.position.set(pos[0], 0, pos[1]);
+          g.add(pln);
+          addMesh(new THREE.CylinderGeometry(0.38, 0.3, 0.75, 16), M(0xffffff), 0, 0.375, 0, pln);
+          addMesh(new THREE.CylinderGeometry(0.34, 0.32, 0.05, 12), M(0x3e2723), 0, 0.73, 0, pln);
+          const lf = addMesh(new THREE.SphereGeometry(0.48, 10, 8), M(0x16a34a), 0, 1.1, 0, pln);
+          lf.scale.set(1.15, 0.85, 1.15);
+        });
 
         // Furniture meja & partisi dari data constants RM
         d.F.forEach((f: any) =>
