@@ -328,8 +328,9 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         playerPos.current.z = 4.8;
         targetPos.current = null;
         autoEnterRoomId.current = null;
-        playerPitch.current = 0.78;
+        playerPitch.current = 0.76;
         playerDist.current = 13.5;
+        playerYaw.current = Math.PI;
         if (playerGroupRef.current) {
           playerGroupRef.current.rotation.y = Math.PI;
         }
@@ -1222,12 +1223,21 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
       applyCharacterSkin(charIndex);
 
-      // Event listeners
+      // Event listeners & Mobile Responsive FOV
       const handleResize = () => {
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        camera.aspect = window.innerWidth / window.innerHeight;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        renderer.setSize(w, h);
+        camera.aspect = w / h;
+        if (w < h) {
+          // Mode layar HP Portrait: perluas FOV vertikal agar ruangan & gedung terlihat utuh
+          camera.fov = Math.min(76, 56 * (h / w) * 0.58);
+        } else {
+          camera.fov = 56;
+        }
         camera.updateProjectionMatrix();
       };
+      handleResize();
       window.addEventListener("resize", handleResize);
 
       const handleKeyDown = (e: KeyboardEvent) => {
@@ -1280,7 +1290,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       const jk = document.getElementById("jk");
 
       const handlePointerDown = (e: PointerEvent) => {
-        if (playRef.current && !roomRef.current && e.pointerType === "touch" && e.clientX < window.innerWidth * 0.55 && !joyRef.current) {
+        if (playRef.current && e.pointerType === "touch" && e.clientX < window.innerWidth * 0.55 && !joyRef.current) {
           joyRef.current = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, dy: 0 };
           if (jb) {
             jb.style.left = e.clientX + "px";
@@ -1326,7 +1336,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           if (jb) jb.classList.remove("on");
           return;
         }
-        if (dn && mv < 8 && playRef.current && !roomRef.current) {
+        if (dn && mv < 8 && playRef.current) {
           ray.setFromCamera(
             new THREE.Vector2(
               (e.clientX / window.innerWidth) * 2 - 1,
@@ -1335,7 +1345,14 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
             camera
           );
           if (ray.ray.intersectPlane(pln, hit)) {
-            targetPos.current = { x: hit.x, z: hit.z };
+            if (roomRef.current) {
+              targetPos.current = {
+                x: Math.min(RX + 8.5, Math.max(RX - 8.5, hit.x)),
+                z: Math.min(6.5, Math.max(-6.5, hit.z)),
+              };
+            } else {
+              targetPos.current = { x: hit.x, z: hit.z };
+            }
             autoEnterRoomId.current = null;
           }
         }
@@ -1707,9 +1724,12 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           onNearChangeRef.current?.(nb);
         }
 
-        // Camera follow
-        const d = roomRef.current ? 13.5 : playerDist.current;
-        const pt = roomRef.current ? 0.78 : playerPitch.current;
+        // Camera follow & Mobile Responsive Angle
+        const isPortrait = window.innerHeight > window.innerWidth;
+        const d = roomRef.current
+          ? (isPortrait ? 15.2 : 12.5)
+          : (isPortrait ? playerDist.current * 1.25 : playerDist.current);
+        const pt = Math.min(1.18, Math.max(0.18, playerPitch.current));
         const cp = Math.cos(pt);
         const tv = new THREE.Vector3(
           playerPos.current.x + Math.sin(playerYaw.current) * cp * d,

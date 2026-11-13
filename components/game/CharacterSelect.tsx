@@ -718,12 +718,21 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
     animate();
 
     const onResize = () => {
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
+      const w = canvas.clientWidth || window.innerWidth;
+      const h = canvas.clientHeight || window.innerHeight;
       camera.aspect = w / h;
+      if (w < h) {
+        // Layar smartphone portrait: mundurkan kamera & sesuaikan FOV agar ketiga podium karakter tampak utuh
+        camera.fov = Math.min(74, 48 * (h / w) * 0.58);
+        camera.position.set(0, 2.7, 9.8);
+      } else {
+        camera.fov = 48;
+        camera.position.set(0, 2.5, 7.8);
+      }
       camera.updateProjectionMatrix();
       renderer.setSize(w, h, false);
     };
+    onResize();
     window.addEventListener("resize", onResize);
 
     return () => {
