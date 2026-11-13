@@ -709,6 +709,38 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       starsListRef.current = stars;
 
       // ==========================================
+      // ===== 3D BILLBOARD LABEL HELPER ==========
+      // ==========================================
+      function lbl(t: string, x: number, y: number, z: number, par: THREE.Object3D) {
+        const c = document.createElement("canvas");
+        c.width = 256;
+        c.height = 64;
+        const q = c.getContext("2d");
+        if (q) {
+          q.fillStyle = "rgba(15, 42, 36, 0.88)";
+          if ((q as any).roundRect) (q as any).roundRect(8, 8, 240, 48, 12);
+          else q.fillRect(8, 8, 240, 48);
+          q.fill();
+          q.fillStyle = "#ffffff";
+          q.font = '700 24px "Baloo 2", sans-serif';
+          q.textAlign = "center";
+          q.textBaseline = "middle";
+          q.fillText(t, 128, 32);
+        }
+        const s = new THREE.Sprite(
+          new THREE.SpriteMaterial({
+            map: new THREE.CanvasTexture(c),
+            depthTest: false,
+          })
+        );
+        s.scale.set(2.4, 0.6, 1);
+        s.position.set(x, y, z);
+        s.renderOrder = 8;
+        par.add(s);
+        return s;
+      }
+
+      // ==========================================
       // ===== PLAYER 3D CHARACTER (LENGKAP) ======
       // ==========================================
       const pl = new THREE.Group();
@@ -759,6 +791,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
       // 1. Naufal (Boy Hair)
       const boyG = new THREE.Group();
+      boyG.userData.isBoy = 1;
       head.add(boyG);
       addMesh(new THREE.SphereGeometry(0.53, 20, 10, 0, 6.283, 0, 1.2), PM.h, 0, 0.02, 0, boyG);
       for (let i = 0; i < 7; i++) {
@@ -770,6 +803,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
       // 2. Rani (Girl Ponytail & Pleated Skirt)
       const raniG = new THREE.Group();
+      raniG.userData.isRani = 1;
       head.add(raniG);
       addMesh(new THREE.SphereGeometry(0.54, 22, 12, 0, 6.283, 0, 1.35), PM.h, 0, 0.02, 0, raniG);
       addMesh(new THREE.CylinderGeometry(0.48, 0.44, 0.6, 16), PM.h, 0, -0.12, -0.16, raniG);
@@ -783,6 +817,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
       // 3. Sari (Hijab & Maxi Skirt)
       const sariG = new THREE.Group();
+      sariG.userData.isSari = 1;
       head.add(sariG);
       addMesh(new THREE.SphereGeometry(0.56, 24, 20), PM.white, 0, 0.02, 0, sariG);
       const sDrape = addMesh(new THREE.ConeGeometry(0.62, 0.68, 20, 1, true), PM.white, 0, -0.36, 0, sariG);
@@ -837,31 +872,50 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       ns.renderOrder = 9;
       pl.add(ns);
 
-      // Student NPCs (Orang-orang / Siswa-siswi lain yang berjalan di sekolah)
+      // Student NPCs (Siswa Cowok dan Siswi Cewek Beragam yang Berjalan di Halaman Kampus)
       const npcsConfig = [
-        [0x2b1b12, 0xb03a48, 0xd9a577, 14, 0.18, 1],
-        [0xc58b3a, 0x3b7d5a, 0xe8b98f, 12, 0.22, -1],
-        [0x1a1a1a, 0x7a4bb0, 0xf2c9a0, 28, 0.06, 1],
-        [0x8a3b1f, 0xe08a2c, 0xd9a577, 26, 0.05, -1],
-        [0x30200f, 0x2a8aa8, 0xe8b98f, 16, 0.15, 1],
+        // [name, gender(0=cowok, 1=cewek, 2=cewek hijab), hairColor, jacketColor, skinColor, radius, speed, dir]
+        ["👦 Budi", 0, 0x1f1f1f, 0x245585, 0xd9a577, 14, 0.18, 1],   // Siswa Cowok - Celana Panjang, Blazer Biru
+        ["👧 Maya", 1, 0x3d2314, 0xaf3444, 0xf2c9a0, 12, 0.22, -1],  // Siswi Cewek - Rok Lipit, Blazer Merah
+        ["👦 Dimas", 0, 0x362214, 0x2b7a54, 0xe8b98f, 26, 0.14, 1],  // Siswa Cowok - Celana Panjang, Blazer Hijau
+        ["🧕 Aisyah", 2, 0x1a1a1a, 0xd98a2b, 0xf5cfb0, 22, 0.12, -1], // Siswi Cewek Hijab - Rok Panjang, Blazer Kuning
+        ["👦 Rizky", 0, 0x101010, 0x227685, 0xd9a577, 17, 0.16, 1],  // Siswa Cowok - Celana Panjang, Blazer Toska
+        ["👧 Citra", 1, 0x4a2a18, 0x7b3ba8, 0xe8b98f, 28, 0.08, -1],  // Siswi Cewek - Rok Lipit, Blazer Ungu
       ];
+
       const npcs = npcsConfig.map((c, i) => {
+        const [nName, nGender, nHair, nJacket, nSkin, nRad, nSpd, nDir] = c as any;
         const g = pl.clone(true);
+        // Hapus nametag sprite bawaan player
         g.children.filter((o: any) => o.isSprite).forEach((o) => g.remove(o));
+
+        // Buat material independen per NPC
+        const npcH = M(nHair);
+        const npcJ = M(nJacket);
+        const npcK = M(nSkin);
+
         g.traverse((o: any) => {
           if (o.isMesh && !o.userData.ol) {
             const m = o.material;
-            if (m === PM.h) o.material = M(c[0]);
-            else if (m === PM.j) o.material = M(c[1]);
-            else if (m === PM.k) o.material = M(c[2]);
+            if (m === PM.h) o.material = npcH;
+            else if (m === PM.j) o.material = npcJ;
+            else if (m === PM.k) o.material = npcK;
           }
+          // Set gender model NPC: Cowok vs Cewek vs Cewek Hijab!
+          if (o.userData.isBoy) o.visible = (nGender === 0);
+          if (o.userData.isRani) o.visible = (nGender === 1);
+          if (o.userData.isSari) o.visible = (nGender === 2);
         });
+
+        // Pasang 3D nametag billboard di atas kepala NPC
+        lbl(nName, 0, 2.9, 0, g);
+
         scene.add(g);
         return {
           g,
-          r: c[3],
-          w: (c[4] as number) * (c[5] as number),
-          a: i * 1.7,
+          r: nRad,
+          w: (nSpd as number) * (nDir as number),
+          a: i * 1.05,
           lg: g.children.filter((o) => o.userData.leg),
           ar: g.children.filter((o) => o.userData.arm),
         };
@@ -886,34 +940,6 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       // ========================================================
       // ===== RUANGAN DALAM / INTERIOR SETIAP GEDUNG (LENGKAP) =
       // ========================================================
-      function lbl(t: string, x: number, y: number, z: number, par: THREE.Object3D) {
-        const c = document.createElement("canvas");
-        c.width = 256;
-        c.height = 64;
-        const q = c.getContext("2d");
-        if (q) {
-          q.fillStyle = "rgba(15, 42, 36, 0.88)";
-          if ((q as any).roundRect) (q as any).roundRect(8, 8, 240, 48, 12);
-          else q.fillRect(8, 8, 240, 48);
-          q.fill();
-          q.fillStyle = "#ffffff";
-          q.font = '700 24px "Baloo 2", sans-serif';
-          q.textAlign = "center";
-          q.textBaseline = "middle";
-          q.fillText(t, 128, 32);
-        }
-        const s = new THREE.Sprite(
-          new THREE.SpriteMaterial({
-            map: new THREE.CanvasTexture(c),
-            depthTest: false,
-          })
-        );
-        s.scale.set(2.4, 0.6, 1);
-        s.position.set(x, y, z);
-        s.renderOrder = 8;
-        par.add(s);
-        return s;
-      }
 
       // Checkered floor tile texture
       const tc = document.createElement("canvas");
