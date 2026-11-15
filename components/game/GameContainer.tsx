@@ -12,7 +12,7 @@ import { ARModal } from "./ARModal";
 import { loadSaveState, writeSaveState } from "@/lib/storage";
 import { BUILDINGS, CRY, FACTS, GUIDE } from "@/lib/constants";
 import { PPDBFormData, SaveState } from "@/lib/types";
-import { initAudio, toggleBGM } from "@/lib/audio";
+import { initAudio, toggleBGM, startBGM, setWeatherAudio, sfx } from "@/lib/audio";
 
 export const GameContainer: React.FC = () => {
   const worldRef = useRef<SchoolWorldHandle>(null);
@@ -80,6 +80,10 @@ export const GameContainer: React.FC = () => {
 
   const handleStart = () => {
     initAudio();
+    startBGM((isActive) => {
+      setSoundActive(isActive);
+    });
+    setSoundActive(true);
     setPlay(true);
     showToast(
       !saveState.gate
@@ -107,13 +111,16 @@ export const GameContainer: React.FC = () => {
       setSoundActive(isActive);
     });
     setSoundActive(active);
-    showToast(active ? "Suara & Musik Aktif 🔊" : "Suara Dimatikan 🔇");
+    showToast(active ? "Musik & Suara Aktif 🔊" : "Suara Dimatikan 🔇");
   };
 
   const handleToggleNight = () => {
     if (worldRef.current) {
       const state = worldRef.current.toggleNight();
       setIsNight(state);
+      setWeatherAudio({ isNight: state });
+      sfx("weather");
+      showToast(state ? "🌙 Suasana Malam Kampus" : "☀️ Suasana Siang Kampus");
     }
   };
 
@@ -121,6 +128,9 @@ export const GameContainer: React.FC = () => {
     if (worldRef.current) {
       const state = worldRef.current.toggleRain();
       setIsRaining(state);
+      setWeatherAudio({ isRaining: state });
+      sfx("weather");
+      showToast(state ? "🌧️ Hujan Gerimis Aktif" : "☀️ Cuaca Cerah");
     }
   };
 

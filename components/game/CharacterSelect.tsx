@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { CHARS } from "@/lib/constants";
-import { sfx } from "@/lib/audio";
+import { sfx, initAudio } from "@/lib/audio";
 
 interface CharacterSelectProps {
   selectedIndex: number;
@@ -548,6 +548,7 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
   }, []);
 
   const handleSelect = (i: number) => {
+    initAudio();
     sfx("click");
     setSelIdx(i);
     selIdxRef.current = i;
