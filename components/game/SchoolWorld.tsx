@@ -24,7 +24,7 @@ interface SchoolWorldProps {
   saveState: SaveState;
   onSaveStateChange: (updater: (prev: SaveState) => SaveState) => void;
   onNearChange: (near: { id: string; n: string; i: string; v: string } | null) => void;
-  onPlayerMove: (pos: { x: number; z: number; yaw: number }) => void;
+  onPlayerMove: (pos: { x: number; z: number; yaw: number; rotY: number }) => void;
   onRoomChange: (roomId: string | null) => void;
   onToast: (msg: string) => void;
   onOpenModal: (modalId: string, tabIndex?: number) => void;
@@ -245,7 +245,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           // Gerbang Utama
           playerYaw.current = 0;
           if (playerGroupRef.current) {
-            playerGroupRef.current.rotation.y = 0;
+            playerGroupRef.current.rotation.y = Math.PI;
           }
           sfx("gate");
           onToastRef.current?.("🚪 Tiba di Gerbang Utama SMA Cahaya Nusantara");
@@ -340,7 +340,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         playerDist.current = 7.5;
         playerYaw.current = 0;
         if (playerGroupRef.current) {
-          playerGroupRef.current.rotation.y = 0;
+          playerGroupRef.current.rotation.y = Math.PI;
         }
 
         if (roomsMapRef.current[id]) {
@@ -1088,6 +1088,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       const pl = new THREE.Group();
       scene.add(pl);
       pl.scale.setScalar(0.9);
+      pl.rotation.y = Math.PI; // Face north (towards the entrance gate & school grounds)
       playerGroupRef.current = pl;
 
       const PM = {
@@ -2144,6 +2145,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         if (joyRef.current && e.pointerId === joyRef.current.id) {
           joyRef.current = null;
           if (jb) jb.classList.remove("on");
+          if (jk) jk.style.transform = "";
           return;
         }
         if (dn && mv < 8 && playRef.current) {
@@ -2172,6 +2174,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       const handlePointerCancel = () => {
         joyRef.current = null;
         if (jb) jb.classList.remove("on");
+        if (jk) jk.style.transform = "";
         dn = null;
       };
 
@@ -2667,10 +2670,12 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         const lookTargetY = roomRef.current ? 1.25 : 1.3;
         camera.lookAt(playerPos.current.x, lookTargetY, playerPos.current.z);
 
+        const plObj = playerGroupRef.current;
         onPlayerMoveRef.current?.({
           x: playerPos.current.x,
           z: playerPos.current.z,
           yaw: playerYaw.current,
+          rotY: plObj ? plObj.rotation.y : Math.PI,
         });
 
         renderer.render(scene, camera);

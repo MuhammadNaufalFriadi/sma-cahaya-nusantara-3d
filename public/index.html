@@ -1268,7 +1268,7 @@ flagMesh.position.set(.95,5.6,-17);sc.add(flagMesh);
 CRY.forEach((c,i)=>{const m=add(new THREE.OctahedronGeometry(.5),new THREE.MeshBasicMaterial({color:0xffd23f}),c[0],1.4,c[1]);m.visible=!S.f[i];crys.push(m)});
 
 // Karakter Utama & Bahan/Material
-pl=new THREE.Group();sc.add(pl);
+pl=new THREE.Group();sc.add(pl);pl.rotation.y=Math.PI;
 PM={
   h:M(0),j:M(0),k:M(0),pa:M(0x5a6575),sh:M(0xf8f8f8),rd:M(0xd62d2d),
   skirt:M(0x5a6575),white:M(0xffffff),gold:M(0xffd700),ribbon:M(0xb03a48),

@@ -17,7 +17,7 @@ interface GameHUDProps {
   isRaining: boolean;
   toastMessage: string | null;
   nearObject: { id: string; n: string; i: string; v: string } | null;
-  playerPos: { x: number; z: number; yaw: number };
+  playerPos: { x: number; z: number; yaw: number; rotY?: number };
   stars: Array<{ x: number; z: number; visible: boolean }>;
   onOpenProfile: () => void;
   onOpenAR: () => void;
@@ -147,10 +147,11 @@ export const GameHUD: React.FC<GameHUDProps> = ({
       }
     });
 
-    // Player arrow
+    // Player arrow (follows character facing and analog movement direction)
     const q = W(playerPos.x, playerPos.z);
     mc.translate(q[0], q[1]);
-    mc.rotate(Math.PI);
+    const arrowAngle = Math.PI - ((playerPos.rotY ?? Math.PI) - playerPos.yaw);
+    mc.rotate(arrowAngle);
     mc.fillStyle = "#fff";
     mc.strokeStyle = "#1a1210";
     mc.lineWidth = 3;

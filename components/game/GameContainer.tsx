@@ -36,7 +36,7 @@ export const GameContainer: React.FC = () => {
     i: string;
     v: string;
   } | null>(null);
-  const [playerPos, setPlayerPos] = useState({ x: 0, z: 36, yaw: 0 });
+  const [playerPos, setPlayerPos] = useState({ x: 0, z: 36, yaw: 0, rotY: Math.PI });
 
   // Modals state
   const [activeModalId, setActiveModalId] = useState<string | null>(null);
