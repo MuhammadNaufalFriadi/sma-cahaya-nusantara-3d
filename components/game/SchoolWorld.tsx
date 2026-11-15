@@ -195,7 +195,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           ...prev,
           night: isNightRef.current ? 1 : 0,
         }));
-        onToastRef.current?.(isNightRef.current ? "🌙 Suasana Malam Kampus" : "☀️ Cuaca Siang Cerah");
+        onToastRef.current?.(isNightRef.current ? "🌙 Suasana Malam SMA" : "☀️ Cuaca Siang Cerah");
         return isNightRef.current;
       },
       toggleRain: () => {
@@ -407,7 +407,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           }
         }
 
-        onToastRef.current?.("Kembali ke halaman kampus.");
+        onToastRef.current?.("Kembali ke halaman SMA.");
       }, 420);
     };
 
@@ -651,7 +651,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       lampsRef.current = lamps;
 
       // ========================================================
-      // ===== GEDUNG-GEDUNG KAMPUS 3D ARSITEKTUR REALISTIK =====
+      // ===== GEDUNG-GEDUNG SEKOLAH 3D ARSITEKTUR REALISTIK =====
       // ========================================================
       const winGlassM = new THREE.MeshLambertMaterial({
         color: 0x93c5fd,
@@ -1351,7 +1351,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       ns.renderOrder = 9;
       pl.add(ns);
 
-      // Student NPCs (Siswa Cowok dan Siswi Cewek Beragam yang Berjalan di Halaman Kampus)
+      // Student NPCs (Siswa Cowok dan Siswi Cewek Beragam yang Berjalan di Halaman Sekolah)
       const npcsConfig = [
         // [name, gender(0=cowok, 1=cewek, 2=cewek hijab), hairColor, jacketColor, skinColor, radius, speed, dir]
         ["👦 Budi", 0, 0x1f1f1f, 0x245585, 0xd9a577, 14, 0.18, 1],   // Siswa Cowok - Celana Panjang, Blazer Biru
@@ -1577,7 +1577,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       const TAB_NAMES: Record<string, string[]> = {
         profil: ["Tentang Sekolah", "Visi & Misi", "Sejarah Sekolah"],
         akademik: ["① Peminatan MIPA/IPS", "② Lab Kurikulum Merdeka", "③ Hall of Fame Prestasi"],
-        ekskul: ["Klub Ekskul & Minat", "Fasilitas Kampus", "Agenda Tahunan"],
+        ekskul: ["Klub Ekskul & Minat", "Fasilitas SMA", "Agenda Tahunan"],
         ppdb: ["Jadwal & Kuota", "Formulir Pendaftaran", "Kontak & Alur PPDB"],
       };
 

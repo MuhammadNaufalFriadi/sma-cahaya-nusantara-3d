@@ -29,7 +29,7 @@ export const PPDBModal: React.FC<PPDBModalProps> = ({
     nilai: "",
     jur1: "Peminatan IPA (Sains Terapan & Kedokteran)",
     jur2: "Peminatan IPS (Bisnis, Hukum & Sosial Humaniora)",
-    jalur: "Jalur Zonasi (Radius Domisili Terdekat ke Kampus)",
+    jalur: "Jalur Zonasi (Radius Domisili Terdekat ke Sekolah)",
     ortu: "",
     wa: "",
     alamat: "",
@@ -158,7 +158,7 @@ Mohon informasi verifikasi berkas dan jadwal tes wawancara selanjutnya. Terima k
       nilai: "",
       jur1: "Peminatan IPA (Sains Terapan & Kedokteran)",
       jur2: "Peminatan IPS (Bisnis, Hukum & Sosial Humaniora)",
-      jalur: "Jalur Zonasi (Radius Domisili Terdekat ke Kampus)",
+      jalur: "Jalur Zonasi (Radius Domisili Terdekat ke Sekolah)",
       ortu: "",
       wa: "",
       alamat: "",
@@ -437,8 +437,8 @@ Mohon informasi verifikasi berkas dan jadwal tes wawancara selanjutnya. Terima k
                       value={form.jalur}
                       onChange={(e) => updateField("jalur", e.target.value)}
                     >
-                      <option value="Jalur Zonasi (Radius Domisili Terdekat ke Kampus)">
-                        Jalur Zonasi (Radius Domisili Terdekat ke Kampus)
+                      <option value="Jalur Zonasi (Radius Domisili Terdekat ke Sekolah)">
+                        Jalur Zonasi (Radius Domisili Terdekat ke Sekolah)
                       </option>
                       <option value="Jalur Prestasi Akademik (Nilai Rapor & Juara OSN/Lomba Sains)">
                         Jalur Prestasi Akademik (Nilai Rapor & Juara OSN/Lomba Sains)
@@ -569,7 +569,7 @@ Mohon informasi verifikasi berkas dan jadwal tes wawancara selanjutnya. Terima k
 
               <ul className="l">
                 <li>
-                  <b>Meja Layanan Fisik:</b> Ruang Front Office Kantor PPDB (Lantai 1), Sayap Tenggara Kampus SMA Cahaya Nusantara.
+                  <b>Meja Layanan Fisik:</b> Ruang Front Office Kantor PPDB (Lantai 1), Sayap Tenggara SMA Cahaya Nusantara.
                 </li>
                 <li>
                   <b>Hotline WhatsApp Panitia:</b> +62 812-3456-7890 (Ibu Anisa, S.Pd. - Sekretariat PPDB)

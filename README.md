@@ -1,13 +1,13 @@
 # Dunia SMA Cahaya Nusantara - Website Sekolah 3D Interaktif
 
-Website sekolah 3D interaktif berbasis WebGL / Three.js yang memungkinkan calon siswa dan pengunjung menjelajahi lingkungan kampus virtual, memasuki gedung-gedung sekolah, berinteraksi dengan karakter, mengumpulkan bintang fakta, dan mengakses informasi lengkap sekolah (Profil, Jurusan, Ekstrakurikuler, serta Pendaftaran Siswa Baru / PPDB).
+Website sekolah 3D interaktif berbasis WebGL / Three.js yang memungkinkan calon siswa dan pengunjung menjelajahi lingkungan SMA virtual, memasuki gedung-gedung sekolah, berinteraksi dengan karakter, mengumpulkan bintang fakta, dan mengakses informasi lengkap sekolah (Profil, Jurusan, Ekstrakurikuler, serta Pendaftaran Siswa Baru / PPDB).
 
 ---
 
 ## 🌟 Fitur Utama
 
-1. **Gerbang Utama & Halaman Kampus 3D Super Luas**
-   - **Halaman Sekolah Luas & Lapang**: Area pulau kampus diperluas hampir 2x lipat (radius 48-53m) dengan lapangan upacara dan olahraga serbaguna (basket/futsal lengkap dengan ring & garis lapangan) di bagian tengah.
+1. **Gerbang Utama & Halaman SMA 3D Super Luas**
+   - **Halaman Sekolah Luas & Lapang**: Area pulau SMA diperluas hampir 2x lipat (radius 48-53m) dengan lapangan upacara dan olahraga serbaguna (basket/futsal lengkap dengan ring & garis lapangan) di bagian tengah.
    - **Gerbang Sekolah Megah (Main Gate) dengan Fitur Tutup & Buka**:
      - Terinspirasi dari gambar referensi nyata dengan pilar terracotta kokoh, kanopi pelindung, plang nama "SMA CAHAYA NUSANTARA", dua daun pintu besi biru (bukaan 7.4m), pos satpam, NPC Pak Budi (petugas keamanan), serta pagar tembok keliling sekolah (*perimeter wall*).
      - **Fitur Interaktif Buka/Tutup Gerbang (3D & AR)**:
@@ -41,10 +41,10 @@ Website sekolah 3D interaktif berbasis WebGL / Three.js yang memungkinkan calon 
    - NPC siswa lain yang berpatroli dan menyapa saat didekati.
 
 3. **Interaktivitas & Gamifikasi**
-   - Bintang fakta rahasia sekolah (7 bintang) tersebar di seluruh kampus yang dapat dikumpulkan.
+   - Bintang fakta rahasia sekolah (7 bintang) tersebar di seluruh SMA yang dapat dikumpulkan.
    - Petunjuk arah dan suar cahaya kuning (*waypoint beacon*) menuju gedung misi berikutnya.
    - Minimap radar sudut pandang di pojok kanan atas dengan rotasi dinamis.
-   - Progress bar persentase pengenalan kampus.
+   - Progress bar persentase pengenalan SMA.
    - Penyimpanan progres otomatis di `localStorage`.
 
 4. **Sistem Cuaca & Waktu**
@@ -118,7 +118,7 @@ tugas_uts_ar/
 │   └── game/
 │       ├── AcademicModal.tsx    # Tur terpandu 3-zona Gedung Akademik (Kuis, Simulator Mapel, Prestasi)
 │       ├── ARModal.tsx          # Fitur Augmented Reality kamera dengan 4 model 3D & snapshot
-│       ├── BuildingModal.tsx    # Modal responsif gedung kampus, profil, ekskul & satpam
+│       ├── BuildingModal.tsx    # Modal responsif gedung SMA, profil, ekskul & satpam
 │       ├── CharacterSelect.tsx  # Layar pemilihan karakter (Naufal, Rani, Sari)
 │       ├── GameContainer.tsx    # Main orchestrator yang mengoordinasikan HUD, 3D, dan modal
 │       ├── GameHUD.tsx          # Bilah navigasi atas, minimap radar, progress bar & tombol aksi

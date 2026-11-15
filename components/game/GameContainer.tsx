@@ -53,7 +53,7 @@ export const GameContainer: React.FC = () => {
     nilai: "",
     jur1: "Peminatan IPA (Sains Terapan & Kedokteran)",
     jur2: "Peminatan IPS (Bisnis, Hukum & Sosial Humaniora)",
-    jalur: "Jalur Zonasi (Radius Domisili Terdekat ke Kampus)",
+    jalur: "Jalur Zonasi (Radius Domisili Terdekat ke Sekolah)",
     ortu: "",
     wa: "",
     alamat: "",
@@ -120,7 +120,7 @@ export const GameContainer: React.FC = () => {
       setIsNight(state);
       setWeatherAudio({ isNight: state });
       sfx("weather");
-      showToast(state ? "🌙 Suasana Malam Kampus" : "☀️ Suasana Siang Kampus");
+      showToast(state ? "🌙 Suasana Malam SMA" : "☀️ Suasana Siang SMA");
     }
   };
 
@@ -301,7 +301,7 @@ export const GameContainer: React.FC = () => {
             },
             {
               t: "Sejarah Sekolah",
-              h: `<ul class="tl"><li><b>1998</b>Didirikan oleh Yayasan Cahaya Bangsa dengan 3 ruang kelas awal dan 90 peserta didik pertama.</li><li><b>2008</b>Berhasil meraih predikat Akreditasi A (Unggul) untuk pertama kalinya.</li><li><b>2016</b>Peresmian gedung laboratorium terpadu, perpustakaan digital e-library, dan aula serbaguna.</li><li><b>2023</b>Implementasi penuh Kurikulum Merdeka dan peresmian laboratorium robotika & kecerdasan buatan.</li><li><b>Hari Ini</b>Kampus hijau terakreditasi Adiwiyata Mandiri dengan 36 rombongan belajar lengkap.</li></ul>`,
+              h: `<ul class="tl"><li><b>1998</b>Didirikan oleh Yayasan Cahaya Bangsa dengan 3 ruang kelas awal dan 90 peserta didik pertama.</li><li><b>2008</b>Berhasil meraih predikat Akreditasi A (Unggul) untuk pertama kalinya.</li><li><b>2016</b>Peresmian gedung laboratorium terpadu, perpustakaan digital e-library, dan aula serbaguna.</li><li><b>2023</b>Implementasi penuh Kurikulum Merdeka dan peresmian laboratorium robotika & kecerdasan buatan.</li><li><b>Hari Ini</b>SMA hijau terakreditasi Adiwiyata Mandiri dengan 36 rombongan belajar lengkap.</li></ul>`,
             },
           ]}
           onClose={handleCloseModal}
@@ -318,12 +318,12 @@ export const GameContainer: React.FC = () => {
               h: `<p>Tersedia lebih dari 15 klub minat bakat untuk mengasah kepemimpinan dan kreativitas:</p><div class="g"><div><b>Klub Robotika & AI</b><span>Rabu, 15.30 · Lab Komputer</span></div><div><b>Basket & Futsal</b><span>Selasa & Kamis, 16.00 · Lapangan Utama</span></div><div><b>Paduan Suara & Orkestra</b><span>Jumat, 14.30 · Aula Seni</span></div><div><b>Pramuka Penegak</b><span>Sabtu, 07.30 · Halaman Utama</span></div><div><b>Klub Debat Bahasa Inggris</b><span>Senin, 15.30 · Ruang Audiovisual</span></div><div><b>Palang Merah Remaja (PMR)</b><span>Kamis, 15.00 · Ruang UKS Terpadu</span></div></div>`,
             },
             {
-              t: "Fasilitas Kampus",
+              t: "Fasilitas SMA",
               h: `<ul class="l"><li>36 ruang kelas modern ber-AC dengan Interactive Smart Board & Proyektor 4K.</li><li>3 Laboratorium Sains canggih (Fisika, Kimia, Biologi) berstandar keselamatan nasional.</li><li>Laboratorium Komputer Multimedia & Studio Coding dengan koneksi internet Gigabit Fiber.</li><li>Perpustakaan modern dua lantai dengan 12.000+ buku fisik dan akses ke ribuan jurnal internasional.</li><li>Aula Serbaguna berkapasitas 600 kursi, Masjid Sekolah, Kantin Sehat Higienis, dan UKS dengan dokter jaga.</li><li>Lapangan olahraga multifungsi berstandar untuk Basket, Futsal, Voli, dan Bulu Tangkis.</li></ul>`,
             },
             {
               t: "Agenda Tahunan",
-              h: `<ul class="tl"><li><b>Bulan Agustus</b>Peringatan HUT Kemerdekaan RI, karnaval budaya nusantara, dan pekan olahraga antarkelas (Class Meeting).</li><li><b>Bulan Oktober</b>Pekan Bahasa, Gelar Seni Budaya (*Art Fair*), dan Pameran Projek Kreatif P5.</li><li><b>Bulan Desember</b>Bazar Kewirausahaan Siswa, Pembagian Rapor Semester Ganjil, dan Seminar Karier Kampus.</li><li><b>Bulan Mei</b>Wisuda Pelepasan Siswa Kelas XII dan Gebyar Pameran Inovasi Siswa Terbuka.</li></ul>`,
+              h: `<ul class="tl"><li><b>Bulan Agustus</b>Peringatan HUT Kemerdekaan RI, karnaval budaya nusantara, dan pekan olahraga antarkelas (Class Meeting).</li><li><b>Bulan Oktober</b>Pekan Bahasa, Gelar Seni Budaya (*Art Fair*), dan Pameran Projek Kreatif P5.</li><li><b>Bulan Desember</b>Bazar Kewirausahaan Siswa, Pembagian Rapor Semester Ganjil, dan Seminar Karier & Pendidikan Tinggi.</li><li><b>Bulan Mei</b>Wisuda Pelepasan Siswa Kelas XII dan Gebyar Pameran Inovasi Siswa Terbuka.</li></ul>`,
             },
           ]}
           onClose={handleCloseModal}
@@ -347,9 +347,9 @@ export const GameContainer: React.FC = () => {
                 <li><b>Gedung Akademik</b>: Di sayap barat (sebelah kiri), tempat peminatan jurusan IPA, IPS, Bahasa, dan riset sains.</li>
                 <li><b>Aula & Ekskul</b>: Di sayap timur (sebelah kanan), aula olahraga megah berkapasitas 600 kursi & pentas seni.</li>
                 <li><b>Kantor PPDB</b>: Di sebelah kanan jalan masuk dari gerbang untuk pendaftaran siswa baru.</li>
-                <li><b>Bintang Rahasia</b>: Ada 7 bintang fakta menarik yang tersebar di halaman kampus. Temukan semuanya!</li>
+                <li><b>Bintang Rahasia</b>: Ada 7 bintang fakta menarik yang tersebar di halaman SMA. Temukan semuanya!</li>
               </ul>
-              <p style="color:var(--y);font-weight:700;">Selamat menjelajah kampus dengan leluasa!</p>`,
+              <p style="color:var(--y);font-weight:700;">Selamat menjelajah SMA Cahaya Nusantara dengan leluasa!</p>`,
             },
           ]}
           onClose={handleCloseModal}
@@ -368,7 +368,7 @@ export const GameContainer: React.FC = () => {
       {activeModalId === "mission" && (
         <BuildingModal
           isOpen={true}
-          title="📋 Daftar Misi Kampus"
+          title="📋 Daftar Misi SMA"
           tabs={[
             {
               t: "Misi",
@@ -380,11 +380,11 @@ export const GameContainer: React.FC = () => {
                   <li><b>${saveState.v["ekskul"] ? "✅ Selesai" : "⬜ Belum Dikunjungi"} · Aula & Ekstrakurikuler</b> 15+ kegiatan ekskul & fasilitas sekolah.</li>
                   <li><b>${saveState.v["ppdb"] ? "✅ Selesai" : "⬜ Belum Dikunjungi"} · Kantor PPDB</b> Jadwal, pendaftaran WhatsApp, & kontak resmi.</li>
                 </ul>
-                <h3>⭐ Bintang Fakta Kampus (${Object.keys(saveState.f).length}/7 Ditemukan)</h3>
+                <h3>⭐ Bintang Fakta SMA (${Object.keys(saveState.f).length}/7 Ditemukan)</h3>
                 <div class="g">
                   ${FACTS.map(
                     (f, i) =>
-                      `<div><b>${saveState.f[i] ? "⭐ Fakta " + (i + 1) : "🔒 Belum Ditemukan #" + (i + 1)}</b><span>${saveState.f[i] ? f : "Jelajahi halaman sekolah untuk menemukan bintang emas ini."}</span></div>`
+                      `<div><b>${saveState.f[i] ? "⭐ Fakta " + (i + 1) : "🔒 Belum Ditemukan #" + (i + 1)}</b><span>${saveState.f[i] ? f : "Jelajahi halaman SMA untuk menemukan bintang emas ini."}</span></div>`
                   ).join("")}
                 </div>`,
             },

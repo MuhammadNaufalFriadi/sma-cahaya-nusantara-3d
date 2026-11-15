@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Dunia SMA Cahaya Nusantara - 3D & Augmented Reality</title>
-<meta name="description" content="Website sekolah 3D interaktif & Augmented Reality (AR): masuki gerbang sekolah, jelajahi halaman kampus yang luas, masuk gedung, lihat profil, jurusan, ekskul, dan fitur AR kamera.">
+<meta name="description" content="Website sekolah 3D interaktif & Augmented Reality (AR): masuki gerbang sekolah, jelajahi halaman sekolah yang luas, masuk gedung, lihat profil, jurusan, ekskul, dan fitur AR kamera.">
 <meta name="theme-color" content="#0f2a24">
 <meta property="og:title" content="Dunia SMA Cahaya Nusantara - 3D & Augmented Reality">
 <meta property="og:description" content="Tur virtual 3D interaktif dan Augmented Reality lingkungan SMA Cahaya Nusantara menggunakan Three.js.">
@@ -150,7 +150,7 @@ input,select,textarea{width:100%;padding:10px 12px;border-radius:8px;border:2px 
 <div id="pr" class="hud"></div><div id="ms" class="hud" title="Klik untuk lihat rincian misi"></div><button id="jp" class="hud" aria-label="Lompat">Lompat</button><canvas id="mm" class="hud" width="208" height="208"></canvas><div id="jb"><div id="jk"></div></div>
 <button id="go"></button>
 <div id="ts" role="status"></div><div id="fd"></div><button class="chip b" id="ex">← Keluar</button>
-<div id="sel"><div id="sh"><span class="bd">Website sekolah interaktif & Augmented Reality</span><h1>SMA Cahaya Nusantara</h1><div id="sb">👋 Halo! Aku <b id="sn">Naufal</b>. Halaman sekolah kini dibuat <b>sangat luas & tertata rapi</b>! Masuklah melewati gerbang dan jelajahi seluruh kampus bersama.</div></div><div class="cd">
+<div id="sel"><div id="sh"><span class="bd">Website sekolah interaktif & Augmented Reality</span><h1>SMA Cahaya Nusantara</h1><div id="sb">👋 Halo! Aku <b id="sn">Naufal</b>. Halaman SMA kini dibuat <b>sangat luas & tertata rapi</b>! Masuklah melewati gerbang dan jelajahi seluruh SMA bersama.</div></div><div class="cd">
 <ol class="sp"><li>Pilih karakter</li><li>Masuk melewati gerbang utama</li><li>Kunjungi gedung & kumpulkan fakta</li></ol>
 <div class="ch" id="ch"></div>
 <button class="big" id="st">Mulai jelajah</button><button class="lk" id="q30">Buru-buru? Lihat profil sekolah dalam 30 detik →</button></div></div>
@@ -323,7 +323,7 @@ function toggleBGM(){
 $('#bs').onclick=toggleBGM;
 
 // ========================================================
-// ===== MASTERPLAN KAMPUS BARU: TERTATA, LUAS & INDAH =====
+// ===== MASTERPLAN SEKOLAH BARU: TERTATA, LUAS & INDAH =====
 // ========================================================
 const B=[
 {id:'profil',n:'Gedung Utama',i:'🏫',x:0,z:-26,c:0xd9534f},
@@ -347,7 +347,7 @@ T('Sambutan',`<div style="display:flex;align-items:center;gap:16px;margin-bottom
 <li><b>Gedung Akademik</b>: Di sayap barat (sebelah kiri), tempat peminatan jurusan IPA, IPS, Bahasa, dan riset sains.</li>
 <li><b>Aula & Ekskul</b>: Di sayap timur (sebelah kanan), aula olahraga megah berkapasitas 600 kursi & pentas seni.</li>
 <li><b>Kantor PPDB</b>: Di sebelah kanan jalan masuk dari gerbang untuk pendaftaran siswa baru.</li>
-<li><b>Bintang Rahasia</b>: Ada 7 bintang fakta menarik yang tersebar di halaman kampus. Temukan semuanya!</li>
+<li><b>Bintang Rahasia</b>: Ada 7 bintang fakta menarik yang tersebar di halaman SMA. Temukan semuanya!</li>
 </ul>
 <div style="margin:14px 0 10px;padding:12px;background:rgba(15,23,42,.6);border:1px solid var(--line);border-radius:12px;">
   <b style="color:var(--y);font-size:14px;display:block;margin-bottom:4px;">🚪 Akses Buka/Tutup Gerbang Utama:</b>
@@ -356,11 +356,11 @@ T('Sambutan',`<div style="display:flex;align-items:center;gap:16px;margin-bottom
     🚪 Buka / Tutup Gerbang Sekolah
   </button>
 </div>
-<p style="color:var(--y);font-weight:700;">Selamat menjelajah kampus dengan leluasa!</p>`)]},
+<p style="color:var(--y);font-weight:700;">Selamat menjelajah SMA Cahaya Nusantara dengan leluasa!</p>`)]},
 profil:{n:'Gedung Utama',i:'🏫',tabs:[
 T('Tentang',`<p>SMA Cahaya Nusantara adalah sekolah menengah atas unggulan yang menumbuhkan siswa berprestasi, berkarakter kuat, dan siap menghadapi jenjang perguruan tinggi maupun dunia kerja global.</p><div class="g"><div><b>1.200</b><span>Siswa Aktif</span></div><div><b>78</b><span>Guru & Tenaga Pendidik</span></div><div><b>A (Unggul)</b><span>Akreditasi BAN-S/M</span></div><div><b>28 Tahun</b><span>Tahun Berdiri Sejak 1998</span></div></div><h3>Sambutan Kepala Sekolah</h3><p>Dra. Sri Wahyuni, M.Pd. — "Kami berkomitmen mewujudkan ekosistem pendidikan yang inklusif, modern, berbasis teknologi digital, serta senantiasa mengedepankan integritas moral dan budaya budi pekerti luhur."</p>`),
 T('Visi & Misi',`<h3>Visi Sekolah</h3><p>Menjadi institusi pendidikan menengah atas teladan yang melahirkan generasi cerdas bernalar kritis, berakhlak mulia, berwawasan lingkungan, serta berdaya saing global pada tahun 2030.</p><h3>Misi Sekolah</h3><ul class="l"><li>Menyelenggarakan proses pembelajaran aktif, inovatif, dan terintegrasi dengan teknologi digital modern.</li><li>Mengembangkan potensi bakat dan minat peserta didik secara optimal melalui kegiatan akademik maupun non-akademik.</li><li>Membina karakter peserta didik melalui penguatan budaya 5S (Senyum, Salam, Sapa, Sopan, Santun) dan Profil Pelajar Pancasila.</li><li>Membangun jejaring kolaborasi strategis dengan berbagai perguruan tinggi negeri, swasta terkemuka, dan dunia industri.</li></ul>`),
-T('Sejarah Sekolah',`<ul class="tl"><li><b>1998</b>Didirikan oleh Yayasan Cahaya Bangsa dengan 3 ruang kelas awal dan 90 peserta didik pertama.</li><li><b>2008</b>Berhasil meraih predikat Akreditasi A (Unggul) untuk pertama kalinya.</li><li><b>2016</b>Peresmian gedung laboratorium terpadu, perpustakaan digital e-library, dan aula serbaguna.</li><li><b>2023</b>Implementasi penuh Kurikulum Merdeka dan peresmian laboratorium robotika & kecerdasan buatan.</li><li><b>Hari Ini</b>Kampus hijau terakreditasi Adiwiyata Mandiri dengan 36 rombongan belajar lengkap.</li></ul>`)]},
+T('Sejarah Sekolah',`<ul class="tl"><li><b>1998</b>Didirikan oleh Yayasan Cahaya Bangsa dengan 3 ruang kelas awal dan 90 peserta didik pertama.</li><li><b>2008</b>Berhasil meraih predikat Akreditasi A (Unggul) untuk pertama kalinya.</li><li><b>2016</b>Peresmian gedung laboratorium terpadu, perpustakaan digital e-library, dan aula serbaguna.</li><li><b>2023</b>Implementasi penuh Kurikulum Merdeka dan peresmian laboratorium robotika & kecerdasan buatan.</li><li><b>Hari Ini</b>SMA hijau terakreditasi Adiwiyata Mandiri dengan 36 rombongan belajar lengkap.</li></ul>`)]},
 akademik:{n:'Gedung Akademik',i:'📚',tabs:[
 T('Program Peminatan',`
 <div style="background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:14px 18px;border-radius:16px;margin-bottom:14px;border:1px solid #60a5fa;">
@@ -628,8 +628,8 @@ T('Galeri Prestasi',`
 `)]},
 ekskul:{n:'Aula & Ekskul',i:'🎭',tabs:[
 T('Ekstrakurikuler',`<p>Tersedia lebih dari 15 klub minat bakat untuk mengasah kepemimpinan dan kreativitas:</p><div class="g"><div><b>Klub Robotika & AI</b><span>Rabu, 15.30 · Lab Komputer</span></div><div><b>Basket & Futsal</b><span>Selasa & Kamis, 16.00 · Lapangan Utama</span></div><div><b>Paduan Suara & Orkestra</b><span>Jumat, 14.30 · Aula Seni</span></div><div><b>Pramuka Penegak</b><span>Sabtu, 07.30 · Halaman Utama</span></div><div><b>Klub Debat Bahasa Inggris</b><span>Senin, 15.30 · Ruang Audiovisual</span></div><div><b>Palang Merah Remaja (PMR)</b><span>Kamis, 15.00 · Ruang UKS Terpadu</span></div></div>`),
-T('Fasilitas Kampus',`<ul class="l"><li>36 ruang kelas modern ber-AC dengan Interactive Smart Board & Proyektor 4K.</li><li>3 Laboratorium Sains canggih (Fisika, Kimia, Biologi) berstandar keselamatan nasional.</li><li>Laboratorium Komputer Multimedia & Studio Coding dengan koneksi internet Gigabit Fiber.</li><li>Perpustakaan modern dua lantai dengan 12.000+ buku fisik dan akses ke ribuan jurnal internasional.</li><li>Aula Serbaguna berkapasitas 600 kursi, Masjid Sekolah, Kantin Sehat Higienis, dan UKS dengan dokter jaga.</li><li>Lapangan olahraga multifungsi berstandar untuk Basket, Futsal, Voli, dan Bulu Tangkis.</li></ul>`),
-T('Agenda Tahunan',`<ul class="tl"><li><b>Bulan Agustus</b>Peringatan HUT Kemerdekaan RI, karnaval budaya nusantara, dan pekan olahraga antarkelas (Class Meeting).</li><li><b>Bulan Oktober</b>Pekan Bahasa, Gelar Seni Budaya (*Art Fair*), dan Pameran Projek Kreatif P5.</li><li><b>Bulan Desember</b>Bazar Kewirausahaan Siswa, Pembagian Rapor Semester Ganjil, dan Seminar Karier Kampus.</li><li><b>Bulan Mei</b>Wisuda Pelepasan Siswa Kelas XII dan Gebyar Pameran Inovasi Siswa Terbuka.</li></ul>`)]},
+T('Fasilitas SMA',`<ul class="l"><li>36 ruang kelas modern ber-AC dengan Interactive Smart Board & Proyektor 4K.</li><li>3 Laboratorium Sains canggih (Fisika, Kimia, Biologi) berstandar keselamatan nasional.</li><li>Laboratorium Komputer Multimedia & Studio Coding dengan koneksi internet Gigabit Fiber.</li><li>Perpustakaan modern dua lantai dengan 12.000+ buku fisik dan akses ke ribuan jurnal internasional.</li><li>Aula Serbaguna berkapasitas 600 kursi, Masjid Sekolah, Kantin Sehat Higienis, dan UKS dengan dokter jaga.</li><li>Lapangan olahraga multifungsi berstandar untuk Basket, Futsal, Voli, dan Bulu Tangkis.</li></ul>`),
+T('Agenda Tahunan',`<ul class="tl"><li><b>Bulan Agustus</b>Peringatan HUT Kemerdekaan RI, karnaval budaya nusantara, dan pekan olahraga antarkelas (Class Meeting).</li><li><b>Bulan Oktober</b>Pekan Bahasa, Gelar Seni Budaya (*Art Fair*), dan Pameran Projek Kreatif P5.</li><li><b>Bulan Desember</b>Bazar Kewirausahaan Siswa, Pembagian Rapor Semester Ganjil, dan Seminar Karier & Pendidikan Tinggi.</li><li><b>Bulan Mei</b>Wisuda Pelepasan Siswa Kelas XII dan Gebyar Pameran Inovasi Siswa Terbuka.</li></ul>`)]},
 ppdb:{n:'Kantor PPDB',i:'📝',tabs:[
 T('Alur & Syarat PPDB',`<div class="form-box" style="border-left:4px solid var(--y);margin-bottom:14px;">
 <h3 style="margin:0 0 4px;color:var(--y);font-size:20px;">Penerimaan Peserta Didik Baru (PPDB) T.A. 2026/2027</h3>
@@ -724,7 +724,7 @@ T('Formulir Pendaftaran',`<div class="form-box" style="border-left:4px solid var
 <div class="form-group" style="grid-column: 1 / -1;">
 <label for="ppdb-jalur">Jalur Seleksi Pendaftaran <span class="form-req">*</span></label>
 <select id="ppdb-jalur">
-<option value="Jalur Zonasi (Radius Domisili Terdekat Kampus)">Jalur Zonasi (Radius Domisili Terdekat ke Kampus)</option>
+<option value="Jalur Zonasi (Radius Domisili Terdekat Sekolah)">Jalur Zonasi (Radius Domisili Terdekat ke Sekolah)</option>
 <option value="Jalur Prestasi Akademik (Nilai Rapor & OSN)">Jalur Prestasi Akademik (Nilai Rapor & Juara OSN/Lomba Sains)</option>
 <option value="Jalur Prestasi Non-Akademik (Olahraga / Seni / Tahfidz)">Jalur Prestasi Non-Akademik (Olahraga / Seni / Robotik / Tahfidz)</option>
 <option value="Jalur Afirmasi / KIP (Bantuan Siswa Berprestasi)">Jalur Afirmasi / KIP (Bantuan Biaya Pendidikan)</option>
@@ -781,7 +781,7 @@ T('Kontak & Lokasi',`<div class="form-box" style="margin-bottom:14px;">
 <p style="margin:0;font-size:13.5px;color:var(--mut);">Tim panitia PPDB siap melayani konsultasi pemilihan peminatan jurusan, informasi beasiswa, dan verifikasi berkas secara ramah dan profesional.</p>
 </div>
 <ul class="l">
-<li><b>Meja Layanan Fisik:</b> Ruang Front Office Kantor PPDB (Lantai 1), Sayap Tenggara Kampus SMA Cahaya Nusantara.</li>
+<li><b>Meja Layanan Fisik:</b> Ruang Front Office Kantor PPDB (Lantai 1), Sayap Tenggara SMA Cahaya Nusantara.</li>
 <li><b>Hotline WhatsApp Panitia:</b> +62 812-3456-7890 (Ibu Anisa, S.Pd. - Sekretariat PPDB)</li>
 <li><b>Telepon Kantor:</b> (024) 876-5432 / Hunting: (024) 876-5433</li>
 <li><b>Email Resmi PPDB:</b> ppdb@cahayanusantara.sch.id</li>
@@ -851,7 +851,7 @@ function exitRoom(){
 function act(){if(!near||busy)return;if(near.exit)exitRoom();else if(near.id==='gate_toggle')toggleMainGate();else if(near.st)openP(near.id,near.idx);else if(near.id==='satpam')openP('satpam');else enterRoom(near.id)}
 $('#ex').onclick=exitRoom;
 const btnGt=$('#btn-gate-toggle');if(btnGt)btnGt.onclick=()=>window.toggleMainGate();
-const GUIDE={n:'Cara bermain',i:'❓',tabs:[T('Kontrol & Fitur',`<ul class="l"><li><b>Halaman Sekolah Luas</b>: Anda bebas berlari, berputar, dan menjelajahi halaman upacara, lapangan olahraga, taman, dan gedung-gedung.</li><li><b>Langkah 1</b>: Mulai dari luar gerbang, jalan maju melintasi Gerbang Utama sekolah untuk mengawali tur kampus.</li><li><b>Pak Budi (Satpam)</b>: Berdiri di pos keamanan dekat gerbang. Dekati dan tekan E untuk berbicara.</li><li><b>Jalan & Lari</b>: Gunakan WASD atau tombol panah. Tahan <b>Shift</b> untuk berlari cepat di halaman.</li><li><b>Lompat</b>: Tekan Spasi (atau tombol Lompat di HP).</li><li><b>Kamera 360°</b>: Seret mouse / geser layar untuk melihat seluruh penjuru sekolah; scroll mouse untuk zoom in/out.</li><li><b>Interaksi Gedung</b>: Dekati pintu gedung lalu tekan E atau tombol Masuk. Di dalam ruangan, dekati lingkaran kuning penanda.</li><li><b>Tombol AR (👓)</b>: Memproyeksikan maskot siswa, miniatur gerbang, atau gedung sekolah di meja Anda lewat kamera ponsel!</li></ul>`),T('Misi Eksplorasi',`<p>Masuki gerbang utama, jelajahi 4 gedung sekolah, dan kumpulkan 7 bintang fakta rahasia yang melayang di halaman kampus. Kemajuan Anda tersimpan otomatis.</p>`)]};
+const GUIDE={n:'Cara bermain',i:'❓',tabs:[T('Kontrol & Fitur',`<ul class="l"><li><b>Halaman Sekolah Luas</b>: Anda bebas berlari, berputar, dan menjelajahi halaman upacara, lapangan olahraga, taman, dan gedung-gedung.</li><li><b>Langkah 1</b>: Mulai dari luar gerbang, jalan maju melintasi Gerbang Utama sekolah untuk mengawali tur SMA.</li><li><b>Pak Budi (Satpam)</b>: Berdiri di pos keamanan dekat gerbang. Dekati dan tekan E untuk berbicara.</li><li><b>Jalan & Lari</b>: Gunakan WASD atau tombol panah. Tahan <b>Shift</b> untuk berlari cepat di halaman.</li><li><b>Lompat</b>: Tekan Spasi (atau tombol Lompat di HP).</li><li><b>Kamera 360°</b>: Seret mouse / geser layar untuk melihat seluruh penjuru sekolah; scroll mouse untuk zoom in/out.</li><li><b>Interaksi Gedung</b>: Dekati pintu gedung lalu tekan E atau tombol Masuk. Di dalam ruangan, dekati lingkaran kuning penanda.</li><li><b>Tombol AR (👓)</b>: Memproyeksikan maskot siswa, miniatur gerbang, atau gedung sekolah di meja Anda lewat kamera ponsel!</li></ul>`),T('Misi Eksplorasi',`<p>Masuki gerbang utama, jelajahi 4 gedung sekolah, dan kumpulkan 7 bintang fakta rahasia yang melayang di halaman SMA. Kemajuan Anda tersimpan otomatis.</p>`)]};
 
 window.wa = function wa(){
   sfx('click');
@@ -1015,12 +1015,12 @@ function openMissionChecklist(){
       <li><b>${S.v['ekskul']?'✅ Selesai':'⬜ Belum Dikunjungi'} · Aula & Ekstrakurikuler</b> 15+ kegiatan ekskul & fasilitas sekolah.</li>
       <li><b>${S.v['ppdb']?'✅ Selesai':'⬜ Belum Dikunjungi'} · Kantor PPDB</b> Jadwal, pendaftaran WhatsApp, & kontak resmi.</li>
     </ul>
-    <h3>⭐ Bintang Fakta Kampus (${fCount}/7 Ditemukan)</h3>
+    <h3>⭐ Bintang Fakta SMA (${fCount}/7 Ditemukan)</h3>
     <div class="g">
-      ${FACTS.map((f,i)=>`<div><b>${S.f[i]?'⭐ Fakta '+(i+1):'🔒 Belum Ditemukan #'+(i+1)}</b><span>${S.f[i]?f:'Jelajahi halaman sekolah untuk menemukan bintang emas ini.'}</span></div>`).join('')}
+      ${FACTS.map((f,i)=>`<div><b>${S.f[i]?'⭐ Fakta '+(i+1):'🔒 Belum Ditemukan #'+(i+1)}</b><span>${S.f[i]?f:'Jelajahi halaman SMA untuk menemukan bintang emas ini.'}</span></div>`).join('')}
     </div>
   `;
-  openP('mission',0,{n:'Daftar Misi Kampus',i:'📋',tabs:[T('Misi',h)]});
+  openP('mission',0,{n:'Daftar Misi SMA',i:'📋',tabs:[T('Misi',h)]});
 }
 $('#ms').onclick=openMissionChecklist;
 
@@ -1041,8 +1041,8 @@ addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(k==='escape')close
 addEventListener('keyup',e=>K[e.key.toLowerCase()]=0);
 
 const CHARS=[
-  ['Naufal',0x2b1b12,0x2f5d8a,0xf2c9a0,'Siswa (Putra) · Blazer Biru','👋 Halo! Aku <b id="sn">Naufal</b>. Halaman sekolah kini dibuat <b>sangat luas & tertata rapi</b>! Masuklah melewati gerbang dan jelajahi seluruh kampus bersama.'],
-  ['Rani',0x1a1210,0xb03a48,0xfbe2cb,'Siswi (Putri) · Blazer Merah & Rok','🌸 Halo! Aku <b id="sn">Rani</b>. Halaman sekolah kini <b>sangat luas, asri, dan cantik</b>! Yuk ikuti aku masuk melewati gerbang utama dan keliling kampus.'],
+  ['Naufal',0x2b1b12,0x2f5d8a,0xf2c9a0,'Siswa (Putra) · Blazer Biru','👋 Halo! Aku <b id="sn">Naufal</b>. Halaman SMA kini dibuat <b>sangat luas & tertata rapi</b>! Masuklah melewati gerbang dan jelajahi seluruh SMA bersama.'],
+  ['Rani',0x1a1210,0xb03a48,0xfbe2cb,'Siswi (Putri) · Blazer Merah & Rok','🌸 Halo! Aku <b id="sn">Rani</b>. Halaman SMA kini <b>sangat luas, asri, dan cantik</b>! Yuk ikuti aku masuk melewati gerbang utama dan keliling SMA bersama.'],
   ['Sari',0xffffff,0x247a50,0xf8d7c0,'Siswi (Hijab) · Blazer Hijau & Kerudung','🌿 Assalamu\'alaikum! Aku <b id="sn">Sari</b>. Selamat datang di <b>SMA Cahaya Nusantara</b>! Mari masuk lewat gerbang utama untuk melihat seluruh fasilitas sekolah.']
 ];
 $('#ch').innerHTML=CHARS.map((c,i)=>`<button data-i="${i}" class="${i?'':'on'}"><i style="background:#${c[2].toString(16).padStart(6,'0')}"></i>${c[0]}<small>${c[4]}</small></button>`).join('');
@@ -1181,7 +1181,7 @@ function addTree(tx,tz,k){
 }
 [[-7.5,30],[7.5,30],[-9,25],[9,25]].forEach(tp=>addTree(tp[0],tp[1],1.3));
 
-// Barisan Pohon Hijau di Pinggiran Pagar Kampus (Tertata Rapi)
+// Barisan Pohon Hijau di Pinggiran Pagar Sekolah (Tertata Rapi)
 [-42,-34,-26,26,34,42].forEach(x=>{addTree(x,26,1.2);addTree(x,-42,1.2)});
 [-35,-25,-15,5,15].forEach(z=>{addTree(-42,z,1.2);addTree(42,z,1.2)});
 
@@ -1212,7 +1212,7 @@ lbl('Pak Budi (Satpam)',-6.5,2.9,24.5,sc);
 });
 
 // ========================================================
-// ===== MODEL GEDUNG-GEDUNG KAMPUS =====
+// ===== MODEL GEDUNG-GEDUNG SEKOLAH =====
 // ========================================================
 const winM=M(0x9bd3ff);
 B.forEach(b=>{const g=new THREE.Group();g.position.set(b.x,0,b.z);g.rotation.y=b.r;sc.add(g);
@@ -1264,7 +1264,7 @@ flagGeo=new THREE.PlaneGeometry(1.8,1.0,16,4);
 const flagMesh=new THREE.Mesh(flagGeo,new THREE.MeshBasicMaterial({map:flagTex,side:THREE.DoubleSide}));
 flagMesh.position.set(.95,5.6,-17);sc.add(flagMesh);
 
-// Bintang Fakta Rahasia Kampus
+// Bintang Fakta Rahasia Sekolah
 CRY.forEach((c,i)=>{const m=add(new THREE.OctahedronGeometry(.5),new THREE.MeshBasicMaterial({color:0xffd23f}),c[0],1.4,c[1]);m.visible=!S.f[i];crys.push(m)});
 
 // Karakter Utama & Bahan/Material
@@ -1665,7 +1665,7 @@ function col(){
     else p.z=23.5+Math.sign(p.z-23.5||1)*1.8;
   }
 
-  // Gedung-gedung kampus
+  // Gedung-gedung sekolah
   for(const b of B){
     const c=Math.cos(b.r),s=Math.sin(b.r),dx=p.x-b.x,dz=p.z-b.z;
     let lx=dx*c-dz*s,lz=dx*s+dz*c;
@@ -1750,7 +1750,7 @@ function loop(){
   if(room){for(const s of RS[room].concat(EX))if(Math.hypot(s.x-p.x,s.z-p.z)<1.5)nb=s}
   if(nb!==near){near=nb;const g=$('#go');g.style.display=nb&&!cur?'block':'none';if(nb)g.innerHTML=(nb.v||'Masuk')+' <small>'+nb.i+' '+nb.n+'</small>'}
 
-  // Animasi Buka/Tutup Daun Gerbang Utama Kampus
+  // Animasi Buka/Tutup Daun Gerbang Utama Sekolah
   if(!room&&typeof dL!=='undefined'&&typeof dR!=='undefined'){
     const targetGateAngle=mainGateOpen?1.15:0.0;
     dL.rotation.y+=((targetGateAngle)-dL.rotation.y)*Math.min(1,dt*5.5);

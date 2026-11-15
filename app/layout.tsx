@@ -11,7 +11,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "Dunia SMA Cahaya Nusantara - 3D & Augmented Reality",
   description:
-    "Website sekolah 3D interaktif & Augmented Reality (AR): masuki gerbang sekolah, jelajahi halaman kampus yang luas, masuk gedung, lihat profil, jurusan, ekskul, dan fitur AR kamera.",
+    "Website sekolah 3D interaktif & Augmented Reality (AR): masuki gerbang sekolah, jelajahi halaman sekolah yang luas, masuk gedung, lihat profil, jurusan, ekskul, dan fitur AR kamera.",
   openGraph: {
     title: "Dunia SMA Cahaya Nusantara - 3D & Augmented Reality",
     description:

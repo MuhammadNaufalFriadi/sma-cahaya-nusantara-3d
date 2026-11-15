@@ -248,7 +248,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
         className="hud"
         style={{ display: "flex" }}
         onClick={onOpenMissions}
-        title="Klik untuk lihat rincian misi kampus"
+        title="Klik untuk lihat rincian misi SMA"
       >
         {isInRoom && roomProgress ? (
           <div>

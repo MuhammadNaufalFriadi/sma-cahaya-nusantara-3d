@@ -14,7 +14,7 @@
 ---
 
 ## 1. LATAR BELAKANG
-Pengenalan lingkungan sekolah atau kampus bagi calon peserta didik baru dan masyarakat umum umumnya masih menggunakan media konvensional seperti brosur cetak atau video presentasi satu arah. Media tersebut memiliki keterbatasan dalam memberikan pengalaman interaksi spasial yang nyata.
+Pengenalan lingkungan sekolah atau SMA bagi calon peserta didik baru dan masyarakat umum umumnya masih menggunakan media konvensional seperti brosur cetak atau video presentasi satu arah. Media tersebut memiliki keterbatasan dalam memberikan pengalaman interaksi spasial yang nyata.
 
 Dengan pemanfaatan teknologi **Web 3D (Three.js / WebGL)** dan **Augmented Reality (AR)**, calon siswa dapat mengeksplorasi seluruh lingkungan sekolah secara mandiri (*virtual tour* 360°), memasuki gedung fasilitas, memilih karakter representatif, serta memproyeksikan maskot dan miniatur gedung sekolah langsung di dunia nyata melalui kamera smartphone atau laptop tanpa memerlukan instalasi aplikasi khusus (*zero-installation web app*).
 
@@ -27,7 +27,7 @@ Dengan pemanfaatan teknologi **Web 3D (Three.js / WebGL)** dan **Augmented Reali
    - Menyediakan sarana penyampaian informasi sekolah (profil, kurikulum/jurusan, ekstrakurikuler, dan alur pendaftaran PPDB online) yang interaktif dan menyenangkan.
    - Menerapkan *gamifikasi* pengumpulan bintang fakta untuk meningkatkan keterlibatan (*user engagement*).
 2. **Manfaat**:
-   - Calon peserta didik baru dapat mengenal denah kampus dan fasilitas sekolah kapan saja dan di mana saja.
+   - Calon peserta didik baru dapat mengenal denah SMA dan fasilitas sekolah kapan saja dan di mana saja.
    - Meningkatkan daya tarik promosi sekolah melalui teknologi modern yang ramah pengguna.
 
 ---
@@ -48,14 +48,14 @@ Aplikasi ini dikembangkan dengan arsitektur *Single Page Application (SPA)* yang
 
 ## 4. FITUR-FITUR UTAMA APLIKASI
 
-### 4.1. Gerbang Sekolah & Halaman Kampus 3D Luas
+### 4.1. Gerbang Sekolah & Halaman SMA 3D Luas
 - **Halaman Sekolah Luas & Lapang (*Spacious School Grounds*)**:
   - Area pulau sekolah diperluas secara signifikan (radius 48 - 53 meter) untuk memberikan kebebasan gerak dan interaksi optimal bagi pengguna.
   - Dilengkapi **Lapangan Olahraga & Upacara Terpadu** (26 x 18 meter) dengan garis lapangan resmi, dua tiang ring basket, dan tiang bendera pusat dengan bendera merah putih yang berkibar dinamis (*cloth simulation*).
 - **Gerbang Utama Sekolah (*Grand Entrance Gate*)**:
   - Dibuat berdasarkan referensi arsitektur gerbang sekolah: struktur pilar kokoh berwarna terracotta, balok lintel atas dengan plang bertuliskan **SMA CAHAYA NUSANTARA**, kanopi atas, dua daun pintu besi berwarna biru tua yang terbuka lebar (bukaan 7.4 meter), pos satpam, NPC Pak Budi yang dapat diajak berinteraksi, serta pagar tembok keliling (*perimeter boundary wall*).
-  - **Sistem *Entry Gate First***: Karakter memulai penjelajahan dari luar area sekolah (pada koordinat `z = 36`). Pengguna diwajibkan berjalan melintasi gerbang utama terlebih dahulu untuk mengaktifkan misi tur kampus dan memicu suara penyambutan serta notifikasi selamat datang.
-- Lingkungan kampus dengan 4 bangunan fungsional:
+  - **Sistem *Entry Gate First***: Karakter memulai penjelajahan dari luar area sekolah (pada koordinat `z = 36`). Pengguna diwajibkan berjalan melintasi gerbang utama terlebih dahulu untuk mengaktifkan misi tur SMA dan memicu suara penyambutan serta notifikasi selamat datang.
+- Lingkungan SMA dengan 4 bangunan fungsional:
   1. **Gedung Utama (🏫)**: Profil sekolah, Visi & Misi 2030, Sejarah pendirian, Sambutan Kepala Sekolah (di sisi utara).
   2. **Gedung Akademik (📚)**: Informasi Jurusan (IPA, IPS, Bahasa), Kurikulum Merdeka, serta Galeri Prestasi Siswa (di sayap barat).
   3. **Aula & Ekskul (🎭)**: Jadwal ekstrakurikuler, rincian fasilitas (lab, perpustakaan, aula), dan agenda tahunan (di sayap timur).
@@ -80,7 +80,7 @@ Aplikasi ini dikembangkan dengan arsitektur *Single Page Application (SPA)* yang
 ### 4.3. Kustomisasi Karakter & NPC
 - Pilihan 3 karakter siswa: **Naufal** (Blazer Biru), **Rani** (Blazer Merah), dan **Sari** (Blazer Hijau).
 - Animasi pergerakan dinamis: *walk cycle*, *running*, *jumping*, *idle breathing*, serta gerakan melambaikan tangan (*waving hand*).
-- NPC siswa yang berpatroli mengitari kampus dan menyapa secara otomatis saat didekati.
+- NPC siswa yang berpatroli mengitari SMA dan menyapa secara otomatis saat didekati.
 
 ### 4.4. Efek Lingkungan & Suasana
 - **Day & Night Cycle (☀️ / 🌙)**: Transisi gradasi langit, pencahayaan matahari, kabut, dan emisi lampu jendela gedung.
@@ -116,7 +116,7 @@ Akses melalui peramban: `http://localhost:8080/`
 | 4 | Collision Detection | Berjalan menabrak dinding gedung atau pohon | Karakter tertahan dan tidak menembus dinding (*solid collision*) | **BERHASIL** |
 | 5 | Masuk Interior Gedung | Mendekati pintu gedung dan menekan `E` | Layar fade out dan berpindah ke interior ruangan gedung terkait | **BERHASIL** |
 | 6 | Titik Informasi Gedung | Berdiri di lingkaran kuning interior dan tekan `E` | Modal popup tab materi (Visi-Misi, Jurusan, dll) terbuka | **BERHASIL** |
-| 7 | Pengumpulan Bintang Fakta | Menyentuh bintang emas yang melayang di kampus | Bintang lenyap, progres bertambah, dan fakta sekolah muncul | **BERHASIL** |
+| 7 | Pengumpulan Bintang Fakta | Menyentuh bintang emas yang melayang di halaman SMA | Bintang lenyap, progres bertambah, dan fakta sekolah muncul | **BERHASIL** |
 | 8 | Mode Augmented Reality | Menekan tombol **👓 Mode AR** | Kamera menyala, objek 3D tampil di atas feed kamera nyata | **BERHASIL** |
 | 9 | Manipulasi Objek AR | Melakukan drag mouse/sentuhan pada layar AR | Objek 3D berputar halus secara horizontal (360°) | **BERHASIL** |
 | 10 | Snapshot Foto AR | Menekan tombol **📸 Ambil Foto AR** | File gambar `.png` berisi foto kamera + objek 3D terunduh | **BERHASIL** |
@@ -124,7 +124,7 @@ Akses melalui peramban: `http://localhost:8080/`
 | 12 | Sistem Cuaca Hujan | Menekan tombol 🌧 | Efek hujan partikel turun dan intensitas cahaya meredup | **BERHASIL** |
 | 13 | Sistem Audio & BGM | Menekan tombol 🔊 / 🔇 | Efek suara dan instrumen musik latar menyala/mati | **BERHASIL** |
 | 14 | Masuk Lewat Gerbang Utama | Berjalan maju dari titik awal (z=36) melintasi gerbang (z=28) | Notifikasi selamat datang muncul, progress bar aktif, dan panduan gedung terbuka | **BERHASIL** |
-| 15 | Interaksi Pos Satpam (Pak Budi) | Mendekati pos satpam di sebelah gerbang dan tekan `E` / tombol Bicara | Dialog profil satpam dan rangkuman tata letak kampus terbuka | **BERHASIL** |
+| 15 | Interaksi Pos Satpam (Pak Budi) | Mendekati pos satpam di sebelah gerbang dan tekan `E` / tombol Bicara | Dialog profil satpam dan rangkuman tata letak SMA terbuka | **BERHASIL** |
 | 16 | Lapangan Bebas Kedipan (*No Z-Fighting*) | Berlari dan mengarahkan kamera 360° di sekitar lapangan basket | Garis lapangan tampil tajam, mulus, dan tidak ada kedipan antar permukaan | **BERHASIL** |
 | 17 | Pemilihan Model AR Gerbang Sekolah | Memilih tab "Gerbang Sekolah" di jendela AR | Objek 3D miniatur gerbang sekolah termuat dan siap diputar | **BERHASIL** |
 | 18 | Animasi Daun Pintu Masuk Gedung | Mendekati pintu gedung (< 3.8 meter) dan menekan tombol Masuk | Sepasang daun pintu ganda membuka otomatis, suara engsel pintu terdengar (`sfx door`), dan karakter melangkah masuk | **BERHASIL** |

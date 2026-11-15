@@ -8,7 +8,7 @@ export const CHARS: CharacterInfo[] = [
     skinColor: 0xf2c9a0,
     desc: "Siswa (Putra) · Blazer Biru",
     intro:
-      "👋 Halo! Aku <b>Naufal</b>. Halaman sekolah kini dibuat <b>sangat luas & tertata rapi</b>! Masuklah melewati gerbang dan jelajahi seluruh kampus bersama.",
+      "👋 Halo! Aku <b>Naufal</b>. Halaman SMA kini dibuat <b>sangat luas & tertata rapi</b>! Masuklah melewati gerbang dan jelajahi seluruh SMA bersama.",
   },
   {
     name: "Rani",
@@ -17,7 +17,7 @@ export const CHARS: CharacterInfo[] = [
     skinColor: 0xfbe2cb,
     desc: "Siswi (Putri) · Blazer Merah & Rok Lipit",
     intro:
-      "🌸 Halo! Aku <b>Rani</b>. Halaman sekolah kini <b>sangat luas, asri, dan cantik</b>! Yuk ikuti aku masuk melewati gerbang utama dan keliling kampus.",
+      "🌸 Halo! Aku <b>Rani</b>. Halaman SMA kini <b>sangat luas, asri, dan cantik</b>! Yuk ikuti aku masuk melewati gerbang utama dan keliling SMA bersama.",
   },
   {
     name: "Sari",
@@ -26,7 +26,7 @@ export const CHARS: CharacterInfo[] = [
     skinColor: 0xf8d7c0,
     desc: "Siswi (Hijab) · Blazer Hijau & Kerudung",
     intro:
-      "🌿 Assalamu'alaikum! Aku <b>Sari</b>. Selamat datang di <b>SMA Cahaya Nusantara</b>! Mari masuk lewat gerbang utama untuk melihat seluruh fasilitas sekolah.",
+      "🌿 Assalamu'alaikum! Aku <b>Sari</b>. Selamat datang di <b>SMA Cahaya Nusantara</b>! Mari masuk lewat gerbang utama untuk melihat seluruh fasilitas SMA.",
   },
 ];
 
@@ -165,7 +165,7 @@ export const GUIDE: ProfileSection = {
       t: "Kontrol & Fitur",
       h: `<ul class="l">
         <li><b>Halaman Sekolah Luas</b>: Anda bebas berlari, berputar, dan menjelajahi halaman upacara, lapangan olahraga, taman, dan gedung-gedung.</li>
-        <li><b>Langkah 1</b>: Mulai dari luar gerbang, jalan maju melintasi Gerbang Utama sekolah untuk mengawali tur kampus.</li>
+        <li><b>Langkah 1</b>: Mulai dari luar gerbang, jalan maju melintasi Gerbang Utama sekolah untuk mengawali tur SMA.</li>
         <li><b>Pak Budi (Satpam)</b>: Berdiri di pos keamanan dekat gerbang. Dekati dan tekan E untuk berbicara.</li>
         <li><b>Jalan & Lari</b>: Gunakan WASD atau tombol panah. Tahan <b>Shift</b> untuk berlari cepat di halaman.</li>
         <li><b>Lompat</b>: Tekan Spasi (atau tombol Lompat di HP).</li>
@@ -176,7 +176,7 @@ export const GUIDE: ProfileSection = {
     },
     {
       t: "Misi Eksplorasi",
-      h: `<p>Masuki gerbang utama, jelajahi 4 gedung sekolah, dan kumpulkan 7 bintang fakta rahasia yang melayang di halaman kampus. Kemajuan Anda tersimpan otomatis.</p>`,
+      h: `<p>Masuki gerbang utama, jelajahi 4 gedung sekolah, dan kumpulkan 7 bintang fakta rahasia yang melayang di halaman SMA. Kemajuan Anda tersimpan otomatis.</p>`,
     },
   ],
 };
