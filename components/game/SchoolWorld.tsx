@@ -154,6 +154,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
     const playerJumpVel = useRef(0);
     const stepTimer = useRef(0);
     const waveTimer = useRef(2.4);
+    const openDoorTimer = useRef(0);
 
     const keys = useRef<Record<string, boolean>>({});
     const targetPos = useRef<{ x: number; z: number } | null>(null);
@@ -237,8 +238,9 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
             }
           }
           sfx("enter");
-          onToastRef.current?.(`Tiba di ${b?.n || "Gedung"}. Silakan masuk!`);
-          doEnterRoom(autoEnterId);
+          onToastRef.current?.(
+            `Tiba di ${b?.n || "Gedung"}. Tekan 'Buka Pintu' untuk masuk!`
+          );
         } else {
           // Gerbang Utama
           playerYaw.current = 0;
@@ -318,11 +320,12 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
     const doEnterRoom = (id: string) => {
       const b = BUILDINGS.find((x) => x.id === id);
       if (b) b.isOpening = 1;
+      openDoorTimer.current = 0.55;
       sfx("door");
 
       if (b && b.r != null) {
-        playerPos.current.x += Math.sin(b.r) * 1.1;
-        playerPos.current.z += Math.cos(b.r) * 1.1;
+        playerPos.current.x += Math.sin(b.r) * 1.2;
+        playerPos.current.z += Math.cos(b.r) * 1.2;
       }
 
       setTimeout(() => {
@@ -362,7 +365,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         }
 
         if (b) b.isOpening = 0;
-      }, 220);
+      }, 420);
     };
 
     const doExitRoom = () => {
@@ -370,12 +373,16 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       sfx("door");
       const currentRoomId = roomRef.current;
       const b = BUILDINGS.find((x) => x.id === currentRoomId);
-      playerPos.current.z = 6.6;
+      if (roomsMapRef.current[currentRoomId]) {
+        roomsMapRef.current[currentRoomId].userData.isOpeningExit = 1;
+      }
+      openDoorTimer.current = 0.55;
 
       setTimeout(() => {
         sfx("click");
         if (roomsMapRef.current[currentRoomId]) {
           roomsMapRef.current[currentRoomId].visible = false;
+          roomsMapRef.current[currentRoomId].userData.isOpeningExit = 0;
         }
         roomRef.current = null;
         onRoomChangeRef.current?.(null);
@@ -401,7 +408,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         }
 
         onToastRef.current?.("Kembali ke halaman kampus.");
-      }, 200);
+      }, 420);
     };
 
     useEffect(() => {
@@ -983,7 +990,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
         // Papan Penanda Pintu Masuk di Atas Kusen
         addMesh(new THREE.BoxGeometry(2.2, 0.36, 0.1), M(0x0f172a), 0, 3.15, bDoorZ + 0.08, g);
-        lbl("🚪 MASUK", 0, 3.5, bDoorZ + 0.16, g);
+        lbl("🚪 Buka Pintu", 0, 3.5, bDoorZ + 0.16, g);
 
         // Daun Pintu Kiri (Hinge di x = -0.96)
         const bDoorL = new THREE.Group();
@@ -1639,7 +1646,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         addMesh(new THREE.BoxGeometry(2.6, 0.04, 1.5), M(0x059669), 0, 0.02, 6.6, g); // Karpet keluar hijau zamrud
         addMesh(new THREE.BoxGeometry(2.7, 0.02, 1.6), M(0xffc83d), 0, 0.01, 6.6, g); // Lis emas karpet
         addMesh(new THREE.BoxGeometry(2.0, 0.4, 0.15), M(0x10b981), 0, 3.15, 7.28, g);
-        lbl("🚪 PINTU KELUAR", 0, 3.55, 7.25, g);
+        lbl("🚪 Buka Pintu Keluar", 0, 3.55, 7.25, g);
 
         // Daun Pintu Keluar Kiri (Hinge di x = -0.96)
         const rmExL = new THREE.Group();
@@ -2204,11 +2211,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
             const d = Math.hypot(ex, ez);
             if (d < 0.6) {
               targetPos.current = null;
-              if (autoEnterRoomId.current) {
-                const auto = autoEnterRoomId.current;
-                autoEnterRoomId.current = null;
-                doEnterRoom(auto);
-              }
+              autoEnterRoomId.current = null;
             } else {
               dx = ex / d;
               dz = ez / d;
@@ -2239,7 +2242,10 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           // Collision detection
           if (roomRef.current) {
             playerPos.current.x = Math.min(RX + 10.2, Math.max(RX - 10.2, playerPos.current.x));
-            playerPos.current.z = Math.min(7.4, Math.max(-7.2, playerPos.current.z));
+            const isExOpen =
+              roomsMapRef.current[roomRef.current]?.userData.isOpeningExit === 1;
+            const maxZ = isExOpen ? 7.4 : 6.75;
+            playerPos.current.z = Math.min(maxZ, Math.max(-7.2, playerPos.current.z));
             const rmData = RM[roomRef.current];
             if (rmData && rmData.F) {
               for (const f of rmData.F) {
@@ -2310,12 +2316,9 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
                     : 3.92;
                 const hz = bFrontZ;
 
-                // Jika pemain melangkah lurus tepat di depan pintu masuk (|lx| < 1.35 dan lz > 0)
-                if (Math.abs(lx) < 1.35 && lz > 0) {
-                  // Berikan lorong masuk alami menuju ruangan
-                  if (lz < bFrontZ + 0.15) {
-                    doEnterRoom(b.id);
-                  }
+                // Jika pintu sedang dibuka oleh karakter (b.isOpening), izinkan melangkah masuk
+                if (b.isOpening && Math.abs(lx) < 1.35 && lz > 0) {
+                  // Melangkah masuk bebas
                 } else if (Math.abs(lx) < hx && Math.abs(lz) < hz) {
                   if (hx - Math.abs(lx) < hz - Math.abs(lz))
                     lx = Math.sign(lx || 1) * hx;
@@ -2406,6 +2409,14 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
             Rl.rotation.x = 0.4;
             aL.rotation.z = -0.7;
             aR.rotation.z = 0.7;
+          }
+
+          // Animasi tangan kanan karakter menjangkau gagang pintu saat membuka pintu
+          if (openDoorTimer.current > 0) {
+            openDoorTimer.current -= dt;
+            aR.rotation.x = -1.35;
+            aR.rotation.y = -0.15;
+            aR.rotation.z = -0.22;
           }
         }
 
@@ -2519,25 +2530,26 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
             (-targetGateAngle - gateDoorRRef.current.rotation.y) * Math.min(1, dt * 5.5);
         }
 
-        // Building door swings
+        // Building door swings: Pintu HANYA dibuka saat karakter berinteraksi membuka pintu (b.isOpening === 1)
         if (!roomRef.current) {
           BUILDINGS.forEach((b) => {
-            if (!b.doorL || !b.doorR || b.dx == null || b.dz == null) return;
-            const dist = Math.hypot(b.dx - playerPos.current.x, b.dz - playerPos.current.z);
-            const isOpen = dist < 4.0 || b.isOpening;
-            const targetAngle = isOpen ? 1.45 : 0;
-            b.doorL.rotation.y += (-targetAngle - b.doorL.rotation.y) * Math.min(1, dt * 6.5);
-            b.doorR.rotation.y += (targetAngle - b.doorR.rotation.y) * Math.min(1, dt * 6.5);
+            if (!b.doorL || !b.doorR) return;
+            const isOpen = b.isOpening === 1;
+            const targetAngle = isOpen ? 1.55 : 0.0;
+            b.doorL.rotation.y +=
+              (-targetAngle - b.doorL.rotation.y) * Math.min(1, dt * 7.0);
+            b.doorR.rotation.y +=
+              (targetAngle - b.doorR.rotation.y) * Math.min(1, dt * 7.0);
           });
         } else if (roomRef.current && roomsMapRef.current[roomRef.current]) {
           const rg = roomsMapRef.current[roomRef.current];
           const exL = rg.userData.exitDoorL;
           const exR = rg.userData.exitDoorR;
           if (exL && exR) {
-            const nearEx = Math.hypot(RX - playerPos.current.x, 7.35 - playerPos.current.z) < 3.8;
-            const tgtEx = nearEx ? 1.45 : 0;
-            exL.rotation.y += (-tgtEx - exL.rotation.y) * Math.min(1, dt * 6.5);
-            exR.rotation.y += (tgtEx - exR.rotation.y) * Math.min(1, dt * 6.5);
+            const isExOpen = rg.userData.isOpeningExit === 1;
+            const tgtEx = isExOpen ? 1.55 : 0.0;
+            exL.rotation.y += (-tgtEx - exL.rotation.y) * Math.min(1, dt * 7.0);
+            exR.rotation.y += (tgtEx - exR.rotation.y) * Math.min(1, dt * 7.0);
           }
         }
 
@@ -2545,14 +2557,27 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         let nb: any = null;
         if (playRef.current && !roomRef.current) {
           for (const b of BUILDINGS) {
-            if (b.dx != null && b.dz != null && Math.hypot(b.dx - playerPos.current.x, b.dz - playerPos.current.z) < 3.4) {
-              nb = { id: b.id, n: b.n, i: b.i, v: "Masuk Pintu" };
+            if (
+              b.dx != null &&
+              b.dz != null &&
+              Math.hypot(
+                b.dx - playerPos.current.x,
+                b.dz - playerPos.current.z
+              ) < 3.8
+            ) {
+              nb = { id: b.id, n: b.n, i: "🚪", v: "Buka Pintu" };
             }
           }
-          if (Math.hypot(-6.5 - playerPos.current.x, 24.5 - playerPos.current.z) < 2.8) {
+          if (
+            Math.hypot(-6.5 - playerPos.current.x, 24.5 - playerPos.current.z) <
+            2.8
+          ) {
             nb = { id: "satpam", n: "Pak Budi (Satpam)", i: "👮", v: "Bicara" };
           }
-          if (Math.abs(playerPos.current.x) < 4.2 && Math.abs(playerPos.current.z - 28) < 3.2) {
+          if (
+            Math.abs(playerPos.current.x) < 4.2 &&
+            Math.abs(playerPos.current.z - 28) < 3.2
+          ) {
             nb = {
               id: "gate_toggle",
               n: "Gerbang Utama",
@@ -2561,15 +2586,24 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
             };
           }
         } else if (roomRef.current) {
-          if (Math.hypot(RX - playerPos.current.x, 7.1 - playerPos.current.z) < 2.2) {
-            nb = { exit: 1, id: "exit", n: "Pintu Keluar", i: "🚪", v: "Keluar" };
-            if (playerPos.current.z >= 6.85) {
-              doExitRoom();
-            }
+          if (
+            Math.hypot(RX - playerPos.current.x, 7.1 - playerPos.current.z) <
+            2.5
+          ) {
+            nb = {
+              exit: 1,
+              id: "exit",
+              n: "Pintu Keluar",
+              i: "🚪",
+              v: "Buka Pintu Keluar",
+            };
           }
           const rings = roomRingMapRef.current[roomRef.current] || [];
           for (const r of rings) {
-            if (Math.hypot(r.x - playerPos.current.x, r.z - playerPos.current.z) < 1.6) {
+            if (
+              Math.hypot(r.x - playerPos.current.x, r.z - playerPos.current.z) <
+              1.6
+            ) {
               nb = r;
             }
           }
