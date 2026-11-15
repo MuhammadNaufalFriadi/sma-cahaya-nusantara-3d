@@ -165,6 +165,10 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
     const lampsRef = useRef<THREE.Mesh[]>([]);
     const rainPointsRef = useRef<THREE.Points | null>(null);
     const rainCoordsRef = useRef<Float32Array | null>(null);
+    const nightSkyGroupRef = useRef<THREE.Points | null>(null);
+    const sunLightRef = useRef<THREE.DirectionalLight | null>(null);
+    const hemiLightRef = useRef<THREE.HemisphereLight | null>(null);
+    const updateWeatherVisualsRef = useRef<() => void>(() => {});
 
     const animFrameId = useRef<number | null>(null);
 
@@ -185,19 +189,19 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       toggleNight: () => {
         sfx("click");
         isNightRef.current = !isNightRef.current;
+        updateWeatherVisualsRef.current?.();
         onSaveStateChangeRef.current?.((prev) => ({
           ...prev,
           night: isNightRef.current ? 1 : 0,
         }));
+        onToastRef.current?.(isNightRef.current ? "🌙 Suasana Malam Kampus" : "☀️ Cuaca Siang Cerah");
         return isNightRef.current;
       },
       toggleRain: () => {
         sfx("click");
         isRainingRef.current = !isRainingRef.current;
-        if (rainPointsRef.current) {
-          rainPointsRef.current.visible = isRainingRef.current;
-        }
-        onToastRef.current?.(isRainingRef.current ? "Hujan turun 🌧" : "Cuaca cerah ☀️");
+        updateWeatherVisualsRef.current?.();
+        onToastRef.current?.(isRainingRef.current ? "🌧️ Hujan Gerimis Aktif" : "🌤️ Hujan Reda & Cuaca Cerah");
         return isRainingRef.current;
       },
       jump: () => {
@@ -339,6 +343,9 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           roomsMapRef.current[id].visible = true;
         }
 
+        if (rainPointsRef.current) rainPointsRef.current.visible = false;
+        if (nightSkyGroupRef.current) nightSkyGroupRef.current.visible = false;
+
         onSaveStateChangeRef.current?.((prev) => {
           if (!prev.v[id]) {
             const nextV = { ...prev.v, [id]: 1 };
@@ -371,6 +378,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         }
         roomRef.current = null;
         onRoomChangeRef.current?.(null);
+        updateWeatherVisualsRef.current?.();
 
         if (b && b.r != null) {
           playerPos.current.x = b.x + Math.sin(b.r) * 5.4;
@@ -416,6 +424,8 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       sun.position.set(20, 35, 18);
       sun.castShadow = true;
       scene.add(hemi, sun);
+      hemiLightRef.current = hemi;
+      sunLightRef.current = sun;
 
       // Sea
       const seaM = M(0x2a9ac4);
@@ -1217,20 +1227,151 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       });
       npcsRef.current = npcs;
 
-      // Rain particles
-      const rv = new Float32Array(1500);
-      for (let i = 0; i < 1500; i += 3) {
-        rv[i] = (Math.random() - 0.5) * 40;
-        rv[i + 1] = Math.random() * 16;
-        rv[i + 2] = (Math.random() - 0.5) * 40;
+      // Rain particle system (2400 butiran hujan aktif bergerak vertikal)
+      const rainCount = 2400;
+      const rv = new Float32Array(rainCount * 3);
+      for (let i = 0; i < rainCount * 3; i += 3) {
+        rv[i] = (Math.random() - 0.5) * 60;
+        rv[i + 1] = Math.random() * 22;
+        rv[i + 2] = (Math.random() - 0.5) * 60;
       }
       rainCoordsRef.current = rv;
       const rg = new THREE.BufferGeometry();
       rg.setAttribute("position", new THREE.BufferAttribute(rv, 3));
-      const rainP = new THREE.Points(rg, new THREE.PointsMaterial({ color: 0xaaccee, size: 0.15 }));
-      rainP.visible = false;
+      const rainP = new THREE.Points(
+        rg,
+        new THREE.PointsMaterial({
+          color: 0x93c5fd,
+          size: 0.22,
+          transparent: true,
+          opacity: 0.75,
+        })
+      );
+      rainP.visible = isRainingRef.current;
       scene.add(rainP);
       rainPointsRef.current = rainP;
+
+      // Langit Malam Berbintang (350 Bintang Berkelip)
+      const starCount = 350;
+      const sv = new Float32Array(starCount * 3);
+      for (let i = 0; i < starCount * 3; i += 3) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.random() * (Math.PI / 2.3);
+        const r = 210 + Math.random() * 30;
+        sv[i] = r * Math.sin(phi) * Math.cos(theta);
+        sv[i + 1] = r * Math.cos(phi) + 12;
+        sv[i + 2] = r * Math.sin(phi) * Math.sin(theta);
+      }
+      const sg = new THREE.BufferGeometry();
+      sg.setAttribute("position", new THREE.BufferAttribute(sv, 3));
+      const nightStars = new THREE.Points(
+        sg,
+        new THREE.PointsMaterial({
+          color: 0xffffff,
+          size: 1.3,
+          transparent: true,
+          opacity: 0.85,
+        })
+      );
+      nightStars.visible = isNightRef.current && !isRainingRef.current;
+      scene.add(nightStars);
+      nightSkyGroupRef.current = nightStars;
+
+      // Sistem Visual Cuaca & Siang/Malam Realtime
+      const updateWeatherVisuals = () => {
+        const isNight = isNightRef.current;
+        const isRaining = isRainingRef.current;
+
+        let targetSky: number;
+        let targetFogNear: number;
+        let targetFogFar: number;
+        let sunColor: number;
+        let sunInt: number;
+        let hemiSky: number;
+        let hemiGround: number;
+        let hemiInt: number;
+
+        if (isNight) {
+          if (isRaining) {
+            // Malam Hujan
+            targetSky = 0x070c18;
+            targetFogNear = 20;
+            targetFogFar = 85;
+            sunColor = 0x60a5fa;
+            sunInt = 0.15;
+            hemiSky = 0x0f172a;
+            hemiGround = 0x020617;
+            hemiInt = 0.25;
+          } else {
+            // Malam Cerah Bertabur Bintang
+            targetSky = 0x0b1329;
+            targetFogNear = 35;
+            targetFogFar = 140;
+            sunColor = 0x93c5fd;
+            sunInt = 0.28;
+            hemiSky = 0x1e3a8a;
+            hemiGround = 0x0f172a;
+            hemiInt = 0.42;
+          }
+        } else {
+          if (isRaining) {
+            // Siang Hujan Gerimis / Mendung
+            targetSky = 0x64748b;
+            targetFogNear = 25;
+            targetFogFar = 95;
+            sunColor = 0xdbeafe;
+            sunInt = 0.55;
+            hemiSky = 0x94a3b8;
+            hemiGround = 0x475569;
+            hemiInt = 0.65;
+          } else {
+            // Siang Cerah Terik
+            targetSky = 0x8cd3ff;
+            targetFogNear = 45;
+            targetFogFar = 165;
+            sunColor = 0xfffaec;
+            sunInt = 1.25;
+            hemiSky = 0xffffff;
+            hemiGround = 0x6b8f5a;
+            hemiInt = 0.95;
+          }
+        }
+
+        scene.background = new THREE.Color(targetSky);
+        if (scene.fog instanceof THREE.Fog) {
+          scene.fog.color.setHex(targetSky);
+          scene.fog.near = targetFogNear;
+          scene.fog.far = targetFogFar;
+        } else {
+          scene.fog = new THREE.Fog(targetSky, targetFogNear, targetFogFar);
+        }
+        renderer.setClearColor(targetSky, 1);
+
+        sun.color.setHex(sunColor);
+        sun.intensity = sunInt;
+        hemi.color.setHex(hemiSky);
+        hemi.groundColor.setHex(hemiGround);
+        hemi.intensity = hemiInt;
+
+        // Lampu jalan taman (Street lamps) menyala kuning keemasan saat malam
+        lampsRef.current.forEach((bulb) => {
+          if (bulb.material instanceof THREE.MeshBasicMaterial) {
+            bulb.material.color.setHex(isNight ? 0xffeb3b : 0xd8d8b0);
+          }
+        });
+
+        if (rainPointsRef.current) {
+          rainPointsRef.current.visible = isRaining && !roomRef.current;
+        }
+
+        if (nightSkyGroupRef.current) {
+          nightSkyGroupRef.current.visible = isNight && !isRaining && !roomRef.current;
+        }
+      };
+
+      updateWeatherVisualsRef.current = updateWeatherVisuals;
+      // Terapkan visual cuaca pertama kali
+      updateWeatherVisuals();
 
       // ========================================================
       // ===== RUANGAN DALAM / INTERIOR SETIAP GEDUNG (LENGKAP) =
@@ -2148,6 +2289,34 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
             fPos.setZ(i, Math.sin(t * 7 + vx * 4) * 0.16 * factor);
           }
           flagGeoRef.current.attributes.position.needsUpdate = true;
+        }
+
+        // Animasi Butiran Hujan Jatuh Aktif Mengikuti Posisi Pemain
+        if (isRainingRef.current && !roomRef.current && rainPointsRef.current && rainCoordsRef.current) {
+          const coords = rainCoordsRef.current;
+          const px = playerPos.current.x;
+          const pz = playerPos.current.z;
+          const count = coords.length / 3;
+
+          for (let i = 0; i < count; i++) {
+            const idx = i * 3;
+            coords[idx + 1] -= dt * 25; // Kecepatan jatuh 25 meter/detik
+
+            // Jika butiran menyentuh tanah, respawn di atas awan sekitar pemain
+            if (coords[idx + 1] <= 0.1) {
+              coords[idx + 1] = 16 + Math.random() * 6;
+              coords[idx] = px + (Math.random() - 0.5) * 52;
+              coords[idx + 2] = pz + (Math.random() - 0.5) * 52;
+            }
+          }
+
+          rainPointsRef.current.geometry.attributes.position.needsUpdate = true;
+        }
+
+        // Animasi Kelip Bintang Malam
+        if (nightSkyGroupRef.current && nightSkyGroupRef.current.visible) {
+          const mat = nightSkyGroupRef.current.material as THREE.PointsMaterial;
+          mat.opacity = 0.75 + Math.sin(t * 2.5) * 0.18;
         }
 
         // Gate Door swings

@@ -206,11 +206,23 @@ export const GameHUD: React.FC<GameHUDProps> = ({
           <button className="ib" id="bs" aria-label="Toggle Suara" onClick={onToggleSound}>
             {soundActive ? "🔊" : "🔇"}
           </button>
-          <button className="ib" id="bn" aria-label="Ganti siang atau malam" onClick={onToggleNight}>
-            {isNight ? "☀️" : "🌙"}
+          <button
+            className="ib"
+            id="bn"
+            title={isNight ? "Suasana Malam (Klik untuk Siang Cerah)" : "Cuaca Siang Cerah (Klik untuk Malam)"}
+            aria-label={isNight ? "Malam (Klik untuk Siang Cerah)" : "Siang Cerah (Klik untuk Malam)"}
+            onClick={onToggleNight}
+          >
+            {isNight ? "🌙" : "☀️"}
           </button>
-          <button className="ib" id="br" aria-label="Hidupkan hujan" onClick={onToggleRain}>
-            {isRaining ? "☀️" : "🌧"}
+          <button
+            className="ib"
+            id="br"
+            title={isRaining ? "Sedang Hujan (Klik untuk Cuaca Cerah)" : "Cuaca Cerah (Klik untuk Turun Hujan)"}
+            aria-label={isRaining ? "Sedang Hujan (Klik untuk Cuaca Cerah)" : "Cuaca Cerah (Klik untuk Turun Hujan)"}
+            onClick={onToggleRain}
+          >
+            {isRaining ? "🌧️" : "🌤️"}
           </button>
           <button className="ib" id="bg" aria-label="Cara bermain" onClick={onOpenGuide}>
             ❓
