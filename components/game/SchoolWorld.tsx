@@ -333,8 +333,8 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         playerPos.current.z = 2.4;
         targetPos.current = null;
         autoEnterRoomId.current = null;
-        playerPitch.current = 0.22;
-        playerDist.current = 4.5;
+        playerPitch.current = 0.28;
+        playerDist.current = 7.5;
         playerYaw.current = 0;
         if (playerGroupRef.current) {
           playerGroupRef.current.rotation.y = 0;
@@ -382,8 +382,16 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         updateWeatherVisualsRef.current?.();
 
         if (b && b.r != null) {
-          playerPos.current.x = b.x + Math.sin(b.r) * 5.4;
-          playerPos.current.z = b.z + Math.cos(b.r) * 5.4;
+          const frontDist =
+            b.id === "ekskul"
+              ? 5.8
+              : b.id === "profil"
+              ? 5.6
+              : b.id === "akademik"
+              ? 5.5
+              : 5.4;
+          playerPos.current.x = b.x + Math.sin(b.r) * (frontDist + 0.3);
+          playerPos.current.z = b.z + Math.cos(b.r) * (frontDist + 0.3);
           playerYaw.current = b.r + Math.PI;
           playerPitch.current = 0.5;
           playerDist.current = 11;
@@ -955,33 +963,54 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         // ========================================================
         // KUSEN & PINTU MASUK DOUBLE DOOR BERKUALITAS TINGGI
         // ========================================================
-        const bDoorZ = 3.65;
-        // Kusen Pintu Kayu Jati / Logam Elegan
-        addMesh(new THREE.BoxGeometry(2.4, 2.9, 0.32), M(0x1e293b), 0, 1.45, bDoorZ, g);
-        addMesh(new THREE.BoxGeometry(1.95, 2.7, 0.1), M(0x0f172a), 0, 1.35, bDoorZ - 0.08, g);
+        const bFrontZ =
+          b.id === "ekskul"
+            ? 4.52
+            : b.id === "profil"
+            ? 4.12
+            : b.id === "akademik"
+            ? 4.02
+            : 3.92;
+        const bDoorZ = bFrontZ;
 
-        // Daun Pintu Kiri (Hinge di x = -0.92)
+        // Kusen Pintu Luar Arsitektural (Kusen tebal abu-abu gelap charcoal)
+        addMesh(new THREE.BoxGeometry(2.5, 3.05, 0.3), M(0x1e293b), 0, 1.5, bDoorZ, g);
+        // Rongga Lorong Masuk / Vestibule Berpenerangan Hangat
+        addMesh(new THREE.BoxGeometry(2.05, 2.8, 0.5), M(0xfffbeb), 0, 1.4, bDoorZ - 0.22, g);
+        // Karpet Sambutan Masuk di Lantai
+        addMesh(new THREE.BoxGeometry(2.4, 0.04, 1.5), M(b.c || 0x1e40af), 0, 0.02, bDoorZ + 0.75, g);
+        addMesh(new THREE.BoxGeometry(2.5, 0.02, 1.6), M(0xffc83d), 0, 0.01, bDoorZ + 0.75, g); // Lis Emas Karpet
+
+        // Papan Penanda Pintu Masuk di Atas Kusen
+        addMesh(new THREE.BoxGeometry(2.2, 0.36, 0.1), M(0x0f172a), 0, 3.15, bDoorZ + 0.08, g);
+        lbl("🚪 MASUK", 0, 3.5, bDoorZ + 0.16, g);
+
+        // Daun Pintu Kiri (Hinge di x = -0.96)
         const bDoorL = new THREE.Group();
-        bDoorL.position.set(-0.92, 0, bDoorZ);
+        bDoorL.position.set(-0.96, 0, bDoorZ);
         g.add(bDoorL);
-        addMesh(new THREE.BoxGeometry(0.92, 2.6, 0.08), M(0x7c4a27), 0.46, 1.3, 0, bDoorL);
-        addMesh(new THREE.BoxGeometry(0.58, 1.25, 0.09), winGlassM, 0.46, 1.65, 0, bDoorL);
-        addMesh(new THREE.CylinderGeometry(0.022, 0.022, 0.42, 8), M(0xf59e0b), 0.82, 1.25, 0.06, bDoorL); // Handle Emas
+        addMesh(new THREE.BoxGeometry(0.96, 2.65, 0.07), M(0x7c4a27), 0.48, 1.33, 0, bDoorL);
+        addMesh(new THREE.BoxGeometry(0.64, 1.55, 0.08), winGlassM, 0.48, 1.5, 0, bDoorL);
+        // Handle Gagang Pintu Panjang Vertikal Emas
+        addMesh(new THREE.CylinderGeometry(0.025, 0.025, 0.65, 8), M(0xffc83d), 0.85, 1.3, 0.06, bDoorL);
+        addMesh(new THREE.CylinderGeometry(0.025, 0.025, 0.65, 8), M(0xffc83d), 0.85, 1.3, -0.06, bDoorL);
         b.doorL = bDoorL;
 
-        // Daun Pintu Kanan (Hinge di x = 0.92)
+        // Daun Pintu Kanan (Hinge di x = 0.96)
         const bDoorR = new THREE.Group();
-        bDoorR.position.set(0.92, 0, bDoorZ);
+        bDoorR.position.set(0.96, 0, bDoorZ);
         g.add(bDoorR);
-        addMesh(new THREE.BoxGeometry(0.92, 2.6, 0.08), M(0x7c4a27), -0.46, 1.3, 0, bDoorR);
-        addMesh(new THREE.BoxGeometry(0.58, 1.25, 0.09), winGlassM, -0.46, 1.65, 0, bDoorR);
-        addMesh(new THREE.CylinderGeometry(0.022, 0.022, 0.42, 8), M(0xf59e0b), -0.82, 1.25, 0.06, bDoorR); // Handle Emas
+        addMesh(new THREE.BoxGeometry(0.96, 2.65, 0.07), M(0x7c4a27), -0.48, 1.33, 0, bDoorR);
+        addMesh(new THREE.BoxGeometry(0.64, 1.55, 0.08), winGlassM, -0.48, 1.5, 0, bDoorR);
+        // Handle Gagang Pintu Panjang Vertikal Emas
+        addMesh(new THREE.CylinderGeometry(0.025, 0.025, 0.65, 8), M(0xffc83d), -0.85, 1.3, 0.06, bDoorR);
+        addMesh(new THREE.CylinderGeometry(0.025, 0.025, 0.65, 8), M(0xffc83d), -0.85, 1.3, -0.06, bDoorR);
         b.doorR = bDoorR;
 
-        // Lampu Dinding Sconce di Samping Pintu Masuk
-        [-1.4, 1.4].forEach((lx) => {
-          addMesh(new THREE.BoxGeometry(0.18, 0.35, 0.18), M(0x1e293b), lx, 2.2, bDoorZ + 0.12, g);
-          addMesh(new THREE.SphereGeometry(0.12, 10, 8), new THREE.MeshBasicMaterial({ color: 0xfff0c2 }), lx, 2.2, bDoorZ + 0.18, g);
+        // Lampu Dinding Lentera Hangat di Kiri & Kanan Pintu
+        [-1.45, 1.45].forEach((lx) => {
+          addMesh(new THREE.BoxGeometry(0.2, 0.4, 0.2), M(0x1e293b), lx, 2.3, bDoorZ + 0.12, g);
+          addMesh(new THREE.SphereGeometry(0.13, 10, 8), new THREE.MeshBasicMaterial({ color: 0xfff0c2 }), lx, 2.3, bDoorZ + 0.2, g);
         });
       });
 
@@ -1604,29 +1633,30 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         addMesh(new THREE.BoxGeometry(0.36, 0.4, 16), M(0xb5483b), -11.1, 1.2, 0, g);
         addMesh(new THREE.BoxGeometry(0.36, 0.4, 16), M(0xb5483b), 11.1, 1.2, 0, g);
 
-        // Kusen & Pintu Keluar Ruangan Interior (z = 7.3)
-        addMesh(new THREE.BoxGeometry(2.4, 2.9, 0.3), M(0x2d3748), 0, 1.45, 7.3, g);
-        addMesh(new THREE.BoxGeometry(1.95, 2.7, 0.1), M(0x111827), 0, 1.35, 7.38, g);
-        addMesh(new THREE.BoxGeometry(2.8, 0.1, 1.4), M(0xf5c26b), 0, 0.04, 6.8, g);
-        addMesh(new THREE.BoxGeometry(1.6, 0.35, 0.15), M(0x10b981), 0, 2.95, 7.25, g);
-        lbl("🚪 PINTU KELUAR", 0, 3.35, 7.25, g);
+        // Kusen & Pintu Keluar Ruangan Interior (z = 7.35)
+        addMesh(new THREE.BoxGeometry(2.6, 3.1, 0.32), M(0x1e293b), 0, 1.5, 7.35, g);
+        addMesh(new THREE.BoxGeometry(2.05, 2.75, 0.1), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }), 0, 1.38, 7.48, g);
+        addMesh(new THREE.BoxGeometry(2.6, 0.04, 1.5), M(0x059669), 0, 0.02, 6.6, g); // Karpet keluar hijau zamrud
+        addMesh(new THREE.BoxGeometry(2.7, 0.02, 1.6), M(0xffc83d), 0, 0.01, 6.6, g); // Lis emas karpet
+        addMesh(new THREE.BoxGeometry(2.0, 0.4, 0.15), M(0x10b981), 0, 3.15, 7.28, g);
+        lbl("🚪 PINTU KELUAR", 0, 3.55, 7.25, g);
 
-        // Daun Pintu Keluar Kiri (Hinge di x = -0.92)
+        // Daun Pintu Keluar Kiri (Hinge di x = -0.96)
         const rmExL = new THREE.Group();
-        rmExL.position.set(-0.92, 0, 7.3);
+        rmExL.position.set(-0.96, 0, 7.35);
         g.add(rmExL);
-        addMesh(new THREE.BoxGeometry(0.92, 2.6, 0.08), M(0x7c4a27), 0.46, 1.3, 0, rmExL);
-        addMesh(new THREE.BoxGeometry(0.56, 1.15, 0.09), new THREE.MeshBasicMaterial({ color: 0x9bd3ff, transparent: true, opacity: 0.6 }), 0.46, 1.7, 0, rmExL);
-        addMesh(new THREE.CylinderGeometry(0.022, 0.022, 0.38, 8), M(0xe2e8f0), 0.82, 1.25, -0.06, rmExL);
+        addMesh(new THREE.BoxGeometry(0.96, 2.65, 0.07), M(0x7c4a27), 0.48, 1.33, 0, rmExL);
+        addMesh(new THREE.BoxGeometry(0.64, 1.55, 0.08), winGlassM, 0.48, 1.5, 0, rmExL);
+        addMesh(new THREE.CylinderGeometry(0.025, 0.025, 0.65, 8), M(0xe2e8f0), 0.85, 1.3, -0.06, rmExL);
         g.userData.exitDoorL = rmExL;
 
-        // Daun Pintu Keluar Kanan (Hinge di x = 0.92)
+        // Daun Pintu Keluar Kanan (Hinge di x = 0.96)
         const rmExR = new THREE.Group();
-        rmExR.position.set(0.92, 0, 7.3);
+        rmExR.position.set(0.96, 0, 7.35);
         g.add(rmExR);
-        addMesh(new THREE.BoxGeometry(0.92, 2.6, 0.08), M(0x7c4a27), -0.46, 1.3, 0, rmExR);
-        addMesh(new THREE.BoxGeometry(0.56, 1.15, 0.09), new THREE.MeshBasicMaterial({ color: 0x9bd3ff, transparent: true, opacity: 0.6 }), -0.46, 1.7, 0, rmExR);
-        addMesh(new THREE.CylinderGeometry(0.022, 0.022, 0.38, 8), M(0xe2e8f0), -0.82, 1.25, -0.06, rmExR);
+        addMesh(new THREE.BoxGeometry(0.96, 2.65, 0.07), M(0x7c4a27), -0.48, 1.33, 0, rmExR);
+        addMesh(new THREE.BoxGeometry(0.64, 1.55, 0.08), winGlassM, -0.48, 1.5, 0, rmExR);
+        addMesh(new THREE.CylinderGeometry(0.025, 0.025, 0.65, 8), M(0xe2e8f0), -0.85, 1.3, -0.06, rmExR);
         g.userData.exitDoorR = rmExR;
 
         // ==========================================
@@ -2129,7 +2159,12 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       };
 
       const handleWheel = (e: WheelEvent) => {
-        playerDist.current = Math.min(24, Math.max(6, playerDist.current + e.deltaY * 0.012));
+        const minDist = roomRef.current ? 5.2 : 6.0;
+        const maxDist = roomRef.current ? 12.0 : 24.0;
+        playerDist.current = Math.min(
+          maxDist,
+          Math.max(minDist, playerDist.current + e.deltaY * 0.012)
+        );
       };
 
       canvas.addEventListener("pointerdown", handlePointerDown);
@@ -2251,12 +2286,39 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
             // Buildings
             for (const b of BUILDINGS) {
               if (b.r != null) {
-                const c = Math.cos(b.r), s = Math.sin(b.r);
-                const bdx = playerPos.current.x - b.x, bdz = playerPos.current.z - b.z;
-                let lx = bdx * c - bdz * s, lz = bdx * s + bdz * c;
-                const hx = 5.2, hz = 4.2;
-                if (Math.abs(lx) < hx && Math.abs(lz) < hz) {
-                  if (hx - Math.abs(lx) < hz - Math.abs(lz)) lx = Math.sign(lx || 1) * hx;
+                const c = Math.cos(b.r),
+                  s = Math.sin(b.r);
+                const bdx = playerPos.current.x - b.x,
+                  bdz = playerPos.current.z - b.z;
+                let lx = bdx * c - bdz * s,
+                  lz = bdx * s + bdz * c;
+                const hx =
+                  b.id === "profil"
+                    ? 6.5
+                    : b.id === "akademik"
+                    ? 6.2
+                    : b.id === "ekskul"
+                    ? 5.9
+                    : 5.3;
+                const bFrontZ =
+                  b.id === "ekskul"
+                    ? 4.52
+                    : b.id === "profil"
+                    ? 4.12
+                    : b.id === "akademik"
+                    ? 4.02
+                    : 3.92;
+                const hz = bFrontZ;
+
+                // Jika pemain melangkah lurus tepat di depan pintu masuk (|lx| < 1.35 dan lz > 0)
+                if (Math.abs(lx) < 1.35 && lz > 0) {
+                  // Berikan lorong masuk alami menuju ruangan
+                  if (lz < bFrontZ + 0.15) {
+                    doEnterRoom(b.id);
+                  }
+                } else if (Math.abs(lx) < hx && Math.abs(lz) < hz) {
+                  if (hx - Math.abs(lx) < hz - Math.abs(lz))
+                    lx = Math.sign(lx || 1) * hx;
                   else lz = Math.sign(lz || 1) * hz;
                   playerPos.current.x = b.x + lx * c + lz * s;
                   playerPos.current.z = b.z - lx * s + lz * c;
@@ -2462,7 +2524,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           BUILDINGS.forEach((b) => {
             if (!b.doorL || !b.doorR || b.dx == null || b.dz == null) return;
             const dist = Math.hypot(b.dx - playerPos.current.x, b.dz - playerPos.current.z);
-            const isOpen = dist < 3.6 || b.isOpening;
+            const isOpen = dist < 4.0 || b.isOpening;
             const targetAngle = isOpen ? 1.45 : 0;
             b.doorL.rotation.y += (-targetAngle - b.doorL.rotation.y) * Math.min(1, dt * 6.5);
             b.doorR.rotation.y += (targetAngle - b.doorR.rotation.y) * Math.min(1, dt * 6.5);
@@ -2472,8 +2534,8 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           const exL = rg.userData.exitDoorL;
           const exR = rg.userData.exitDoorR;
           if (exL && exR) {
-            const nearEx = Math.hypot(RX - playerPos.current.x, 7.3 - playerPos.current.z) < 3.2;
-            const tgtEx = nearEx ? 1.4 : 0;
+            const nearEx = Math.hypot(RX - playerPos.current.x, 7.35 - playerPos.current.z) < 3.8;
+            const tgtEx = nearEx ? 1.45 : 0;
             exL.rotation.y += (-tgtEx - exL.rotation.y) * Math.min(1, dt * 6.5);
             exR.rotation.y += (tgtEx - exR.rotation.y) * Math.min(1, dt * 6.5);
           }
@@ -2483,7 +2545,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         let nb: any = null;
         if (playRef.current && !roomRef.current) {
           for (const b of BUILDINGS) {
-            if (b.dx != null && b.dz != null && Math.hypot(b.dx - playerPos.current.x, b.dz - playerPos.current.z) < 3.0) {
+            if (b.dx != null && b.dz != null && Math.hypot(b.dx - playerPos.current.x, b.dz - playerPos.current.z) < 3.4) {
               nb = { id: b.id, n: b.n, i: b.i, v: "Masuk Pintu" };
             }
           }
@@ -2499,8 +2561,11 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
             };
           }
         } else if (roomRef.current) {
-          if (Math.hypot(RX - playerPos.current.x, 7 - playerPos.current.z) < 1.8) {
+          if (Math.hypot(RX - playerPos.current.x, 7.1 - playerPos.current.z) < 2.2) {
             nb = { exit: 1, id: "exit", n: "Pintu Keluar", i: "🚪", v: "Keluar" };
+            if (playerPos.current.z >= 6.85) {
+              doExitRoom();
+            }
           }
           const rings = roomRingMapRef.current[roomRef.current] || [];
           for (const r of rings) {
@@ -2523,22 +2588,22 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           // ==========================================
           // KAMERA DI DALAM RUANGAN (INTERIOR 3D)
           // ==========================================
-          // Jarak kamera proporsional untuk interior (4.6m desktop, 5.4m mobile)
-          const cd = isPortrait ? 5.4 : 4.6;
-          // Batasi sudut elevasi kamera agar tetap di dalam ruangan di bawah plafon
-          const cpt = Math.min(0.35, Math.max(0.06, playerPitch.current));
+          // Jarak kamera nyaman & luas agar ruangan dan karakter terlihat proporsional
+          const baseDist = Math.max(5.8, Math.min(11.0, playerDist.current));
+          const cd = isPortrait ? baseDist * 1.15 : baseDist;
+          // Sudut elevasi kamera proporsional
+          const cpt = Math.min(0.48, Math.max(0.12, playerPitch.current));
           const cp = Math.cos(cpt);
 
           const rawX = playerPos.current.x + Math.sin(playerYaw.current) * cp * cd;
-          const rawY = 1.35 + Math.sin(cpt) * cd;
+          const rawY = 2.0 + Math.sin(cpt) * cd;
           const rawZ = playerPos.current.z + Math.cos(playerYaw.current) * cp * cd;
 
-          // Batasi posisi kamera selalu di dalam dinding ruangan & di bawah plafon
-          // RX = 120, lebar 22 (X: RX-11 .. RX+11), kedalaman 16 (Z: -8 .. +8), tinggi 4.85
+          // Batasi posisi kamera selalu di dalam batas ruangan
           tv = new THREE.Vector3(
-            Math.min(RX + 9.2, Math.max(RX - 9.2, rawX)),
-            Math.min(3.6, Math.max(1.3, rawY)),
-            Math.min(6.8, Math.max(-6.8, rawZ))
+            Math.min(RX + 10.2, Math.max(RX - 10.2, rawX)),
+            Math.min(4.5, Math.max(1.5, rawY)),
+            Math.min(7.4, Math.max(-7.4, rawZ))
           );
         } else {
           // ==========================================
@@ -2555,7 +2620,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         }
 
         camera.position.lerp(tv, 1 - Math.pow(0.001, dt));
-        const lookTargetY = roomRef.current ? 1.1 : 1.3;
+        const lookTargetY = roomRef.current ? 1.25 : 1.3;
         camera.lookAt(playerPos.current.x, lookTargetY, playerPos.current.z);
 
         onPlayerMoveRef.current?.({

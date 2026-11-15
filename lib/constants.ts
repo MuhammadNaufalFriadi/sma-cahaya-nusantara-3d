@@ -39,8 +39,16 @@ export const BUILDINGS: BuildingData[] = [
 
 BUILDINGS.forEach((b) => {
   b.r = Math.atan2(-b.x, -b.z);
-  b.dx = b.x + Math.sin(b.r) * 4.2;
-  b.dz = b.z + Math.cos(b.r) * 4.2;
+  const frontDist =
+    b.id === "ekskul"
+      ? 5.8
+      : b.id === "profil"
+      ? 5.6
+      : b.id === "akademik"
+      ? 5.5
+      : 5.4;
+  b.dx = b.x + Math.sin(b.r) * frontDist;
+  b.dz = b.z + Math.cos(b.r) * frontDist;
 });
 
 export const GATE_POS = {
