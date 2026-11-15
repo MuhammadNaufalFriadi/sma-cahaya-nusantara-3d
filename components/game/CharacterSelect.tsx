@@ -227,19 +227,33 @@ function buildCharacter(
   const nose = addMesh(new THREE.SphereGeometry(0.045, 10, 8), PM.k, 0, -0.04, 0.505, headG);
   nose.scale.set(0.9, 0.8, 1.2);
 
-  // Mulut 3D senyum manis & ramah (Jelas terlihat dari segala sudut)
+  // Mulut 3D senyum manis & rapi bergaya anime (Garis senyum melengkung lembut)
   const mouthG = new THREE.Group();
-  mouthG.position.set(0, -0.17, 0.492);
+  mouthG.position.set(0, -0.155, 0.485);
   mouthG.rotation.x = -0.12;
   headG.add(mouthG);
-  const lips = addMesh(new THREE.TorusGeometry(0.09, 0.018, 8, 16, Math.PI), PM.mouth, 0, 0, 0, mouthG);
-  lips.rotation.z = Math.PI;
-  const mouthCavity = addMesh(new THREE.CylinderGeometry(0.075, 0.075, 0.015, 12, 1, false, 0, Math.PI), PM.mouthCavity, 0, -0.012, -0.005, mouthG);
-  mouthCavity.rotation.x = Math.PI / 2;
-  mouthCavity.rotation.z = Math.PI;
-  addMesh(new THREE.BoxGeometry(0.075, 0.02, 0.015), PM.white, 0, 0.012, 0.005, mouthG);
-  const lowerLip = addMesh(new THREE.SphereGeometry(0.035, 8, 6), PM.blush, 0, -0.05, 0.005, mouthG);
-  lowerLip.scale.set(1.4, 0.5, 0.6);
+
+  const smile = addMesh(
+    new THREE.TorusGeometry(0.075, 0.012, 8, 24, Math.PI),
+    M(0x782418),
+    0,
+    0,
+    0,
+    mouthG
+  );
+  smile.rotation.z = Math.PI;
+
+  // Aksen lesung pipi / ujung senyum manis di kiri & kanan
+  [-1, 1].forEach((s) => {
+    addMesh(
+      new THREE.SphereGeometry(0.012, 8, 8),
+      M(0x782418),
+      s * 0.074,
+      0.005,
+      0,
+      mouthG
+    );
+  });
 
   // Kuping / Telinga 3D Kiri & Kanan (Tampak jelas untuk Naufal & Rani; tertutup hijab untuk Sari)
   if (charIdx !== 2) {
