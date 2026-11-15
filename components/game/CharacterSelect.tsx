@@ -97,10 +97,19 @@ function buildCharacter(
     gold: M(0xffd700),
     ribbon: M(0xb03a48),
     blush: M(0xfb7185),
+    mouth: M(0x8a2020),
+    mouthCavity: M(0x6b1016),
+    belt: M(0x271e1b),
+    bottle: M(0x0ea5e9),
+    metal: M(0xd1d5db),
     shoes: M(0x181818),
   };
 
   // ----- 2. BADAN / TORSO & DASI SEKOLAH -----
+  // Leher anatomis halus menghubungkan badan dan kepala
+  const neck = addMesh(new THREE.CylinderGeometry(0.18, 0.20, 0.28, 16), PM.k, 0, 1.58, 0, charG);
+  neck.scale.z = 0.85;
+
   const torso = addMesh(
     new THREE.CylinderGeometry(0.43, 0.38, 0.78, 16),
     PM.j,
@@ -110,7 +119,17 @@ function buildCharacter(
     charG
   );
   torso.scale.z = 0.8;
+  // Kemeja Putih bagian dalam
   addMesh(new THREE.BoxGeometry(0.3, 0.5, 0.06), PM.sh, 0, 1.2, 0.33, charG);
+
+  // Kerah Kemeja 3D Lipat (Kiri & Kanan)
+  [-1, 1].forEach((s) => {
+    const col = addMesh(new THREE.BoxGeometry(0.16, 0.07, 0.12), PM.sh, s * 0.14, 1.48, 0.22, charG);
+    col.rotation.set(0.32, s * 0.45, -s * 0.15);
+  });
+
+  // Simpul Dasi 3D & Dasi Merah Menjuntai
+  addMesh(new THREE.BoxGeometry(0.11, 0.09, 0.08), PM.rd, 0, 1.41, 0.35, charG);
   addMesh(
     new THREE.BoxGeometry(0.09, 0.42, 0.05),
     PM.rd,
@@ -121,15 +140,38 @@ function buildCharacter(
   );
   addMesh(new THREE.BoxGeometry(0.4, 0.09, 0.1), PM.sh, 0, 1.5, 0.3, charG);
 
-  // Ransel sekolah merah di punggung
+  // Lencana Emas OSIS / Sekolah di Dada Kiri
+  const badgeBase = addMesh(new THREE.CylinderGeometry(0.045, 0.045, 0.02, 8), PM.gold, -0.22, 1.25, 0.32, charG);
+  badgeBase.rotation.x = Math.PI / 2;
+  const badgeCenter = addMesh(new THREE.CylinderGeometry(0.03, 0.03, 0.025, 8), M(0x1e3a8a), -0.22, 1.25, 0.325, charG);
+  badgeCenter.rotation.x = Math.PI / 2;
+
+  // Sabuk / Ikat Pinggang & Gesper Emas
+  const belt = addMesh(new THREE.CylinderGeometry(0.41, 0.41, 0.08, 16), PM.belt, 0, 0.74, 0, charG);
+  belt.scale.z = 0.82;
+  addMesh(new THREE.BoxGeometry(0.12, 0.075, 0.04), PM.gold, 0, 0.74, 0.36, charG);
+  addMesh(new THREE.BoxGeometry(0.06, 0.045, 0.045), M(0x181818), 0, 0.74, 0.362, charG);
+
+  // Tas Ransel Petualang Lengkap (Explorer Backpack)
   addMesh(
-    new THREE.BoxGeometry(0.62, 0.72, 0.26),
+    new THREE.BoxGeometry(0.60, 0.70, 0.28),
     PM.rd,
     0,
     1.15,
-    -0.45,
+    -0.44,
     charG
   );
+  addMesh(new THREE.BoxGeometry(0.48, 0.32, 0.09), M(0xa81c1c), 0, 1.02, -0.59, charG);
+  const bpHandle = addMesh(new THREE.TorusGeometry(0.09, 0.022, 6, 12, Math.PI), M(0x222222), 0, 1.52, -0.44, charG);
+  bpHandle.rotation.set(0, 0, Math.PI);
+  [-1, 1].forEach((s) => {
+    const strap = addMesh(new THREE.BoxGeometry(0.08, 0.50, 0.30), PM.rd, s * 0.22, 1.30, 0.04, charG);
+    strap.rotation.x = 0.08;
+  });
+  // Kantong samping + Botol Minum / Tumbler Petualang
+  addMesh(new THREE.CylinderGeometry(0.075, 0.07, 0.18, 12), M(0x991b1b), 0.33, 0.98, -0.44, charG);
+  addMesh(new THREE.CylinderGeometry(0.06, 0.06, 0.26, 12), PM.bottle, 0.33, 1.08, -0.44, charG);
+  addMesh(new THREE.CylinderGeometry(0.035, 0.04, 0.06, 10), PM.metal, 0.33, 1.23, -0.44, charG);
 
   // ----- 3. KEPALA & FITUR WAJAH CUTE -----
   const headG = new THREE.Group();
@@ -137,7 +179,7 @@ function buildCharacter(
   charG.add(headG);
   addMesh(new THREE.SphereGeometry(0.5, 24, 18), PM.k, 0, 0, 0, headG);
 
-  // Mata bergaya anime manis (Sclera putih, iris biru, pupil hitam, blush pipi)
+  // Mata bergaya anime manis (Sclera putih, iris biru, pupil hitam, catchlights berkilau, blush pipi)
   [-1, 1].forEach((s) => {
     addMesh(
       new THREE.SphereGeometry(0.13, 12, 10),
@@ -163,6 +205,10 @@ function buildCharacter(
       0.53,
       headG
     );
+    // Kilau pantulan cahaya mata (Catchlights)
+    addMesh(new THREE.SphereGeometry(0.024, 8, 8), PM.white, s * 0.155, 0.07, 0.542, headG);
+    addMesh(new THREE.SphereGeometry(0.013, 8, 8), PM.white, s * 0.195, 0.02, 0.545, headG);
+    // Blush rona pipi merona
     addMesh(
       new THREE.SphereGeometry(0.07, 10, 8),
       PM.blush,
@@ -171,18 +217,49 @@ function buildCharacter(
       0.37,
       headG
     ).scale.z = 0.4;
+
+    // Alis 3D ekspresif
+    const brow = addMesh(new THREE.BoxGeometry(0.11, 0.026, 0.04), PM.h, s * 0.18, 0.19, 0.46, headG);
+    brow.rotation.set(0.1, -s * 0.15, -s * 0.12);
   });
 
-  // Senyum ramah
-  const smile = addMesh(
-    new THREE.TorusGeometry(0.09, 0.016, 6, 12, Math.PI),
-    M(0x8a3020),
-    0,
-    -0.16,
-    0.46,
-    headG
-  );
-  smile.rotation.set(0, 0, Math.PI);
+  // Hidung 3D mungil (Button nose)
+  const nose = addMesh(new THREE.SphereGeometry(0.045, 10, 8), PM.k, 0, -0.04, 0.505, headG);
+  nose.scale.set(0.9, 0.8, 1.2);
+
+  // Mulut 3D senyum manis & ramah (Jelas terlihat dari segala sudut)
+  const mouthG = new THREE.Group();
+  mouthG.position.set(0, -0.17, 0.492);
+  mouthG.rotation.x = -0.12;
+  headG.add(mouthG);
+  const lips = addMesh(new THREE.TorusGeometry(0.09, 0.018, 8, 16, Math.PI), PM.mouth, 0, 0, 0, mouthG);
+  lips.rotation.z = Math.PI;
+  const mouthCavity = addMesh(new THREE.CylinderGeometry(0.075, 0.075, 0.015, 12, 1, false, 0, Math.PI), PM.mouthCavity, 0, -0.012, -0.005, mouthG);
+  mouthCavity.rotation.x = Math.PI / 2;
+  mouthCavity.rotation.z = Math.PI;
+  addMesh(new THREE.BoxGeometry(0.075, 0.02, 0.015), PM.white, 0, 0.012, 0.005, mouthG);
+  const lowerLip = addMesh(new THREE.SphereGeometry(0.035, 8, 6), PM.blush, 0, -0.05, 0.005, mouthG);
+  lowerLip.scale.set(1.4, 0.5, 0.6);
+
+  // Kuping / Telinga 3D Kiri & Kanan (Tampak jelas untuk Naufal & Rani; tertutup hijab untuk Sari)
+  if (charIdx !== 2) {
+    [-1, 1].forEach((s) => {
+      const earG = new THREE.Group();
+      earG.position.set(s * 0.485, 0.02, -0.02);
+      earG.rotation.set(0, s * 0.25, -s * 0.12);
+      headG.add(earG);
+
+      const earOuter = addMesh(new THREE.SphereGeometry(0.12, 12, 10), PM.k, 0, 0, 0, earG);
+      earOuter.scale.set(0.35, 0.95, 0.65);
+
+      const earInner = addMesh(new THREE.SphereGeometry(0.075, 10, 8), M(0xc6825c), s * 0.02, 0.01, 0.01, earG);
+      earInner.scale.set(0.28, 0.70, 0.50);
+
+      if (charIdx === 1) {
+        addMesh(new THREE.SphereGeometry(0.03, 8, 8), PM.gold, s * 0.03, -0.08, 0, earG);
+      }
+    });
+  }
 
   // ----- 4. RAMBUT & BUSANA KHAS MASING-MASING KARAKTER -----
   if (charIdx === 0) {
@@ -333,21 +410,39 @@ function buildCharacter(
         lg
       );
     }
-    // Sepatu hitam dengan sol putih
+    // Sepatu Sneakers Petualang (Sporty explorer sneakers)
     addMesh(
       new THREE.BoxGeometry(0.28, 0.17, 0.46),
       PM.shoes,
       0,
-      -0.65,
+      -0.63,
       0.08,
       lg
     );
     addMesh(
-      new THREE.BoxGeometry(0.3, 0.06, 0.48),
+      new THREE.BoxGeometry(0.3, 0.07, 0.5),
       PM.white,
       0,
       -0.72,
       0.08,
+      lg
+    );
+    const toeCap = addMesh(
+      new THREE.CylinderGeometry(0.13, 0.14, 0.16, 12),
+      PM.white,
+      0,
+      -0.64,
+      0.25,
+      lg
+    );
+    toeCap.rotation.z = Math.PI / 2;
+    toeCap.scale.set(0.7, 1, 0.7);
+    addMesh(
+      new THREE.BoxGeometry(0.15, 0.025, 0.12),
+      PM.white,
+      0,
+      -0.54,
+      0.13,
       lg
     );
     legs.push(lg);
@@ -359,6 +454,7 @@ function buildCharacter(
     const ag = new THREE.Group();
     ag.position.set(s * 0.5, 1.38, 0);
     charG.add(ag);
+    // Lengan seragam
     addMesh(
       new THREE.CylinderGeometry(0.115, 0.1, 0.66, 12),
       PM.j,
@@ -367,8 +463,28 @@ function buildCharacter(
       0,
       ag
     );
+    // Sendi bahu
     addMesh(new THREE.SphereGeometry(0.14, 12, 10), PM.j, 0, 0, 0, ag);
-    addMesh(new THREE.SphereGeometry(0.12, 12, 10), PM.k, 0, -0.74, 0, ag);
+    // Telapak tangan halus
+    const palm = addMesh(
+      new THREE.SphereGeometry(0.115, 12, 10),
+      PM.k,
+      0,
+      -0.74,
+      0,
+      ag
+    );
+    palm.scale.set(1.0, 1.1, 0.85);
+    // Jempol tangan 3D mengarah ke depan & dalam (Anatomi manusia alami)
+    const thumb = addMesh(
+      new THREE.CylinderGeometry(0.032, 0.038, 0.1, 8),
+      PM.k,
+      -s * 0.06,
+      -0.72,
+      0.05,
+      ag
+    );
+    thumb.rotation.set(0.35, 0, s * 0.5);
     arms.push(ag);
   });
 

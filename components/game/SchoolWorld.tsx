@@ -308,6 +308,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           if (o.userData.isBoy) o.visible = idx === 0;
           if (o.userData.isRani) o.visible = idx === 1;
           if (o.userData.isSari) o.visible = idx === 2;
+          if (o.userData.isNonHijab) o.visible = idx !== 2;
         });
       }
 
@@ -1065,19 +1066,67 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         gold: M(0xffd700),
         ribbon: M(0xb03a48),
         blush: M(0xfb7185),
+        mouth: M(0x8a2020),
+        mouthCavity: M(0x6b1016),
+        belt: M(0x271e1b),
+        bottle: M(0x0ea5e9),
+        metal: M(0xd1d5db),
+        shoes: M(0x181818),
       };
       playerMatRef.current = PM;
 
-      // Torso & Tie
+      // Leher anatomis menghubungkan badan dan kepala
+      const neck = addMesh(new THREE.CylinderGeometry(0.18, 0.20, 0.28, 16), PM.k, 0, 1.58, 0, pl);
+      neck.scale.z = 0.85;
+
+      // Torso & Blazer Seragam Sekolah
       const torso = addMesh(new THREE.CylinderGeometry(0.43, 0.38, 0.78, 16), PM.j, 0, 1.09, 0, pl);
       torso.scale.z = 0.8;
       torsoRef.current = torso;
+
+      // Kemeja Putih bagian dalam
       addMesh(new THREE.BoxGeometry(0.3, 0.5, 0.06), PM.sh, 0, 1.2, 0.33, pl);
+
+      // Kerah Kemeja 3D Lipat (Kiri & Kanan)
+      [-1, 1].forEach((s) => {
+        const col = addMesh(new THREE.BoxGeometry(0.16, 0.07, 0.12), PM.sh, s * 0.14, 1.48, 0.22, pl);
+        col.rotation.set(0.32, s * 0.45, -s * 0.15);
+      });
+
+      // Simpul Dasi 3D & Dasi Merah Menjuntai
+      addMesh(new THREE.BoxGeometry(0.11, 0.09, 0.08), PM.rd, 0, 1.41, 0.35, pl);
       addMesh(new THREE.BoxGeometry(0.09, 0.42, 0.05), PM.rd, 0, 1.14, 0.37, pl);
       addMesh(new THREE.BoxGeometry(0.4, 0.09, 0.1), PM.sh, 0, 1.5, 0.3, pl);
 
-      // Backpack
-      addMesh(new THREE.BoxGeometry(0.62, 0.72, 0.26), PM.rd, 0, 1.15, -0.45, pl);
+      // Lencana Emas OSIS / Sekolah di Dada Kiri
+      const badgeBase = addMesh(new THREE.CylinderGeometry(0.045, 0.045, 0.02, 8), PM.gold, -0.22, 1.25, 0.32, pl);
+      badgeBase.rotation.x = Math.PI / 2;
+      const badgeCenter = addMesh(new THREE.CylinderGeometry(0.03, 0.03, 0.025, 8), M(0x1e3a8a), -0.22, 1.25, 0.325, pl);
+      badgeCenter.rotation.x = Math.PI / 2;
+
+      // Sabuk / Ikat Pinggang & Gesper Emas
+      const belt = addMesh(new THREE.CylinderGeometry(0.41, 0.41, 0.08, 16), PM.belt, 0, 0.74, 0, pl);
+      belt.scale.z = 0.82;
+      addMesh(new THREE.BoxGeometry(0.12, 0.075, 0.04), PM.gold, 0, 0.74, 0.36, pl);
+      addMesh(new THREE.BoxGeometry(0.06, 0.045, 0.045), M(0x181818), 0, 0.74, 0.362, pl);
+
+      // Tas Ransel Petualang Lengkap (Explorer Backpack)
+      // Badan utama ransel
+      addMesh(new THREE.BoxGeometry(0.60, 0.70, 0.28), PM.rd, 0, 1.15, -0.44, pl);
+      // Kantung saku depan dengan resleting
+      addMesh(new THREE.BoxGeometry(0.48, 0.32, 0.09), M(0xa81c1c), 0, 1.02, -0.59, pl);
+      // Pegangan atas ransel (Handle)
+      const bpHandle = addMesh(new THREE.TorusGeometry(0.09, 0.022, 6, 12, Math.PI), M(0x222222), 0, 1.52, -0.44, pl);
+      bpHandle.rotation.set(0, 0, Math.PI);
+      // Tali ransel empuk membungkus pundak (Shoulder straps)
+      [-1, 1].forEach((s) => {
+        const strap = addMesh(new THREE.BoxGeometry(0.08, 0.50, 0.30), PM.rd, s * 0.22, 1.30, 0.04, pl);
+        strap.rotation.x = 0.08;
+      });
+      // Kantong samping + Botol Minum / Tumbler Petualang
+      addMesh(new THREE.CylinderGeometry(0.075, 0.07, 0.18, 12), M(0x991b1b), 0.33, 0.98, -0.44, pl);
+      addMesh(new THREE.CylinderGeometry(0.06, 0.06, 0.26, 12), PM.bottle, 0.33, 1.08, -0.44, pl);
+      addMesh(new THREE.CylinderGeometry(0.035, 0.04, 0.06, 10), PM.metal, 0.33, 1.23, -0.44, pl);
 
       // Head
       const head = new THREE.Group();
@@ -1086,12 +1135,68 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       headRef.current = head;
       addMesh(new THREE.SphereGeometry(0.5, 24, 18), PM.k, 0, 0, 0, head);
 
-      // Face features
+      // Mata bergaya anime manis & ekspresif
       [-1, 1].forEach((s) => {
-        addMesh(new THREE.SphereGeometry(0.13, 12, 10), M(0xffffff), s * 0.18, 0.04, 0.4, head);
+        // Sclera putih mata
+        addMesh(new THREE.SphereGeometry(0.13, 12, 10), PM.white, s * 0.18, 0.04, 0.4, head);
+        // Iris biru jernih
         addMesh(new THREE.SphereGeometry(0.085, 12, 10), M(0x3b6e8f), s * 0.18, 0.04, 0.48, head);
+        // Pupil hitam
         addMesh(new THREE.SphereGeometry(0.045, 10, 8), M(0x101820), s * 0.18, 0.04, 0.53, head);
+        // Kilau pantulan cahaya mata (Catchlights)
+        addMesh(new THREE.SphereGeometry(0.024, 8, 8), PM.white, s * 0.155, 0.07, 0.542, head);
+        addMesh(new THREE.SphereGeometry(0.013, 8, 8), PM.white, s * 0.195, 0.02, 0.545, head);
+        // Blush rona pipi merona
         addMesh(new THREE.SphereGeometry(0.07, 10, 8), PM.blush, s * 0.3, -0.1, 0.37, head).scale.z = 0.4;
+
+        // Alis 3D ekspresif di atas mata
+        const brow = addMesh(new THREE.BoxGeometry(0.11, 0.026, 0.04), PM.h, s * 0.18, 0.19, 0.46, head);
+        brow.rotation.set(0.1, -s * 0.15, -s * 0.12);
+      });
+
+      // Hidung 3D mungil (Button nose)
+      const nose = addMesh(new THREE.SphereGeometry(0.045, 10, 8), PM.k, 0, -0.04, 0.505, head);
+      nose.scale.set(0.9, 0.8, 1.2);
+
+      // Mulut 3D tersenyum manis & ramah (Jelas terlihat dari depan & samping)
+      const mouthG = new THREE.Group();
+      mouthG.position.set(0, -0.17, 0.492);
+      mouthG.rotation.x = -0.12;
+      head.add(mouthG);
+      // Garis senyum melengkung indah
+      const lips = addMesh(new THREE.TorusGeometry(0.09, 0.018, 8, 16, Math.PI), PM.mouth, 0, 0, 0, mouthG);
+      lips.rotation.z = Math.PI;
+      // Rongga mulut senyum ceria
+      const mouthCavity = addMesh(new THREE.CylinderGeometry(0.075, 0.075, 0.015, 12, 1, false, 0, Math.PI), PM.mouthCavity, 0, -0.012, -0.005, mouthG);
+      mouthCavity.rotation.x = Math.PI / 2;
+      mouthCavity.rotation.z = Math.PI;
+      // Kilau gigi putih bersih
+      addMesh(new THREE.BoxGeometry(0.075, 0.02, 0.015), PM.white, 0, 0.012, 0.005, mouthG);
+      // Aksen bibir bawah manis
+      const lowerLip = addMesh(new THREE.SphereGeometry(0.035, 8, 6), PM.blush, 0, -0.05, 0.005, mouthG);
+      lowerLip.scale.set(1.4, 0.5, 0.6);
+
+      // Kuping / Telinga 3D Kiri & Kanan (Daun telinga anatomis dengan lipatan dalam)
+      [-1, 1].forEach((s) => {
+        const earG = new THREE.Group();
+        earG.position.set(s * 0.485, 0.02, -0.02);
+        earG.rotation.set(0, s * 0.25, -s * 0.12);
+        earG.userData.isNonHijab = 1;
+        head.add(earG);
+
+        // Daun telinga luar
+        const earOuter = addMesh(new THREE.SphereGeometry(0.12, 12, 10), PM.k, 0, 0, 0, earG);
+        earOuter.scale.set(0.35, 0.95, 0.65);
+        earOuter.userData.isNonHijab = 1;
+
+        // Lipatan dalam telinga (sedikit lebih berbayang)
+        const earInner = addMesh(new THREE.SphereGeometry(0.075, 10, 8), M(0xc6825c), s * 0.02, 0.01, 0.01, earG);
+        earInner.scale.set(0.28, 0.70, 0.50);
+        earInner.userData.isNonHijab = 1;
+
+        // Anting mutiara emas manis untuk siswi Rani
+        const earring = addMesh(new THREE.SphereGeometry(0.03, 8, 8), PM.gold, s * 0.03, -0.08, 0, earG);
+        earring.userData.isRani = 1;
       });
 
       // 1. Naufal (Boy Hair)
@@ -1139,12 +1244,28 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         const lg = new THREE.Group();
         lg.position.set(x, 0.73, 0);
         pl.add(lg);
+        // Celana panjang siswa cowok
         const pLg = addMesh(new THREE.CylinderGeometry(0.16, 0.15, 0.6, 12), PM.pa, 0, -0.3, 0, lg);
         pLg.userData.isBoy = 1;
+        // Kaos kaki putih siswi cewek
         const rLg = addMesh(new THREE.CylinderGeometry(0.13, 0.13, 0.35, 12), PM.white, 0, -0.35, 0, lg);
         rLg.userData.isRani = 1;
-        addMesh(new THREE.BoxGeometry(0.28, 0.17, 0.46), M(0x151515), 0, -0.65, 0.08, lg);
-        addMesh(new THREE.BoxGeometry(0.3, 0.06, 0.48), M(0xffffff), 0, -0.72, 0.08, lg);
+        // Celana panjang dalam siswi hijab
+        const sLg = addMesh(new THREE.CylinderGeometry(0.14, 0.13, 0.4, 12), PM.pa, 0, -0.3, 0, lg);
+        sLg.userData.isSari = 1;
+
+        // Sepatu Sneakers Petualang (Sporty explorer sneakers)
+        // Badan atas sepatu
+        addMesh(new THREE.BoxGeometry(0.28, 0.17, 0.46), PM.shoes, 0, -0.63, 0.08, lg);
+        // Sol putih tebal khas sneakers
+        addMesh(new THREE.BoxGeometry(0.30, 0.07, 0.50), PM.white, 0, -0.72, 0.08, lg);
+        // Moncong karet melengkung di ujung depan
+        const toeCap = addMesh(new THREE.CylinderGeometry(0.13, 0.14, 0.16, 12), PM.white, 0, -0.64, 0.25, lg);
+        toeCap.rotation.z = Math.PI / 2;
+        toeCap.scale.set(0.7, 1, 0.7);
+        // Tali sepatu putih
+        addMesh(new THREE.BoxGeometry(0.15, 0.025, 0.12), PM.white, 0, -0.54, 0.13, lg);
+
         lg.userData.leg = 1;
         legs.push(lg);
       });
@@ -1156,9 +1277,16 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         const g = new THREE.Group();
         g.position.set(s * 0.5, 1.38, 0);
         pl.add(g);
+        // Lengan baju seragam
         addMesh(new THREE.CylinderGeometry(0.115, 0.1, 0.66, 12), PM.j, 0, -0.33, 0, g);
+        // Sendi bahu
         addMesh(new THREE.SphereGeometry(0.14, 12, 10), PM.j, 0, 0, 0, g);
-        addMesh(new THREE.SphereGeometry(0.12, 12, 10), PM.k, 0, -0.74, 0, g);
+        // Telapak tangan halus
+        const palm = addMesh(new THREE.SphereGeometry(0.115, 12, 10), PM.k, 0, -0.74, 0, g);
+        palm.scale.set(1.0, 1.1, 0.85);
+        // Jempol tangan 3D mengarah ke depan & dalam (Anatomi manusia alami)
+        const thumb = addMesh(new THREE.CylinderGeometry(0.032, 0.038, 0.10, 8), PM.k, -s * 0.06, -0.72, 0.05, g);
+        thumb.rotation.set(0.35, 0, s * 0.5);
         g.userData.arm = 1;
         arms.push(g);
       });
@@ -1210,6 +1338,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           if (o.userData.isBoy) o.visible = (nGender === 0);
           if (o.userData.isRani) o.visible = (nGender === 1);
           if (o.userData.isSari) o.visible = (nGender === 2);
+          if (o.userData.isNonHijab) o.visible = (nGender !== 2);
         });
 
         // Pasang 3D nametag billboard di atas kepala NPC
