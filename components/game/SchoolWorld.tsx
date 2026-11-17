@@ -2472,14 +2472,13 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         walkWeight.current += (targetWeight - walkWeight.current) * Math.min(1, dt * 9.0);
 
         // Skala irama langkah dinamis dengan kecepatan pergerakan
-        const cadence = isSprint ? 14.0 : 10.5 * (actualSpeed / 5.2);
+        const cadence = isSprint ? 14.0 : 12.0;
         if (isMoving) {
           walkPhase.current += dt * cadence;
         }
 
         const ph = walkPhase.current;
         const sw = Math.sin(ph);
-        const cw = Math.cos(ph);
         const w = walkWeight.current;
         const b = Math.sin(t * 2);
 
@@ -2489,56 +2488,35 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
         if (L && Rl && aL && aR) {
           if (w > 0.005) {
-            // ----- KAKI & LUTUT (Siklus melangkah maju alami / Natural Forward Gait) -----
-            const legAmp = isSprint ? 0.65 : 0.48;
-            const kneeAmp = isSprint ? 0.72 : 0.54;
-
-            // Ayunan paha berlawanan:
-            // sw > 0: Kaki kiri mengayun ke depan (rotX < 0 mengarah ke +Z), Kaki kanan dorong ke belakang (rotX > 0 mengarah ke -Z)
-            L.rotation.x = -sw * legAmp * w;
-            Rl.rotation.x = sw * legAmp * w;
-
-            // Artikulasi lutut: menekuk di udara saat melangkah maju (mid-swing cw > 0), dan lurus saat menapak tanah
+            // ----- KAKI MENGAYUN MAJU MUNDUR SEPERTI BIASA -----
+            L.rotation.x = sw * 0.7 * w;
+            Rl.rotation.x = -sw * 0.7 * w;
             if (kneeL && kneeR) {
-              kneeL.rotation.x = Math.max(0, cw * kneeAmp) * w;
-              kneeR.rotation.x = Math.max(0, -cw * kneeAmp) * w;
+              kneeL.rotation.x = 0;
+              kneeR.rotation.x = 0;
             }
 
-            // ----- TANGAN & SIKU (Mengayun harmonis berlawanan dengan kaki) -----
-            const armAmp = isSprint ? 0.58 : 0.40;
-            // Saat kaki kiri mengayun ke depan (sw > 0), tangan kanan mengayun ke depan (rotX < 0) & tangan kiri ke belakang (rotX > 0)
-            aL.rotation.x = sw * armAmp * w;
-            aR.rotation.x = -sw * armAmp * w;
-            aL.rotation.z = -0.12 - (isSprint ? 0.06 : 0.03) * w;
-            aR.rotation.z = 0.12 + (isSprint ? 0.06 : 0.03) * w;
-
-            // Artikulasi siku: siku menekuk alami saat tangan mengayun ke depan
+            // ----- TANGAN MENGAYUN BERLAWANAN DENGAN KAKI -----
+            aL.rotation.x = -sw * 0.5 * w;
+            aR.rotation.x = sw * 0.5 * w;
+            aL.rotation.z = -0.1;
+            aR.rotation.z = 0.1;
             if (foreL && foreR) {
-              foreL.rotation.x = (-0.14 - Math.max(0, -sw * 0.28)) * w;
-              foreR.rotation.x = (-0.14 - Math.max(0, sw * 0.28)) * w;
+              foreL.rotation.x = 0;
+              foreR.rotation.x = 0;
             }
 
-            // ----- BADAN & PANGGUL (Spine twist & bobbing pijakan tanah alami) -----
-            // Pelvic bobbing (titik puncak saat kaki tumpu tegak, merendah saat langkah melebar)
-            const bob = (1 - Math.abs(sw)) * (isSprint ? 0.045 : 0.025) * w;
-            pl.position.y = playerJumpY.current + bob;
+            // Badan membal vertikal naik turun saat melangkah maju
+            pl.position.y = playerJumpY.current + Math.abs(sw) * 0.08 * w;
 
             if (torsoObj) {
-              // Pilinan pundak berlawanan arah dengan panggul (Shoulder twist)
-              torsoObj.rotation.y = -sw * (isSprint ? 0.11 : 0.06) * w;
-              // Ayunan berat badan ke kiri & kanan (Lateral sway)
-              torsoObj.rotation.z = Math.sin(ph) * 0.025 * w;
-              // Condong sedikit ke depan saat bergerak (Athletic pitch)
-              torsoObj.rotation.x = (isSprint ? 0.10 : 0.04) * w;
+              torsoObj.rotation.y = -sw * 0.04 * w;
+              torsoObj.rotation.z = 0;
+              torsoObj.rotation.x = 0.03 * w;
             }
 
-            // Stabilisasi kepala (menatap fokus ke arah pandang)
             if (headObj) {
-              headObj.rotation.set(
-                -(isSprint ? 0.05 : 0.02) * w,
-                sw * 0.04 * w,
-                -Math.sin(ph) * 0.015 * w
-              );
+              headObj.rotation.set(0, 0, 0);
             }
 
             // Badan miring halus saat berbelok (Banking into curves)
@@ -2682,7 +2660,6 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           }
           const npcPh = n.walkPhase;
           const npcSw = Math.sin(npcPh);
-          const npcCw = Math.cos(npcPh);
           const b = Math.sin(t * 2 + i);
 
           const [L, Rl] = n.lg;
@@ -2690,40 +2667,38 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           const [aL, aR] = n.ar;
           const [foreL, foreR] = n.forearms;
 
-          // Ketinggian tubuh alami (Pelvic bobbing)
-          n.g.position.y = (1 - Math.abs(npcSw)) * 0.025 * nw;
+          // Badan membal vertikal naik turun saat melangkah maju
+          n.g.position.y = Math.abs(npcSw) * 0.05 * nw;
 
           if (L && Rl) {
-            // Ayunan paha maju mundur natural (sw > 0: L ayun ke depan rotX < 0, Rl dorong ke belakang rotX > 0)
-            L.rotation.x = -npcSw * 0.46 * nw;
-            Rl.rotation.x = npcSw * 0.46 * nw;
-
-            // Artikulasi lutut NPC: menekuk di udara saat melangkah maju (mid-swing cw > 0), dan lurus saat menapak tanah
+            // Kaki mengayun maju mundur seperti biasa
+            L.rotation.x = npcSw * 0.60 * nw;
+            Rl.rotation.x = -npcSw * 0.60 * nw;
             if (kneeL && kneeR) {
-              kneeL.rotation.x = Math.max(0, npcCw * 0.54) * nw;
-              kneeR.rotation.x = Math.max(0, -npcCw * 0.54) * nw;
+              kneeL.rotation.x = 0;
+              kneeR.rotation.x = 0;
             }
           }
 
           if (aL && aR) {
             if (isNear) {
               // Melambaikan tangan kanan ramah menyapa pemain
-              aR.rotation.x = -0.2;
+              aR.rotation.x = 0;
               aR.rotation.z = 2.4 + Math.sin(t * 8) * 0.35;
-              aL.rotation.set(0, 0, -0.12 - b * 0.02);
-              if (foreR) foreR.rotation.x = -0.4;
-              if (foreL) foreL.rotation.x = -0.08;
+              aL.rotation.set(0, 0, -0.1);
+              if (foreR) foreR.rotation.x = 0;
+              if (foreL) foreL.rotation.x = 0;
               if (n.head) n.head.rotation.set(0, Math.sin(t * 2) * 0.1, 0.06);
             } else {
-              // Lengan mengayun rileks saat berjalan berlawanan dengan kaki
-              aL.rotation.x = npcSw * 0.38 * nw;
-              aR.rotation.x = -npcSw * 0.38 * nw;
-              aL.rotation.z = -0.12;
-              aR.rotation.z = 0.12;
+              // Tangan mengayun berlawanan dengan kaki
+              aL.rotation.x = -npcSw * 0.40 * nw;
+              aR.rotation.x = npcSw * 0.40 * nw;
+              aL.rotation.z = -0.1;
+              aR.rotation.z = 0.1;
 
               if (foreL && foreR) {
-                foreL.rotation.x = (-0.12 - Math.max(0, -npcSw * 0.25)) * nw;
-                foreR.rotation.x = (-0.12 - Math.max(0, npcSw * 0.25)) * nw;
+                foreL.rotation.x = 0;
+                foreR.rotation.x = 0;
               }
               if (n.head) n.head.rotation.set(0, 0, 0);
             }
