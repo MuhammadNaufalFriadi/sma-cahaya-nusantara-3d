@@ -2479,6 +2479,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
         const ph = walkPhase.current;
         const sw = Math.sin(ph);
+        const cw = Math.cos(ph);
         const w = walkWeight.current;
         const b = Math.sin(t * 2);
 
@@ -2490,17 +2491,17 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           if (w > 0.005) {
             // ----- KAKI & LUTUT (Siklus melangkah maju alami / Natural Forward Gait) -----
             const legAmp = isSprint ? 0.65 : 0.48;
-            const kneeAmp = isSprint ? 0.88 : 0.64;
+            const kneeAmp = isSprint ? 0.72 : 0.54;
 
             // Ayunan paha berlawanan:
             // sw > 0: Kaki kiri mengayun ke depan (rotX < 0 mengarah ke +Z), Kaki kanan dorong ke belakang (rotX > 0 mengarah ke -Z)
             L.rotation.x = -sw * legAmp * w;
             Rl.rotation.x = sw * legAmp * w;
 
-            // Artikulasi lutut: lutut menekuk ke belakang saat mengayun ke depan (sw > 0 untuk kaki kiri, sw < 0 untuk kaki kanan)
+            // Artikulasi lutut: menekuk di udara saat melangkah maju (mid-swing cw > 0), dan lurus saat menapak tanah
             if (kneeL && kneeR) {
-              kneeL.rotation.x = Math.max(0, sw * kneeAmp) * w;
-              kneeR.rotation.x = Math.max(0, -sw * kneeAmp) * w;
+              kneeL.rotation.x = Math.max(0, cw * kneeAmp) * w;
+              kneeR.rotation.x = Math.max(0, -cw * kneeAmp) * w;
             }
 
             // ----- TANGAN & SIKU (Mengayun harmonis berlawanan dengan kaki) -----
@@ -2681,6 +2682,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           }
           const npcPh = n.walkPhase;
           const npcSw = Math.sin(npcPh);
+          const npcCw = Math.cos(npcPh);
           const b = Math.sin(t * 2 + i);
 
           const [L, Rl] = n.lg;
@@ -2696,10 +2698,10 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
             L.rotation.x = -npcSw * 0.46 * nw;
             Rl.rotation.x = npcSw * 0.46 * nw;
 
-            // Artikulasi lutut NPC: menekuk saat melangkah maju
+            // Artikulasi lutut NPC: menekuk di udara saat melangkah maju (mid-swing cw > 0), dan lurus saat menapak tanah
             if (kneeL && kneeR) {
-              kneeL.rotation.x = Math.max(0, npcSw * 0.62) * nw;
-              kneeR.rotation.x = Math.max(0, -npcSw * 0.62) * nw;
+              kneeL.rotation.x = Math.max(0, npcCw * 0.54) * nw;
+              kneeR.rotation.x = Math.max(0, -npcCw * 0.54) * nw;
             }
           }
 
