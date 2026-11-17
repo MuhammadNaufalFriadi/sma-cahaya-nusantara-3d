@@ -77,9 +77,17 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
     // Animation limbs and parts
     const legsRef = useRef<THREE.Group[]>([]);
+    const kneesRef = useRef<THREE.Group[]>([]);
     const armsRef = useRef<THREE.Group[]>([]);
+    const forearmsRef = useRef<THREE.Group[]>([]);
     const torsoRef = useRef<THREE.Mesh | null>(null);
     const headRef = useRef<THREE.Group | null>(null);
+    const raniSkirtRef = useRef<THREE.Mesh | null>(null);
+    const sariSkirtRef = useRef<THREE.Mesh | null>(null);
+    const rPonyRef = useRef<THREE.Mesh | null>(null);
+    const backpackRef = useRef<THREE.Group | null>(null);
+    const walkPhase = useRef(0);
+    const walkWeight = useRef(0);
 
     // 3D Name Tag billboard above character
     const nameTagCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -1148,22 +1156,26 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       addMesh(new THREE.BoxGeometry(0.06, 0.045, 0.045), M(0x181818), 0, 0.74, 0.362, pl);
 
       // Tas Ransel Petualang Lengkap (Explorer Backpack)
+      const backpackG = new THREE.Group();
+      pl.add(backpackG);
+      backpackRef.current = backpackG;
+
       // Badan utama ransel
-      addMesh(new THREE.BoxGeometry(0.60, 0.70, 0.28), PM.rd, 0, 1.15, -0.44, pl);
+      addMesh(new THREE.BoxGeometry(0.60, 0.70, 0.28), PM.rd, 0, 1.15, -0.44, backpackG);
       // Kantung saku depan dengan resleting
-      addMesh(new THREE.BoxGeometry(0.48, 0.32, 0.09), M(0xa81c1c), 0, 1.02, -0.59, pl);
+      addMesh(new THREE.BoxGeometry(0.48, 0.32, 0.09), M(0xa81c1c), 0, 1.02, -0.59, backpackG);
       // Pegangan atas ransel (Handle)
-      const bpHandle = addMesh(new THREE.TorusGeometry(0.09, 0.022, 6, 12, Math.PI), M(0x222222), 0, 1.52, -0.44, pl);
+      const bpHandle = addMesh(new THREE.TorusGeometry(0.09, 0.022, 6, 12, Math.PI), M(0x222222), 0, 1.52, -0.44, backpackG);
       bpHandle.rotation.set(0, 0, Math.PI);
       // Tali ransel empuk membungkus pundak (Shoulder straps)
       [-1, 1].forEach((s) => {
-        const strap = addMesh(new THREE.BoxGeometry(0.08, 0.50, 0.30), PM.rd, s * 0.22, 1.30, 0.04, pl);
+        const strap = addMesh(new THREE.BoxGeometry(0.08, 0.50, 0.30), PM.rd, s * 0.22, 1.30, 0.04, backpackG);
         strap.rotation.x = 0.08;
       });
       // Kantong samping + Botol Minum / Tumbler Petualang
-      addMesh(new THREE.CylinderGeometry(0.075, 0.07, 0.18, 12), M(0x991b1b), 0.33, 0.98, -0.44, pl);
-      addMesh(new THREE.CylinderGeometry(0.06, 0.06, 0.26, 12), PM.bottle, 0.33, 1.08, -0.44, pl);
-      addMesh(new THREE.CylinderGeometry(0.035, 0.04, 0.06, 10), PM.metal, 0.33, 1.23, -0.44, pl);
+      addMesh(new THREE.CylinderGeometry(0.075, 0.07, 0.18, 12), M(0x991b1b), 0.33, 0.98, -0.44, backpackG);
+      addMesh(new THREE.CylinderGeometry(0.06, 0.06, 0.26, 12), PM.bottle, 0.33, 1.08, -0.44, backpackG);
+      addMesh(new THREE.CylinderGeometry(0.035, 0.04, 0.06, 10), PM.metal, 0.33, 1.23, -0.44, backpackG);
 
       // Head
       const head = new THREE.Group();
@@ -1271,6 +1283,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
       const raniSkirt = addMesh(new THREE.CylinderGeometry(0.38, 0.58, 0.46, 16), PM.skirt, 0, 0.68, 0, pl);
       raniSkirt.userData.isRani = 1;
+      raniSkirtRef.current = raniSkirt;
 
       // 3. Sari (Hijab & Maxi Skirt)
       const sariG = new THREE.Group();
@@ -1284,60 +1297,99 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
       const sariSkirt = addMesh(new THREE.CylinderGeometry(0.38, 0.64, 0.96, 16), PM.skirt, 0, 0.46, 0, pl);
       sariSkirt.userData.isSari = 1;
+      sariSkirtRef.current = sariSkirt;
 
-      // Legs (Bisa mengayun saat berjalan)
+      // Legs (Bisa mengayun natural dengan artikulasi lutut / knee flexion)
       const legs: THREE.Group[] = [];
+      const knees: THREE.Group[] = [];
       [-0.14, 0.14].forEach((x) => {
+        // Hip joint & Thigh / Upper Leg
         const lg = new THREE.Group();
         lg.position.set(x, 0.73, 0);
         pl.add(lg);
-        // Celana panjang siswa cowok
-        const pLg = addMesh(new THREE.CylinderGeometry(0.16, 0.15, 0.6, 12), PM.pa, 0, -0.3, 0, lg);
-        pLg.userData.isBoy = 1;
-        // Kaos kaki putih siswi cewek
-        const rLg = addMesh(new THREE.CylinderGeometry(0.13, 0.13, 0.35, 12), PM.white, 0, -0.35, 0, lg);
-        rLg.userData.isRani = 1;
-        // Celana panjang dalam siswi hijab
-        const sLg = addMesh(new THREE.CylinderGeometry(0.14, 0.13, 0.4, 12), PM.pa, 0, -0.3, 0, lg);
-        sLg.userData.isSari = 1;
 
-        // Sepatu Sneakers Petualang (Sporty explorer sneakers)
+        // Paha atas
+        const pThigh = addMesh(new THREE.CylinderGeometry(0.155, 0.14, 0.36, 12), PM.pa, 0, -0.18, 0, lg);
+        pThigh.userData.isBoy = 1;
+        const rThigh = addMesh(new THREE.CylinderGeometry(0.135, 0.125, 0.36, 12), PM.k, 0, -0.18, 0, lg);
+        rThigh.userData.isRani = 1;
+        const sThigh = addMesh(new THREE.CylinderGeometry(0.145, 0.135, 0.36, 12), PM.pa, 0, -0.18, 0, lg);
+        sThigh.userData.isSari = 1;
+
+        // Knee joint & Shin / Lower Leg group (artikulasi lutut menekuk natural saat melangkah)
+        const kneeG = new THREE.Group();
+        kneeG.position.set(0, -0.36, 0);
+        lg.add(kneeG);
+        knees.push(kneeG);
+
+        // Sendi lutut
+        addMesh(new THREE.SphereGeometry(0.11, 10, 8), PM.pa, 0, 0, 0, kneeG).userData.isBoy = 1;
+        addMesh(new THREE.SphereGeometry(0.10, 10, 8), PM.white, 0, 0, 0, kneeG).userData.isRani = 1;
+        addMesh(new THREE.SphereGeometry(0.10, 10, 8), PM.pa, 0, 0, 0, kneeG).userData.isSari = 1;
+
+        // Betis / Tulang kering bawah
+        const pCalf = addMesh(new THREE.CylinderGeometry(0.14, 0.125, 0.28, 12), PM.pa, 0, -0.14, 0, kneeG);
+        pCalf.userData.isBoy = 1;
+        const rCalf = addMesh(new THREE.CylinderGeometry(0.125, 0.115, 0.28, 12), PM.white, 0, -0.14, 0, kneeG);
+        rCalf.userData.isRani = 1;
+        const sCalf = addMesh(new THREE.CylinderGeometry(0.135, 0.12, 0.28, 12), PM.pa, 0, -0.14, 0, kneeG);
+        sCalf.userData.isSari = 1;
+
+        // Sepatu Sneakers Petualang Sporty
         // Badan atas sepatu
-        addMesh(new THREE.BoxGeometry(0.28, 0.17, 0.46), PM.shoes, 0, -0.63, 0.08, lg);
+        addMesh(new THREE.BoxGeometry(0.28, 0.16, 0.44), PM.shoes, 0, -0.27, 0.08, kneeG);
         // Sol putih tebal khas sneakers
-        addMesh(new THREE.BoxGeometry(0.30, 0.07, 0.50), PM.white, 0, -0.72, 0.08, lg);
+        addMesh(new THREE.BoxGeometry(0.30, 0.07, 0.48), PM.white, 0, -0.355, 0.08, kneeG);
         // Moncong karet melengkung di ujung depan
-        const toeCap = addMesh(new THREE.CylinderGeometry(0.13, 0.14, 0.16, 12), PM.white, 0, -0.64, 0.25, lg);
+        const toeCap = addMesh(new THREE.CylinderGeometry(0.125, 0.135, 0.16, 12), PM.white, 0, -0.28, 0.24, kneeG);
         toeCap.rotation.z = Math.PI / 2;
         toeCap.scale.set(0.7, 1, 0.7);
         // Tali sepatu putih
-        addMesh(new THREE.BoxGeometry(0.15, 0.025, 0.12), PM.white, 0, -0.54, 0.13, lg);
+        addMesh(new THREE.BoxGeometry(0.15, 0.025, 0.12), PM.white, 0, -0.19, 0.12, kneeG);
 
         lg.userData.leg = 1;
         legs.push(lg);
       });
       legsRef.current = legs;
+      kneesRef.current = knees;
 
-      // Arms (Bisa mengayun saat berjalan & melambai)
+      // Arms (Bisa mengayun saat berjalan & melambai dengan artikulasi siku)
       const arms: THREE.Group[] = [];
+      const forearms: THREE.Group[] = [];
       [-1, 1].forEach((s) => {
+        // Shoulder joint
         const g = new THREE.Group();
         g.position.set(s * 0.5, 1.38, 0);
         pl.add(g);
-        // Lengan baju seragam
-        addMesh(new THREE.CylinderGeometry(0.115, 0.1, 0.66, 12), PM.j, 0, -0.33, 0, g);
+
         // Sendi bahu
-        addMesh(new THREE.SphereGeometry(0.14, 12, 10), PM.j, 0, 0, 0, g);
+        addMesh(new THREE.SphereGeometry(0.135, 12, 10), PM.j, 0, 0, 0, g);
+        // Lengan atas blazer
+        addMesh(new THREE.CylinderGeometry(0.115, 0.105, 0.34, 12), PM.j, 0, -0.17, 0, g);
+
+        // Elbow / Forearm group
+        const foreG = new THREE.Group();
+        foreG.position.set(0, -0.34, 0);
+        g.add(foreG);
+        forearms.push(foreG);
+
+        // Sendi siku
+        addMesh(new THREE.SphereGeometry(0.105, 10, 8), PM.j, 0, 0, 0, foreG);
+        // Lengan bawah blazer
+        addMesh(new THREE.CylinderGeometry(0.102, 0.092, 0.28, 12), PM.j, 0, -0.14, 0, foreG);
+
         // Telapak tangan halus
-        const palm = addMesh(new THREE.SphereGeometry(0.115, 12, 10), PM.k, 0, -0.74, 0, g);
+        const palm = addMesh(new THREE.SphereGeometry(0.11, 12, 10), PM.k, 0, -0.35, 0, foreG);
         palm.scale.set(1.0, 1.1, 0.85);
         // Jempol tangan 3D mengarah ke depan & dalam (Anatomi manusia alami)
-        const thumb = addMesh(new THREE.CylinderGeometry(0.032, 0.038, 0.10, 8), PM.k, -s * 0.06, -0.72, 0.05, g);
+        const thumb = addMesh(new THREE.CylinderGeometry(0.03, 0.035, 0.09, 8), PM.k, -s * 0.055, -0.33, 0.045, foreG);
         thumb.rotation.set(0.35, 0, s * 0.5);
+
         g.userData.arm = 1;
         arms.push(g);
       });
       armsRef.current = arms;
+      forearmsRef.current = forearms;
 
       // 3D Billboard Name Tag di atas kepala karakter
       const nc = document.createElement("canvas");
@@ -2244,13 +2296,16 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
         // Movement & Physics
         const l = Math.hypot(dx, dz);
+        let actualSpeed = 5.2;
+        let isSprint = false;
         if (l > 0) {
           dx /= l;
           dz /= l;
-          const isSprint = K.shift || (joyRef.current && Math.hypot(joyRef.current.dx, joyRef.current.dy) > 0.9);
-          const sp = isSprint ? 8.5 : 5.2;
-          playerPos.current.x += dx * sp * dt;
-          playerPos.current.z += dz * sp * dt;
+          const joyMag = joyRef.current ? Math.hypot(joyRef.current.dx, joyRef.current.dy) : 1;
+          isSprint = K.shift || joyMag > 0.88;
+          actualSpeed = isSprint ? 8.5 : joyRef.current ? Math.max(3.2, 5.2 * Math.min(1, joyMag)) : 5.2;
+          playerPos.current.x += dx * actualSpeed * dt;
+          playerPos.current.z += dz * actualSpeed * dt;
 
           // Collision detection
           if (roomRef.current) {
@@ -2357,53 +2412,147 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
           let da = Math.atan2(dx, dz) - pl.rotation.y;
           da = Math.atan2(Math.sin(da), Math.cos(da));
-          pl.rotation.y += da * Math.min(1, dt * 12);
+          pl.rotation.y += da * Math.min(1, dt * 14);
           waveTimer.current = 0;
         }
 
         // ==========================================
         // ===== ANIMASI ORANG / KARAKTER BERJALAN ==
         // ==========================================
-        const sw = Math.sin(t * 12);
-        const b = Math.sin(t * 2);
         const [L, Rl] = legsRef.current;
+        const [kneeL, kneeR] = kneesRef.current;
         const [aL, aR] = armsRef.current;
+        const [foreL, foreR] = forearmsRef.current;
         const torsoObj = torsoRef.current;
         const headObj = headRef.current;
+
+        // Transisi halus antara idle dan jalan (mencegah sentakan / snapping saat mulai atau berhenti)
+        const isMoving = l > 0;
+        const targetWeight = isMoving ? 1.0 : 0.0;
+        walkWeight.current += (targetWeight - walkWeight.current) * Math.min(1, dt * 9.0);
+
+        // Skala irama langkah dinamis dengan kecepatan pergerakan
+        const cadence = isSprint ? 14.0 : 10.5 * (actualSpeed / 5.2);
+        if (isMoving) {
+          walkPhase.current += dt * cadence;
+        }
+
+        const ph = walkPhase.current;
+        const sw = Math.sin(ph);
+        const w = walkWeight.current;
+        const b = Math.sin(t * 2);
 
         if (waveTimer.current > 0) {
           waveTimer.current -= dt;
         }
 
         if (L && Rl && aL && aR) {
-          if (l > 0) {
-            // Kaki mengayun natural maju mundur
-            L.rotation.x = sw * 0.7;
-            Rl.rotation.x = -sw * 0.7;
-            // Tangan mengayun berlawanan dengan kaki
-            aL.rotation.x = -sw * 0.5;
-            aR.rotation.x = sw * 0.5;
-            aL.rotation.z = -0.1;
-            aR.rotation.z = 0.1;
-            // Badan membal vertikal naik turun saat melangkah
-            pl.position.y = playerJumpY.current + Math.abs(sw) * 0.08;
-            if (headObj) headObj.rotation.set(0, 0, 0);
-            if (torsoObj) torsoObj.scale.y = 1;
+          if (w > 0.005) {
+            // ----- KAKI & LUTUT (Siklus berjalan alami dengan artikulasi lutut / knee flexion) -----
+            const legAmp = isSprint ? 0.70 : 0.52;
+            const kneeAmp = isSprint ? 0.95 : 0.68;
 
-            // Efek suara langkah kaki
-            stepTimer.current += dt;
-            if (stepTimer.current > 0.28) {
+            // Paha mengayun berlawanan
+            L.rotation.x = sw * legAmp * w;
+            Rl.rotation.x = -sw * legAmp * w;
+
+            // Artikulasi lutut: lutut menekuk ke belakang saat kaki mengayun ke depan agar melangkah bebas tanpa terantuk tanah
+            if (kneeL && kneeR) {
+              kneeL.rotation.x = Math.max(0, sw * kneeAmp) * w;
+              kneeR.rotation.x = Math.max(0, -sw * kneeAmp) * w;
+            }
+
+            // ----- TANGAN & SIKU (Mengayun rileks dengan artikulasi siku) -----
+            const armAmp = isSprint ? 0.65 : 0.45;
+            aL.rotation.x = -sw * armAmp * w;
+            aR.rotation.x = sw * armAmp * w;
+            aL.rotation.z = -0.12 - (isSprint ? 0.08 : 0.04) * w;
+            aR.rotation.z = 0.12 + (isSprint ? 0.08 : 0.04) * w;
+
+            if (foreL && foreR) {
+              foreL.rotation.x = (-0.22 - Math.max(0, -sw * 0.32)) * w;
+              foreR.rotation.x = (-0.22 - Math.max(0, sw * 0.32)) * w;
+            }
+
+            // ----- BADAN & PANGGUL (Spine twist & bobbing pijakan tanah alami) -----
+            // Pelvic bobbing (titik puncak saat kaki tumpu tegak, merendah saat langkah melebar)
+            const bob = (1 - Math.abs(sw)) * (isSprint ? 0.045 : 0.025) * w;
+            pl.position.y = playerJumpY.current + bob;
+
+            if (torsoObj) {
+              // Pilinan pundak berlawanan arah dengan panggul (Shoulder twist)
+              torsoObj.rotation.y = -sw * (isSprint ? 0.11 : 0.06) * w;
+              // Ayunan berat badan ke kiri & kanan (Lateral sway)
+              torsoObj.rotation.z = Math.sin(ph) * 0.025 * w;
+              // Condong sedikit ke depan saat bergerak (Athletic pitch)
+              torsoObj.rotation.x = (isSprint ? 0.10 : 0.04) * w;
+            }
+
+            // Stabilisasi kepala (menatap fokus ke arah pandang)
+            if (headObj) {
+              headObj.rotation.set(
+                -(isSprint ? 0.05 : 0.02) * w,
+                sw * 0.04 * w,
+                -Math.sin(ph) * 0.015 * w
+              );
+            }
+
+            // Badan miring halus saat berbelok (Banking into curves)
+            if (isMoving) {
+              let curDa = Math.atan2(dx, dz) - pl.rotation.y;
+              curDa = Math.atan2(Math.sin(curDa), Math.cos(curDa));
+              const bankAngle = Math.max(-0.14, Math.min(0.14, curDa * 0.22));
+              pl.rotation.z = -bankAngle * w;
+            } else {
+              pl.rotation.z = 0;
+            }
+
+            // Ayunan kain rok siswi (Rani & Sari) mengikuti langkah kaki
+            if (raniSkirtRef.current) {
+              raniSkirtRef.current.rotation.x = Math.sin(ph) * 0.08 * w;
+              raniSkirtRef.current.rotation.z = -Math.sin(ph) * 0.03 * w;
+            }
+            if (sariSkirtRef.current) {
+              sariSkirtRef.current.rotation.x = Math.sin(ph) * 0.05 * w;
+              sariSkirtRef.current.rotation.z = -Math.sin(ph) * 0.02 * w;
+            }
+
+            // Pantulan kuncir rambut siswi Rani
+            if (rPonyRef.current) {
+              rPonyRef.current.rotation.x = -0.42 + Math.sin(ph * 2) * 0.14 * w;
+            }
+
+            // Pantulan halus tas ransel petualang
+            if (backpackRef.current) {
+              backpackRef.current.position.y = Math.abs(sw) * 0.025 * w;
+            }
+
+            // Suara langkah kaki sinkron dengan hentakan sepatu
+            stepTimer.current += dt * (actualSpeed / 5.2);
+            if (stepTimer.current > 0.30) {
               stepTimer.current = 0;
               sfx("step");
             }
           } else {
-            // Diam / Idle Breathing
+            // ----- DIAM / IDLE BREATHING (Pernapasan rileks) -----
             L.rotation.x = 0;
             Rl.rotation.x = 0;
+            if (kneeL && kneeR) {
+              kneeL.rotation.x = 0;
+              kneeR.rotation.x = 0;
+            }
             aL.rotation.x = 0;
             aR.rotation.x = 0;
+            if (foreL && foreR) {
+              foreL.rotation.x = -0.08;
+              foreR.rotation.x = -0.08;
+            }
             pl.position.y = playerJumpY.current;
-            if (torsoObj) torsoObj.scale.y = 1 + b * 0.012;
+            pl.rotation.z = 0;
+            if (torsoObj) {
+              torsoObj.scale.y = 1 + b * 0.012;
+              torsoObj.rotation.set(0, 0, 0);
+            }
             aL.rotation.z = -0.1 - b * 0.02;
 
             if (waveTimer.current > 0) {
@@ -2414,14 +2563,25 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
               aR.rotation.z = 0.1 + b * 0.02;
               if (headObj) headObj.rotation.set(0, 0, Math.sin(t * 1.3) * 0.04);
             }
+
+            if (rPonyRef.current) {
+              rPonyRef.current.rotation.x = -0.42 + b * 0.03;
+            }
+            if (raniSkirtRef.current) raniSkirtRef.current.rotation.set(0, 0, 0);
+            if (sariSkirtRef.current) sariSkirtRef.current.rotation.set(0, 0, 0);
+            if (backpackRef.current) backpackRef.current.position.y = 0;
           }
 
           // Pose saat melompat
           if (playerJumpY.current > 0) {
-            L.rotation.x = -0.5;
-            Rl.rotation.x = 0.4;
-            aL.rotation.z = -0.7;
-            aR.rotation.z = 0.7;
+            L.rotation.x = -0.45;
+            Rl.rotation.x = 0.35;
+            if (kneeL && kneeR) {
+              kneeL.rotation.x = 0.55;
+              kneeR.rotation.x = 0.25;
+            }
+            aL.rotation.z = -0.65;
+            aR.rotation.z = 0.65;
           }
 
           // Animasi tangan kanan karakter menjangkau gagang pintu saat membuka pintu
