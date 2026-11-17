@@ -2623,15 +2623,10 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         // ==========================================
         npcsRef.current.forEach((n, i) => {
           const d2 = Math.hypot(n.g.position.x - playerPos.current.x, n.g.position.z - playerPos.current.z);
-          const isNear = d2 < 3.4 && playRef.current;
+          const isNear = d2 < 3.8 && playRef.current;
 
-          // Transisi halus antara jalan dan berhenti sapa pemain (menghilangkan sentakan / snapping)
-          const targetWeight = isNear ? 0.0 : 1.0;
-          n.walkWeight += (targetWeight - n.walkWeight) * Math.min(1, dt * 6.0);
-
-          if (!isNear) {
-            n.a += n.w * dt;
-          }
+          // NPC selalu fokus melangkah maju di jalurnya setiap frame (TIDAK PERNAH berhenti atau berbalik saat bertemu)
+          n.a += n.w * dt;
 
           // Hitung posisi di jalur taman/koridor
           const sg = Math.sign(n.w);
@@ -2640,27 +2635,20 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           n.g.position.x = nxPos;
           n.g.position.z = nzPos;
 
-          // Arah hadap berjalan: tangen kecepatan lintasan
+          // Arah hadap badan: SELALU mengikuti arah tangen lintasan maju ke depan (walkAngle)
+          // Menghilangkan bug putar-putar 180° / balik mundur saat berpapasan dengan pemain
           const moveDx = -n.rx * Math.sin(n.a) * sg;
           const moveDz = n.rz * Math.cos(n.a) * sg;
           const walkAngle = Math.atan2(moveDx, moveDz);
 
-          // Arah menghadap pemain saat disapa
-          const facePlayerAngle = Math.atan2(playerPos.current.x - nxPos, playerPos.current.z - nzPos);
-
-          const targetAngle = isNear ? facePlayerAngle : walkAngle;
-          let da = targetAngle - n.g.rotation.y;
+          let da = walkAngle - n.g.rotation.y;
           da = Math.atan2(Math.sin(da), Math.cos(da));
-          n.g.rotation.y += da * Math.min(1, dt * (isNear ? 8 : 4));
+          n.g.rotation.y += da * Math.min(1, dt * 6.0);
 
-          // Pergerakan langkah NPC
-          const nw = n.walkWeight;
-          if (nw > 0.01) {
-            n.walkPhase += dt * 9.5;
-          }
+          // Pergerakan langkah NPC selalu aktif dan melangkah maju ke depan
+          n.walkPhase += dt * 9.5;
           const npcPh = n.walkPhase;
           const npcSw = Math.sin(npcPh);
-          const b = Math.sin(t * 2 + i);
 
           const [L, Rl] = n.lg;
           const [kneeL, kneeR] = n.knees;
@@ -2668,12 +2656,12 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           const [foreL, foreR] = n.forearms;
 
           // Badan membal vertikal naik turun saat melangkah maju
-          n.g.position.y = Math.abs(npcSw) * 0.05 * nw;
+          n.g.position.y = Math.abs(npcSw) * 0.05;
 
           if (L && Rl) {
-            // Kaki mengayun maju mundur seperti biasa
-            L.rotation.x = npcSw * 0.60 * nw;
-            Rl.rotation.x = -npcSw * 0.60 * nw;
+            // Kaki mengayun maju mundur melangkah konsisten dan tegap
+            L.rotation.x = npcSw * 0.60;
+            Rl.rotation.x = -npcSw * 0.60;
             if (kneeL && kneeR) {
               kneeL.rotation.x = 0;
               kneeR.rotation.x = 0;
@@ -2681,18 +2669,18 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           }
 
           if (aL && aR) {
-            if (isNear) {
-              // Melambaikan tangan kanan ramah menyapa pemain
-              aR.rotation.x = 0;
-              aR.rotation.z = 2.4 + Math.sin(t * 8) * 0.35;
-              aL.rotation.set(0, 0, -0.1);
+            if (isNear && d2 < 3.2) {
+              // Melambaikan tangan kanan ramah menyapa sambil tetap melangkah maju ke depan
+              aR.rotation.x = -0.25;
+              aR.rotation.z = 1.35 + Math.sin(t * 8) * 0.25;
+              aL.rotation.x = -npcSw * 0.40;
+              aL.rotation.z = -0.1;
               if (foreR) foreR.rotation.x = 0;
               if (foreL) foreL.rotation.x = 0;
-              if (n.head) n.head.rotation.set(0, Math.sin(t * 2) * 0.1, 0.06);
             } else {
-              // Tangan mengayun berlawanan dengan kaki
-              aL.rotation.x = -npcSw * 0.40 * nw;
-              aR.rotation.x = npcSw * 0.40 * nw;
+              // Tangan mengayun berlawanan dengan kaki saat berjalan normal
+              aL.rotation.x = -npcSw * 0.40;
+              aR.rotation.x = npcSw * 0.40;
               aL.rotation.z = -0.1;
               aR.rotation.z = 0.1;
 
@@ -2700,30 +2688,37 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
                 foreL.rotation.x = 0;
                 foreR.rotation.x = 0;
               }
-              if (n.head) n.head.rotation.set(0, 0, 0);
             }
           }
 
-          // Torso pilinan bahu saat melangkah & napas saat diam
-          if (n.torso) {
-            if (nw > 0.05) {
-              n.torso.rotation.y = -npcSw * 0.05 * nw;
-              n.torso.rotation.z = Math.sin(npcPh) * 0.02 * nw;
-              n.torso.rotation.x = 0.03 * nw;
-              n.torso.scale.y = 1;
+          // Tatapan kepala: hanya menoleh sedikit ke arah pemain saat berpapasan tanpa memutar badan
+          if (n.head) {
+            if (isNear) {
+              const toPlayer = Math.atan2(playerPos.current.x - nxPos, playerPos.current.z - nzPos);
+              let hDiff = toPlayer - n.g.rotation.y;
+              hDiff = Math.atan2(Math.sin(hDiff), Math.cos(hDiff));
+              const clampedH = Math.max(-0.45, Math.min(0.45, hDiff));
+              n.head.rotation.y += (clampedH - n.head.rotation.y) * Math.min(1, dt * 5.0);
             } else {
-              n.torso.rotation.set(0, 0, 0);
-              n.torso.scale.y = 1 + b * 0.012;
+              n.head.rotation.y += (0 - n.head.rotation.y) * Math.min(1, dt * 5.0);
             }
+          }
+
+          // Torso pilinan bahu saat melangkah
+          if (n.torso) {
+            n.torso.rotation.y = -npcSw * 0.05;
+            n.torso.rotation.z = Math.sin(npcPh) * 0.02;
+            n.torso.rotation.x = 0.03;
+            n.torso.scale.y = 1;
           }
 
           // Ayunan rok siswi & kuncir rambut
-          if (n.skirt && nw > 0.05) {
-            n.skirt.rotation.x = Math.sin(npcPh) * 0.05 * nw;
-            n.skirt.rotation.z = -Math.sin(npcPh) * 0.02 * nw;
+          if (n.skirt) {
+            n.skirt.rotation.x = Math.sin(npcPh) * 0.05;
+            n.skirt.rotation.z = -Math.sin(npcPh) * 0.02;
           }
           if (n.pony) {
-            n.pony.rotation.x = -0.42 + (nw > 0.05 ? Math.sin(npcPh * 2) * 0.10 * nw : b * 0.03);
+            n.pony.rotation.x = -0.42 + Math.sin(npcPh * 2) * 0.10;
           }
         });
 
