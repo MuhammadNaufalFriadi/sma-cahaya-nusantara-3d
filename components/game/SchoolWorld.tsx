@@ -1127,6 +1127,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       // Torso & Blazer Seragam Sekolah
       const torso = addMesh(new THREE.CylinderGeometry(0.43, 0.38, 0.78, 16), PM.j, 0, 1.09, 0, pl);
       torso.scale.z = 0.8;
+      torso.userData.isTorso = 1;
       torsoRef.current = torso;
 
       // Kemeja Putih bagian dalam
@@ -1157,6 +1158,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
       // Tas Ransel Petualang Lengkap (Explorer Backpack)
       const backpackG = new THREE.Group();
+      backpackG.userData.isBackpack = 1;
       pl.add(backpackG);
       backpackRef.current = backpackG;
 
@@ -1180,6 +1182,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       // Head
       const head = new THREE.Group();
       head.position.y = 1.95;
+      head.userData.isHead = 1;
       pl.add(head);
       headRef.current = head;
       addMesh(new THREE.SphereGeometry(0.5, 24, 18), PM.k, 0, 0, 0, head);
@@ -1279,10 +1282,12 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       addMesh(new THREE.TorusGeometry(0.13, 0.035, 8, 16), PM.ribbon, 0, 0.22, -0.48, raniG);
       const rPony = addMesh(new THREE.CylinderGeometry(0.14, 0.05, 0.8, 12), PM.h, 0, -0.15, -0.64, raniG);
       rPony.rotation.x = -0.42;
+      rPony.userData.isPony = 1;
       raniGRef.current = raniG;
 
       const raniSkirt = addMesh(new THREE.CylinderGeometry(0.38, 0.58, 0.46, 16), PM.skirt, 0, 0.68, 0, pl);
       raniSkirt.userData.isRani = 1;
+      raniSkirt.userData.isRaniSkirt = 1;
       raniSkirtRef.current = raniSkirt;
 
       // 3. Sari (Hijab & Maxi Skirt)
@@ -1297,6 +1302,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
       const sariSkirt = addMesh(new THREE.CylinderGeometry(0.38, 0.64, 0.96, 16), PM.skirt, 0, 0.46, 0, pl);
       sariSkirt.userData.isSari = 1;
+      sariSkirt.userData.isSariSkirt = 1;
       sariSkirtRef.current = sariSkirt;
 
       // Legs (Bisa mengayun natural dengan artikulasi lutut / knee flexion)
@@ -1319,6 +1325,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         // Knee joint & Shin / Lower Leg group (artikulasi lutut menekuk natural saat melangkah)
         const kneeG = new THREE.Group();
         kneeG.position.set(0, -0.36, 0);
+        kneeG.userData.isKnee = 1;
         lg.add(kneeG);
         knees.push(kneeG);
 
@@ -1370,6 +1377,7 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         // Elbow / Forearm group
         const foreG = new THREE.Group();
         foreG.position.set(0, -0.34, 0);
+        foreG.userData.isForearm = 1;
         g.add(foreG);
         forearms.push(foreG);
 
@@ -1406,19 +1414,25 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
       // Student NPCs (Siswa Cowok dan Siswi Cewek Beragam yang Berjalan di Halaman Sekolah)
       const npcsConfig = [
-        // [name, gender(0=cowok, 1=cewek, 2=cewek hijab), hairColor, jacketColor, skinColor, radius, speed, dir]
-        ["👦 Budi", 0, 0x1f1f1f, 0x245585, 0xd9a577, 14, 0.18, 1],   // Siswa Cowok - Celana Panjang, Blazer Biru
-        ["👧 Maya", 1, 0x3d2314, 0xaf3444, 0xf2c9a0, 12, 0.22, -1],  // Siswi Cewek - Rok Lipit, Blazer Merah
-        ["👦 Dimas", 0, 0x362214, 0x2b7a54, 0xe8b98f, 26, 0.14, 1],  // Siswa Cowok - Celana Panjang, Blazer Hijau
-        ["🧕 Aisyah", 2, 0x1a1a1a, 0xd98a2b, 0xf5cfb0, 22, 0.12, -1], // Siswi Cewek Hijab - Rok Panjang, Blazer Kuning
-        ["👦 Rizky", 0, 0x101010, 0x227685, 0xd9a577, 17, 0.16, 1],  // Siswa Cowok - Celana Panjang, Blazer Toska
-        ["👧 Citra", 1, 0x4a2a18, 0x7b3ba8, 0xe8b98f, 28, 0.08, -1],  // Siswi Cewek - Rok Lipit, Blazer Ungu
+        // [name, gender(0=cowok, 1=cewek, 2=cewek hijab), hairColor, jacketColor, skinColor, cx, cz, rx, rz, speed, dir]
+        // 1. Budi: Koridor taman timur (dekat PPDB)
+        ["👦 Budi", 0, 0x1f1f1f, 0x245585, 0xd9a577, 8, 13, 6, 4, 0.48, 1],
+        // 2. Maya: Plaza taman barat dekat pepohonan
+        ["👧 Maya", 1, 0x3d2314, 0xaf3444, 0xf2c9a0, -8, 13, 6, 4, 0.45, -1],
+        // 3. Dimas: Jalur penghubung depan lapangan olahraga
+        ["👦 Dimas", 0, 0x362214, 0x2b7a54, 0xe8b98f, 0, 2, 8, 4, 0.42, 1],
+        // 4. Aisyah: Siswi hijab berjalan di taman sisi barat
+        ["🧕 Aisyah", 2, 0x1a1a1a, 0xd98a2b, 0xf5cfb0, -11, 2, 5, 4, 0.38, -1],
+        // 5. Rizky: Siswa berjalan di plaza terbuka timur
+        ["👦 Rizky", 0, 0x101010, 0x227685, 0xd9a577, 11, 2, 5, 4, 0.44, 1],
+        // 6. Citra: Siswi berjalan santai di koridor depan gerbang
+        ["👧 Citra", 1, 0x4a2a18, 0x7b3ba8, 0xe8b98f, 0, 21, 6, 3, 0.40, -1],
       ];
 
       const npcs = npcsConfig.map((c, i) => {
-        const [nName, nGender, nHair, nJacket, nSkin, nRad, nSpd, nDir] = c as any;
+        const [nName, nGender, nHair, nJacket, nSkin, cx, cz, rx, rz, nSpd, nDir] = c as any;
         const g = pl.clone(true);
-        // Hapus nametag sprite bawaan player
+        // Hapus nametag sprite bawaan player jika ada
         g.children.filter((o: any) => o.isSprite).forEach((o) => g.remove(o));
 
         // Buat material independen per NPC
@@ -1426,12 +1440,27 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         const npcJ = M(nJacket);
         const npcK = M(nSkin);
 
+        const npcKnees: THREE.Group[] = [];
+        const npcForearms: THREE.Group[] = [];
+        let npcTorso: THREE.Mesh | null = null;
+        let npcHead: THREE.Group | null = null;
+        let npcSkirt: THREE.Mesh | null = null;
+        let npcPony: THREE.Mesh | null = null;
+
         g.traverse((o: any) => {
           if (o.isMesh && !o.userData.ol) {
             const m = o.material;
             if (m === PM.h) o.material = npcH;
             else if (m === PM.j) o.material = npcJ;
             else if (m === PM.k) o.material = npcK;
+          }
+          if (o.userData.isKnee) npcKnees.push(o);
+          if (o.userData.isForearm) npcForearms.push(o);
+          if (o.userData.isTorso) npcTorso = o;
+          if (o.userData.isHead) npcHead = o;
+          if (o.userData.isPony) npcPony = o;
+          if ((nGender === 1 && o.userData.isRaniSkirt) || (nGender === 2 && o.userData.isSariSkirt)) {
+            npcSkirt = o;
           }
           // Set gender model NPC: Cowok vs Cewek vs Cewek Hijab!
           if (o.userData.isBoy) o.visible = (nGender === 0);
@@ -1446,11 +1475,22 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         scene.add(g);
         return {
           g,
-          r: nRad,
+          cx,
+          cz,
+          rx,
+          rz,
           w: (nSpd as number) * (nDir as number),
-          a: i * 1.05,
+          a: i * 1.15,
           lg: g.children.filter((o) => o.userData.leg),
+          knees: npcKnees,
           ar: g.children.filter((o) => o.userData.arm),
+          forearms: npcForearms,
+          torso: npcTorso,
+          head: npcHead,
+          skirt: npcSkirt,
+          pony: npcPony,
+          walkWeight: 1.0,
+          walkPhase: i * 0.8,
         };
       });
       npcsRef.current = npcs;
@@ -2448,30 +2488,33 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
         if (L && Rl && aL && aR) {
           if (w > 0.005) {
-            // ----- KAKI & LUTUT (Siklus berjalan alami dengan artikulasi lutut / knee flexion) -----
-            const legAmp = isSprint ? 0.70 : 0.52;
-            const kneeAmp = isSprint ? 0.95 : 0.68;
+            // ----- KAKI & LUTUT (Siklus melangkah maju alami / Natural Forward Gait) -----
+            const legAmp = isSprint ? 0.65 : 0.48;
+            const kneeAmp = isSprint ? 0.88 : 0.64;
 
-            // Paha mengayun berlawanan
-            L.rotation.x = sw * legAmp * w;
-            Rl.rotation.x = -sw * legAmp * w;
+            // Ayunan paha berlawanan:
+            // sw > 0: Kaki kiri mengayun ke depan (rotX < 0 mengarah ke +Z), Kaki kanan dorong ke belakang (rotX > 0 mengarah ke -Z)
+            L.rotation.x = -sw * legAmp * w;
+            Rl.rotation.x = sw * legAmp * w;
 
-            // Artikulasi lutut: lutut menekuk ke belakang saat kaki mengayun ke depan agar melangkah bebas tanpa terantuk tanah
+            // Artikulasi lutut: lutut menekuk ke belakang saat mengayun ke depan (sw > 0 untuk kaki kiri, sw < 0 untuk kaki kanan)
             if (kneeL && kneeR) {
               kneeL.rotation.x = Math.max(0, sw * kneeAmp) * w;
               kneeR.rotation.x = Math.max(0, -sw * kneeAmp) * w;
             }
 
-            // ----- TANGAN & SIKU (Mengayun rileks dengan artikulasi siku) -----
-            const armAmp = isSprint ? 0.65 : 0.45;
-            aL.rotation.x = -sw * armAmp * w;
-            aR.rotation.x = sw * armAmp * w;
-            aL.rotation.z = -0.12 - (isSprint ? 0.08 : 0.04) * w;
-            aR.rotation.z = 0.12 + (isSprint ? 0.08 : 0.04) * w;
+            // ----- TANGAN & SIKU (Mengayun harmonis berlawanan dengan kaki) -----
+            const armAmp = isSprint ? 0.58 : 0.40;
+            // Saat kaki kiri mengayun ke depan (sw > 0), tangan kanan mengayun ke depan (rotX < 0) & tangan kiri ke belakang (rotX > 0)
+            aL.rotation.x = sw * armAmp * w;
+            aR.rotation.x = -sw * armAmp * w;
+            aL.rotation.z = -0.12 - (isSprint ? 0.06 : 0.03) * w;
+            aR.rotation.z = 0.12 + (isSprint ? 0.06 : 0.03) * w;
 
+            // Artikulasi siku: siku menekuk alami saat tangan mengayun ke depan
             if (foreL && foreR) {
-              foreL.rotation.x = (-0.22 - Math.max(0, -sw * 0.32)) * w;
-              foreR.rotation.x = (-0.22 - Math.max(0, sw * 0.32)) * w;
+              foreL.rotation.x = (-0.14 - Math.max(0, -sw * 0.28)) * w;
+              foreR.rotation.x = (-0.14 - Math.max(0, sw * 0.28)) * w;
             }
 
             // ----- BADAN & PANGGUL (Spine twist & bobbing pijakan tanah alami) -----
@@ -2601,35 +2644,110 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         // ==========================================
         npcsRef.current.forEach((n, i) => {
           const d2 = Math.hypot(n.g.position.x - playerPos.current.x, n.g.position.z - playerPos.current.z);
-          const nr = d2 < 3.5 && playRef.current;
-          if (!nr) n.a += n.w * dt;
+          const isNear = d2 < 3.4 && playRef.current;
+
+          // Transisi halus antara jalan dan berhenti sapa pemain (menghilangkan sentakan / snapping)
+          const targetWeight = isNear ? 0.0 : 1.0;
+          n.walkWeight += (targetWeight - n.walkWeight) * Math.min(1, dt * 6.0);
+
+          if (!isNear) {
+            n.a += n.w * dt;
+          }
+
+          // Hitung posisi di jalur taman/koridor
           const sg = Math.sign(n.w);
-          const nxPos = Math.cos(n.a) * n.r;
-          const nzPos = Math.sin(n.a) * n.r;
+          const nxPos = n.cx + Math.cos(n.a) * n.rx;
+          const nzPos = n.cz + Math.sin(n.a) * n.rz;
           n.g.position.x = nxPos;
           n.g.position.z = nzPos;
 
-          // Menghadap pemain jika didekati
-          const ang = nr
-            ? Math.atan2(playerPos.current.x - nxPos, playerPos.current.z - nzPos)
-            : Math.atan2(-Math.sin(n.a) * sg, Math.cos(n.a) * sg);
-          let da = ang - n.g.rotation.y;
-          da = Math.atan2(Math.sin(da), Math.cos(da));
-          n.g.rotation.y += da * Math.min(1, dt * 6);
+          // Arah hadap berjalan: tangen kecepatan lintasan
+          const moveDx = -n.rx * Math.sin(n.a) * sg;
+          const moveDz = n.rz * Math.cos(n.a) * sg;
+          const walkAngle = Math.atan2(moveDx, moveDz);
 
-          const npcSw = Math.sin(t * 9 + i);
-          if (n.lg[0] && n.lg[1]) {
-            n.lg[0].rotation.x = nr ? 0 : npcSw * 0.6;
-            n.lg[1].rotation.x = nr ? 0 : -npcSw * 0.6;
+          // Arah menghadap pemain saat disapa
+          const facePlayerAngle = Math.atan2(playerPos.current.x - nxPos, playerPos.current.z - nzPos);
+
+          const targetAngle = isNear ? facePlayerAngle : walkAngle;
+          let da = targetAngle - n.g.rotation.y;
+          da = Math.atan2(Math.sin(da), Math.cos(da));
+          n.g.rotation.y += da * Math.min(1, dt * (isNear ? 8 : 4));
+
+          // Pergerakan langkah NPC
+          const nw = n.walkWeight;
+          if (nw > 0.01) {
+            n.walkPhase += dt * 9.5;
           }
-          if (n.ar[0] && n.ar[1]) {
-            n.ar[0].rotation.x = nr ? 0 : -npcSw * 0.4;
-            n.ar[1].rotation.x = nr ? 0 : npcSw * 0.4;
-            n.ar[0].rotation.z = -0.1;
-            // NPC melambaikan tangan menyapa saat didekati!
-            n.ar[1].rotation.z = nr ? 2.5 + Math.sin(t * 10) * 0.3 : 0.1;
+          const npcPh = n.walkPhase;
+          const npcSw = Math.sin(npcPh);
+          const b = Math.sin(t * 2 + i);
+
+          const [L, Rl] = n.lg;
+          const [kneeL, kneeR] = n.knees;
+          const [aL, aR] = n.ar;
+          const [foreL, foreR] = n.forearms;
+
+          // Ketinggian tubuh alami (Pelvic bobbing)
+          n.g.position.y = (1 - Math.abs(npcSw)) * 0.025 * nw;
+
+          if (L && Rl) {
+            // Ayunan paha maju mundur natural (sw > 0: L ayun ke depan rotX < 0, Rl dorong ke belakang rotX > 0)
+            L.rotation.x = -npcSw * 0.46 * nw;
+            Rl.rotation.x = npcSw * 0.46 * nw;
+
+            // Artikulasi lutut NPC: menekuk saat melangkah maju
+            if (kneeL && kneeR) {
+              kneeL.rotation.x = Math.max(0, npcSw * 0.62) * nw;
+              kneeR.rotation.x = Math.max(0, -npcSw * 0.62) * nw;
+            }
           }
-          n.g.position.y = nr ? 0 : Math.abs(npcSw) * 0.05;
+
+          if (aL && aR) {
+            if (isNear) {
+              // Melambaikan tangan kanan ramah menyapa pemain
+              aR.rotation.x = -0.2;
+              aR.rotation.z = 2.4 + Math.sin(t * 8) * 0.35;
+              aL.rotation.set(0, 0, -0.12 - b * 0.02);
+              if (foreR) foreR.rotation.x = -0.4;
+              if (foreL) foreL.rotation.x = -0.08;
+              if (n.head) n.head.rotation.set(0, Math.sin(t * 2) * 0.1, 0.06);
+            } else {
+              // Lengan mengayun rileks saat berjalan berlawanan dengan kaki
+              aL.rotation.x = npcSw * 0.38 * nw;
+              aR.rotation.x = -npcSw * 0.38 * nw;
+              aL.rotation.z = -0.12;
+              aR.rotation.z = 0.12;
+
+              if (foreL && foreR) {
+                foreL.rotation.x = (-0.12 - Math.max(0, -npcSw * 0.25)) * nw;
+                foreR.rotation.x = (-0.12 - Math.max(0, npcSw * 0.25)) * nw;
+              }
+              if (n.head) n.head.rotation.set(0, 0, 0);
+            }
+          }
+
+          // Torso pilinan bahu saat melangkah & napas saat diam
+          if (n.torso) {
+            if (nw > 0.05) {
+              n.torso.rotation.y = -npcSw * 0.05 * nw;
+              n.torso.rotation.z = Math.sin(npcPh) * 0.02 * nw;
+              n.torso.rotation.x = 0.03 * nw;
+              n.torso.scale.y = 1;
+            } else {
+              n.torso.rotation.set(0, 0, 0);
+              n.torso.scale.y = 1 + b * 0.012;
+            }
+          }
+
+          // Ayunan rok siswi & kuncir rambut
+          if (n.skirt && nw > 0.05) {
+            n.skirt.rotation.x = Math.sin(npcPh) * 0.05 * nw;
+            n.skirt.rotation.z = -Math.sin(npcPh) * 0.02 * nw;
+          }
+          if (n.pony) {
+            n.pony.rotation.x = -0.42 + (nw > 0.05 ? Math.sin(npcPh * 2) * 0.10 * nw : b * 0.03);
+          }
         });
 
         // First gate pass trigger
