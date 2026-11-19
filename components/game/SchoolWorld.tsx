@@ -1261,16 +1261,75 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         earring.userData.isRani = 1;
       });
 
-      // 1. Naufal (Boy Hair)
+      // 1. Naufal (Boy Hair - Gaya Rambut Siswa SMA Rapi & Sopan)
       const boyG = new THREE.Group();
       boyG.userData.isBoy = 1;
       head.add(boyG);
-      addMesh(new THREE.SphereGeometry(0.53, 20, 10, 0, 6.283, 0, 1.2), PM.h, 0, 0.02, 0, boyG);
-      for (let i = 0; i < 7; i++) {
-        const a = (i / 7) * 6.283;
-        const c = addMesh(new THREE.ConeGeometry(0.13, 0.4, 6), PM.h, Math.sin(a) * 0.3, 0.5, Math.cos(a) * 0.25 - 0.05, boyG);
-        c.rotation.set(Math.cos(a) * 0.6, 0, -Math.sin(a) * 0.6);
-      }
+
+      // 1. Kubah Rambut Atas & Belakang Kepala (Smooth Dome)
+      const mainHair = addMesh(
+        new THREE.SphereGeometry(0.53, 24, 16, 0, Math.PI * 2, 0, 1.42),
+        PM.h,
+        0,
+        0.03,
+        -0.02,
+        boyG
+      );
+      mainHair.scale.set(1.02, 1.04, 1.05);
+
+      // 2. Poni Belah Samping Rapi Khas Pelajar SMA (Neat Side-Part Fringe)
+      const bangL = addMesh(
+        new THREE.BoxGeometry(0.32, 0.14, 0.12),
+        PM.h,
+        -0.12,
+        0.30,
+        0.45,
+        boyG
+      );
+      bangL.rotation.set(0.18, 0.12, -0.15);
+
+      const bangR = addMesh(
+        new THREE.BoxGeometry(0.30, 0.12, 0.12),
+        PM.h,
+        0.16,
+        0.33,
+        0.44,
+        boyG
+      );
+      bangR.rotation.set(0.14, -0.10, 0.12);
+
+      // 3. Cukuran Samping Rapi Dekat Telinga (Side Tapers)
+      const sideL = addMesh(
+        new THREE.BoxGeometry(0.08, 0.28, 0.32),
+        PM.h,
+        -0.49,
+        0.05,
+        0.02,
+        boyG
+      );
+      sideL.rotation.z = -0.05;
+
+      const sideR = addMesh(
+        new THREE.BoxGeometry(0.08, 0.28, 0.32),
+        PM.h,
+        0.49,
+        0.05,
+        0.02,
+        boyG
+      );
+      sideR.rotation.z = 0.05;
+
+      // 4. Tengkuk Rambut Belakang Rapi (Clean Nape)
+      const backNape = addMesh(
+        new THREE.BoxGeometry(0.52, 0.24, 0.16),
+        PM.h,
+        0,
+        -0.10,
+        -0.42,
+        boyG
+      );
+      backNape.rotation.x = -0.15;
+
       boyGRef.current = boyG;
 
       // 2. Rani (Girl Ponytail & Pleated Skirt)
@@ -1412,25 +1471,25 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
       ns.renderOrder = 9;
       pl.add(ns);
 
-      // Student NPCs (Siswa Cowok dan Siswi Cewek Beragam yang Berjalan di Halaman Sekolah)
+      // Student NPCs (Siswa Cowok dan Siswi Cewek Beragam yang Berjalan Lurus di Koridor & Jalan Masuk Sekolah)
       const npcsConfig = [
-        // [name, gender(0=cowok, 1=cewek, 2=cewek hijab), hairColor, jacketColor, skinColor, cx, cz, rx, rz, speed, dir]
-        // 1. Budi: Koridor taman timur (dekat PPDB)
-        ["👦 Budi", 0, 0x1f1f1f, 0x245585, 0xd9a577, 8, 13, 6, 4, 0.48, 1],
-        // 2. Maya: Plaza taman barat dekat pepohonan
-        ["👧 Maya", 1, 0x3d2314, 0xaf3444, 0xf2c9a0, -8, 13, 6, 4, 0.45, -1],
-        // 3. Dimas: Jalur penghubung depan lapangan olahraga
-        ["👦 Dimas", 0, 0x362214, 0x2b7a54, 0xe8b98f, 0, 2, 8, 4, 0.42, 1],
-        // 4. Aisyah: Siswi hijab berjalan di taman sisi barat
-        ["🧕 Aisyah", 2, 0x1a1a1a, 0xd98a2b, 0xf5cfb0, -11, 2, 5, 4, 0.38, -1],
-        // 5. Rizky: Siswa berjalan di plaza terbuka timur
-        ["👦 Rizky", 0, 0x101010, 0x227685, 0xd9a577, 11, 2, 5, 4, 0.44, 1],
-        // 6. Citra: Siswi berjalan santai di koridor depan gerbang
-        ["👧 Citra", 1, 0x4a2a18, 0x7b3ba8, 0xe8b98f, 0, 21, 6, 3, 0.40, -1],
+        // [name, gender(0=cowok, 1=cewek, 2=cewek hijab), hairColor, jacketColor, skinColor, x1, z1, x2, z2, speed, initialProgressFrac]
+        // 1. Budi: Masuk dari gerbang berjalan lurus di jalan utama menuju sekolah / lapangan
+        ["👦 Budi", 0, 0x1f1f1f, 0x245585, 0xd9a577, 0, 23, 0, 3, 1.8, 0.35],
+        // 2. Maya: Berjalan di koridor barat antara Gedung Akademik dan Plaza Lapangan
+        ["👧 Maya", 1, 0x3d2314, 0xaf3444, 0xf2c9a0, -18, -5, -2.5, -5, 1.6, 0.6],
+        // 3. Dimas: Berjalan di koridor pedestrian selatan melintasi lapangan olahraga
+        ["👦 Dimas", 0, 0x362214, 0x2b7a54, 0xe8b98f, -12, 7.5, 12, 7.5, 1.7, 0.15],
+        // 4. Aisyah: Siswi hijab berjalan di koridor taman barat yang asri
+        ["🧕 Aisyah", 2, 0x1a1a1a, 0xd98a2b, 0xf5cfb0, -8, 20, -8, 3, 1.5, 0.75],
+        // 5. Rizky: Berjalan di koridor timur antara Aula & Ekskul dan Plaza Lapangan
+        ["👦 Rizky", 0, 0x101010, 0x227685, 0xd9a577, 18, -5, 2.5, -5, 1.6, 0.45],
+        // 6. Citra: Berjalan di koridor timur menuju Kantor PPDB
+        ["👧 Citra", 1, 0x4a2a18, 0x7b3ba8, 0xe8b98f, 3, 21, 13, 15, 1.5, 0.5],
       ];
 
       const npcs = npcsConfig.map((c, i) => {
-        const [nName, nGender, nHair, nJacket, nSkin, cx, cz, rx, rz, nSpd, nDir] = c as any;
+        const [nName, nGender, nHair, nJacket, nSkin, x1, z1, x2, z2, nSpd, initFrac] = c as any;
         const g = pl.clone(true);
         // Hapus nametag sprite bawaan player jika ada
         g.children.filter((o: any) => o.isSprite).forEach((o) => g.remove(o));
@@ -1472,15 +1531,35 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
         // Pasang 3D nametag billboard di atas kepala NPC
         lbl(nName, 0, 2.9, 0, g);
 
+        const dx = (x2 as number) - (x1 as number);
+        const dz = (z2 as number) - (z1 as number);
+        const totalLen = Math.hypot(dx, dz) || 1;
+        const ux = dx / totalLen;
+        const uz = dz / totalLen;
+        const angFwd = Math.atan2(ux, uz);
+        const angRev = Math.atan2(-ux, -uz);
+        const initialDist = totalLen * (initFrac as number);
+
+        g.position.set(x1 + ux * initialDist, 0, z1 + uz * initialDist);
+        g.rotation.y = angFwd;
+
         scene.add(g);
         return {
           g,
-          cx,
-          cz,
-          rx,
-          rz,
-          w: (nSpd as number) * (nDir as number),
-          a: i * 1.15,
+          x1,
+          z1,
+          x2,
+          z2,
+          ux,
+          uz,
+          totalLen,
+          angFwd,
+          angRev,
+          dist: initialDist,
+          dir: 1,
+          spd: nSpd as number,
+          pauseTimer: 0,
+          walkPhase: i * 1.5,
           lg: g.children.filter((o) => o.userData.leg),
           knees: npcKnees,
           ar: g.children.filter((o) => o.userData.arm),
@@ -1489,8 +1568,6 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           head: npcHead,
           skirt: npcSkirt,
           pony: npcPony,
-          walkWeight: 1.0,
-          walkPhase: i * 0.8,
         };
       });
       npcsRef.current = npcs;
@@ -2625,30 +2702,46 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           const d2 = Math.hypot(n.g.position.x - playerPos.current.x, n.g.position.z - playerPos.current.z);
           const isNear = d2 < 3.8 && playRef.current;
 
-          // NPC selalu fokus melangkah maju di jalurnya setiap frame (TIDAK PERNAH berhenti atau berbalik saat bertemu)
-          n.a += n.w * dt;
+          let isWalking = false;
 
-          // Hitung posisi di jalur taman/koridor
-          const sg = Math.sign(n.w);
-          const nxPos = n.cx + Math.cos(n.a) * n.rx;
-          const nzPos = n.cz + Math.sin(n.a) * n.rz;
-          n.g.position.x = nxPos;
-          n.g.position.z = nzPos;
+          // Pergerakan lurus di koridor sekolah (TIDAK ADA LAGI JALAN MUTAR-MUTAR)
+          if (n.pauseTimer > 0) {
+            n.pauseTimer -= dt;
+            // Saat jeda di ujung koridor: badan berputar halus berbalik arah
+            const targetA = n.dir > 0 ? n.angFwd : n.angRev;
+            let da = targetA - n.g.rotation.y;
+            da = Math.atan2(Math.sin(da), Math.cos(da));
+            n.g.rotation.y += da * Math.min(1, dt * 4.5);
+            isWalking = false;
+          } else {
+            // Melangkah maju lurus di jalur koridor/jalan masuk sekolah (Fokus ke arah masuk)
+            n.dist += n.dir * n.spd * dt;
 
-          // Arah hadap badan: SELALU mengikuti arah tangen lintasan maju ke depan (walkAngle)
-          // Menghilangkan bug putar-putar 180° / balik mundur saat berpapasan dengan pemain
-          const moveDx = -n.rx * Math.sin(n.a) * sg;
-          const moveDz = n.rz * Math.cos(n.a) * sg;
-          const walkAngle = Math.atan2(moveDx, moveDz);
+            if (n.dist >= n.totalLen) {
+              n.dist = n.totalLen;
+              n.dir = -1;
+              n.pauseTimer = 1.2; // Jeda natural sebelum berbalik arah
+            } else if (n.dist <= 0) {
+              n.dist = 0;
+              n.dir = 1;
+              n.pauseTimer = 1.2;
+            }
 
-          let da = walkAngle - n.g.rotation.y;
-          da = Math.atan2(Math.sin(da), Math.cos(da));
-          n.g.rotation.y += da * Math.min(1, dt * 6.0);
+            n.g.position.x = n.x1 + n.ux * n.dist;
+            n.g.position.z = n.z1 + n.uz * n.dist;
 
-          // Pergerakan langkah NPC selalu aktif dan melangkah maju ke depan
-          n.walkPhase += dt * 9.5;
+            // Arah hadap badan SELALU lurus ke arah jalan masuk / tujuan
+            const targetA = n.dir > 0 ? n.angFwd : n.angRev;
+            let da = targetA - n.g.rotation.y;
+            da = Math.atan2(Math.sin(da), Math.cos(da));
+            n.g.rotation.y += da * Math.min(1, dt * 7.0);
+
+            n.walkPhase += dt * (n.spd * 4.6);
+            isWalking = true;
+          }
+
           const npcPh = n.walkPhase;
-          const npcSw = Math.sin(npcPh);
+          const npcSw = isWalking ? Math.sin(npcPh) : 0;
 
           const [L, Rl] = n.lg;
           const [kneeL, kneeR] = n.knees;
@@ -2656,12 +2749,12 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           const [foreL, foreR] = n.forearms;
 
           // Badan membal vertikal naik turun saat melangkah maju
-          n.g.position.y = Math.abs(npcSw) * 0.05;
+          n.g.position.y = isWalking ? Math.abs(npcSw) * 0.05 : 0;
 
           if (L && Rl) {
             // Kaki mengayun maju mundur melangkah konsisten dan tegap
-            L.rotation.x = npcSw * 0.60;
-            Rl.rotation.x = -npcSw * 0.60;
+            L.rotation.x = isWalking ? npcSw * 0.60 : 0;
+            Rl.rotation.x = isWalking ? -npcSw * 0.60 : 0;
             if (kneeL && kneeR) {
               kneeL.rotation.x = 0;
               kneeR.rotation.x = 0;
@@ -2669,35 +2762,25 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
           }
 
           if (aL && aR) {
-            if (isNear && d2 < 3.2) {
-              // Melambaikan tangan kanan ramah menyapa sambil tetap melangkah maju ke depan
-              aR.rotation.x = -0.25;
-              aR.rotation.z = 1.35 + Math.sin(t * 8) * 0.25;
-              aL.rotation.x = -npcSw * 0.40;
-              aL.rotation.z = -0.1;
-              if (foreR) foreR.rotation.x = 0;
-              if (foreL) foreL.rotation.x = 0;
-            } else {
-              // Tangan mengayun berlawanan dengan kaki saat berjalan normal
-              aL.rotation.x = -npcSw * 0.40;
-              aR.rotation.x = npcSw * 0.40;
-              aL.rotation.z = -0.1;
-              aR.rotation.z = 0.1;
+            // Tangan mengayun berlawanan dengan kaki saat berjalan (TIDAK ADA LAGI LAMBAIAN MACET / GAK BERHENTI)
+            aL.rotation.x = isWalking ? -npcSw * 0.40 : 0;
+            aR.rotation.x = isWalking ? npcSw * 0.40 : 0;
+            aL.rotation.z = -0.1;
+            aR.rotation.z = 0.1;
 
-              if (foreL && foreR) {
-                foreL.rotation.x = 0;
-                foreR.rotation.x = 0;
-              }
+            if (foreL && foreR) {
+              foreL.rotation.x = 0;
+              foreR.rotation.x = 0;
             }
           }
 
-          // Tatapan kepala: hanya menoleh sedikit ke arah pemain saat berpapasan tanpa memutar badan
+          // Tatapan kepala: hanya menoleh sedikit ramah ke arah pemain saat berpapasan tanpa memutar badan
           if (n.head) {
             if (isNear) {
-              const toPlayer = Math.atan2(playerPos.current.x - nxPos, playerPos.current.z - nzPos);
+              const toPlayer = Math.atan2(playerPos.current.x - n.g.position.x, playerPos.current.z - n.g.position.z);
               let hDiff = toPlayer - n.g.rotation.y;
               hDiff = Math.atan2(Math.sin(hDiff), Math.cos(hDiff));
-              const clampedH = Math.max(-0.45, Math.min(0.45, hDiff));
+              const clampedH = Math.max(-0.40, Math.min(0.40, hDiff));
               n.head.rotation.y += (clampedH - n.head.rotation.y) * Math.min(1, dt * 5.0);
             } else {
               n.head.rotation.y += (0 - n.head.rotation.y) * Math.min(1, dt * 5.0);
@@ -2706,19 +2789,22 @@ export const SchoolWorld = forwardRef<SchoolWorldHandle, SchoolWorldProps>(
 
           // Torso pilinan bahu saat melangkah
           if (n.torso) {
-            n.torso.rotation.y = -npcSw * 0.05;
-            n.torso.rotation.z = Math.sin(npcPh) * 0.02;
-            n.torso.rotation.x = 0.03;
-            n.torso.scale.y = 1;
+            if (isWalking) {
+              n.torso.rotation.y = -npcSw * 0.05;
+              n.torso.rotation.z = Math.sin(npcPh) * 0.02;
+              n.torso.rotation.x = 0.03;
+            } else {
+              n.torso.rotation.set(0, 0, 0);
+            }
           }
 
           // Ayunan rok siswi & kuncir rambut
           if (n.skirt) {
-            n.skirt.rotation.x = Math.sin(npcPh) * 0.05;
-            n.skirt.rotation.z = -Math.sin(npcPh) * 0.02;
+            n.skirt.rotation.x = isWalking ? Math.sin(npcPh) * 0.05 : 0;
+            n.skirt.rotation.z = isWalking ? -Math.sin(npcPh) * 0.02 : 0;
           }
           if (n.pony) {
-            n.pony.rotation.x = -0.42 + Math.sin(npcPh * 2) * 0.10;
+            n.pony.rotation.x = -0.42 + (isWalking ? Math.sin(npcPh * 2) * 0.10 : 0);
           }
         });
 

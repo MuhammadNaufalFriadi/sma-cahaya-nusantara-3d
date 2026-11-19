@@ -277,29 +277,73 @@ function buildCharacter(
 
   // ----- 4. RAMBUT & BUSANA KHAS MASING-MASING KARAKTER -----
   if (charIdx === 0) {
-    // NAUFAL (Rambut Cowok Anime Spiky)
+    // NAUFAL (Rambut Siswa SMA Rapi, Sopan & Berwibawa)
     const boyG = new THREE.Group();
     headG.add(boyG);
-    addMesh(
-      new THREE.SphereGeometry(0.53, 20, 10, 0, 6.283, 0, 1.2),
+
+    // 1. Kubah Rambut Atas & Belakang Kepala (Smooth Dome)
+    const mainHair = addMesh(
+      new THREE.SphereGeometry(0.53, 24, 16, 0, Math.PI * 2, 0, 1.42),
       PM.h,
       0,
-      0.02,
-      0,
+      0.03,
+      -0.02,
       boyG
     );
-    for (let i = 0; i < 7; i++) {
-      const a = (i / 7) * 6.283;
-      const cCone = addMesh(
-        new THREE.ConeGeometry(0.13, 0.4, 6),
-        PM.h,
-        Math.sin(a) * 0.3,
-        0.5,
-        Math.cos(a) * 0.25 - 0.05,
-        boyG
-      );
-      cCone.rotation.set(Math.cos(a) * 0.6, 0, -Math.sin(a) * 0.6);
-    }
+    mainHair.scale.set(1.02, 1.04, 1.05);
+
+    // 2. Poni Belah Samping Rapi Khas Pelajar SMA (Neat Side-Part Fringe)
+    const bangL = addMesh(
+      new THREE.BoxGeometry(0.32, 0.14, 0.12),
+      PM.h,
+      -0.12,
+      0.30,
+      0.45,
+      boyG
+    );
+    bangL.rotation.set(0.18, 0.12, -0.15);
+
+    const bangR = addMesh(
+      new THREE.BoxGeometry(0.30, 0.12, 0.12),
+      PM.h,
+      0.16,
+      0.33,
+      0.44,
+      boyG
+    );
+    bangR.rotation.set(0.14, -0.10, 0.12);
+
+    // 3. Cukuran Samping Rapi Dekat Telinga (Side Tapers)
+    const sideL = addMesh(
+      new THREE.BoxGeometry(0.08, 0.28, 0.32),
+      PM.h,
+      -0.49,
+      0.05,
+      0.02,
+      boyG
+    );
+    sideL.rotation.z = -0.05;
+
+    const sideR = addMesh(
+      new THREE.BoxGeometry(0.08, 0.28, 0.32),
+      PM.h,
+      0.49,
+      0.05,
+      0.02,
+      boyG
+    );
+    sideR.rotation.z = 0.05;
+
+    // 4. Tengkuk Rambut Belakang Rapi (Clean Nape)
+    const backNape = addMesh(
+      new THREE.BoxGeometry(0.52, 0.24, 0.16),
+      PM.h,
+      0,
+      -0.10,
+      -0.42,
+      boyG
+    );
+    backNape.rotation.x = -0.15;
   } else if (charIdx === 1) {
     // RANI (Kuncir Kuda Ponytail + Pita Merah & Rok Lipit)
     const raniG = new THREE.Group();
